@@ -1,5 +1,5 @@
 # Site settings
-title: Your awesome title
+title: Minimal Monkey - Stephen Burgess
 email: your-email@domain.com
 description: "Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description."
 baseurl: ""
@@ -9,4 +9,4 @@ github_username:  jekyll
 
 # Build settings
 markdown: kramdown
-permalink: pretty
+permalink: /:categories/:title/
