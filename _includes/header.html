@@ -1,13 +1,13 @@
-<header class="site-header">
+<header class="site-header{% if page.type != 'headerpage' %} is-collapsed{% endif %}">
 
 	<nav class="site-nav">
 
 		<div class="nav-section nav-section-left">
-			<a class="nav-link" href="{{ site.baseurl }}/about/">
+			<a class="nav-link{% if page.permalink == '/about/' %} is-selected{% endif %}" href="{{ site.baseurl }}/about/">
 				<span class="nav-link-label" data-label="About">About</span>
 			</a>
 		</div><div class="nav-section nav-section-right">
-			<a class="nav-link" href="{{ site.baseurl }}/contact/">
+			<a class="nav-link{% if page.permalink == '/contact/' %} is-selected{% endif %}" href="{{ site.baseurl }}/contact/">
 				<span class="nav-link-label" data-label="Contact">Contact</span>
 			</a>
 		</div>
@@ -25,8 +25,14 @@
 
 	<!-- <p class="rss-subscribe">subscribe <a href="{{ "/feed.xml" | prepend: site.baseurl }}">via RSS</a></p> -->
 
-	<!-- {% include about.html %}
+	<h1 class="header-headline">{{ site.tagline }}</h1>
 
-	{% include contact.html %} -->
+	<div class="header-page{% if page.permalink != '/about/' %} is-hidden{% endif %}">
+		{% include about.html %}
+	</div>
+
+	<div class="header-page{% if page.permalink != '/contact/' %} is-hidden{% endif %}">
+		{% include contact.html %}
+	</div>
 
 </header>

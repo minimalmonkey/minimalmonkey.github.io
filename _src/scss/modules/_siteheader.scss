@@ -1,0 +1,33 @@
+.site-header {
+	overflow: hidden;
+	height: 350px;
+	text-align: center;
+	background-color: #fcfcfc;
+
+	&.is-collapsed {
+		height: $nav-height;
+		background-color: #f3f3f3;
+	}
+}
+
+.header-headline {
+	margin: 29px 0 25px;
+	color: $red;
+	font-size: 36px;
+}
+
+.header-page {
+	width: 700px;
+	margin: 0 auto;
+	font-size: 18px;
+	line-height: 1.4;
+	color: #696969;
+
+	p {
+		margin: 15px 0 25px;
+	}
+
+	&.is-hidden {
+		display: none;
+	}
+}
