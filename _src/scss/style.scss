@@ -1,5 +1,7 @@
 // constants
-@import "constants/_constants";
+@import "constants/_colors",
+		"constants/_layout",
+		"constants/_transitions";
 
 // base
 @import "base/_normalize",
@@ -14,3 +16,5 @@
 		"modules/_sitenav";
 
 // components
+@import "components/_slidelink",
+		"components/_contactlinks";

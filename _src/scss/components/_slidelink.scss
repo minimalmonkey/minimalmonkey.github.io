@@ -1,0 +1,27 @@
+$slide-link-transition-duration: 0.3s;
+
+.slide-link {
+	display: inline-block;
+	position: relative;
+	overflow: hidden;
+	text-decoration: none;
+}
+
+.slide-link-label {
+	display: inline-block;
+	position: relative;
+	transition: transform $slide-link-transition-duration;
+	vertical-align: middle;
+
+	.slide-link:hover &,
+	.is-selected & {
+		transform: translate3d(0, 100%, 0);
+	}
+
+	&:after {
+		position: absolute;
+		top: -100%;
+		left: 0;
+		content: attr(data-label);
+	}
+}

@@ -1,0 +1,92 @@
+$contact-links-color-grey:     #cfcfcf;
+$contact-links-color-twitter:  #32abdf;
+$contact-links-color-linkedin: #1875b2;
+$contact-links-color-email:    #e24e4b;
+$contact-links-color-codepen:  #72616e;
+$contact-link-transition-duration: 0.35s;
+
+.contact-links {
+	font-size: 65px;
+}
+
+.contact-link {
+	width: 1em;
+	height: 1em;
+	margin: 0 0.154em;
+	font-family: 'icons';
+	line-height: 1em;
+	color: $contact-links-color-grey;
+	border: 2px solid $contact-links-color-grey;
+	border-radius: 1em;
+	transform: translate3d(0, 0, 0);
+	transition: border $contact-link-transition-duration;
+
+	&.contact-link-twitter {
+		line-height: 0.99em;
+
+		&:hover {
+			border: 2px solid $contact-links-color-twitter;
+		}
+	}
+
+	&.contact-link-linkedin {
+		line-height: 0.9em;
+
+		&:hover {
+			border: 2px solid $contact-links-color-linkedin;
+		}
+	}
+
+	&.contact-link-email {
+		padding-right: 0.04em;
+		line-height: 0.9em;
+
+		&:hover {
+			border: 2px solid $contact-links-color-email;
+		}
+	}
+
+	&.contact-link-codepen {
+		line-height: 0.92em;
+
+		&:hover {
+			border: 2px solid $contact-links-color-codepen;
+		}
+	}
+}
+
+.contact-link-label {
+	transition: transform $contact-link-transition-duration;
+
+	.contact-link-twitter & {
+		font-size: 0.446em;
+
+		&:after {
+			color: $contact-links-color-twitter;
+		}
+	}
+
+	.contact-link-linkedin & {
+		font-size: 0.523em;
+
+		&:after {
+			color: $contact-links-color-linkedin;
+		}
+	}
+
+	.contact-link-email & {
+		font-size: 0.523em;
+
+		&:after {
+			color: $contact-links-color-email;
+		}
+	}
+
+	.contact-link-codepen & {
+		font-size: 0.569em;
+
+		&:after {
+			color: $contact-links-color-codepen;
+		}
+	}
+}
