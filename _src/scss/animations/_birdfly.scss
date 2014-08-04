@@ -1,0 +1,19 @@
+@keyframes birdflyin-animation {
+	from {
+		background-position: 0 0;
+	}
+    to {
+    	// background-position: 0 (-$size * 4);
+    	background-position: 0 (-36px * 4);
+    }
+}
+
+@keyframes birdflyout-animation {
+	from {
+		background-position: 0 0;
+	}
+    to {
+    	// background-position: 0 (-$size * 4);
+    	background-position: 0 (-36px * 4);
+    }
+}

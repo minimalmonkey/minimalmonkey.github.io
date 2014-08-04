@@ -152,14 +152,64 @@ body {
 
 @font-face {
   font-family: 'icons';
-  src: url('/fonts/icons.eot');
-  src: url('/fonts/icons.eot?#iefix') format('embedded-opentype'), url('/fonts/icons.woff') format('woff'), url('/fonts/icons.ttf') format('truetype'), url('/fonts/icons.svg#icons') format('svg');
+  src: url('/assets/fonts/icons.eot');
+  src: url('/assets/fonts/icons.eot?#iefix') format('embedded-opentype'), url('/assets/fonts/icons.woff') format('woff'), url('/assets/fonts/icons.ttf') format('truetype'), url('/assets/fonts/icons.svg#icons') format('svg');
   font-style: normal;
   font-weight: normal; }
 
-.icon {
-  font-family: 'icons';
-  font-size: 16px; }
+@-webkit-keyframes birdflyin-animation {
+  from {
+    background-position: 0 0; }
+
+  to {
+    background-position: 0 -144px; } }
+
+@keyframes birdflyin-animation {
+  from {
+    background-position: 0 0; }
+
+  to {
+    background-position: 0 -144px; } }
+
+@-webkit-keyframes birdflyout-animation {
+  from {
+    background-position: 0 0; }
+
+  to {
+    background-position: 0 -144px; } }
+
+@keyframes birdflyout-animation {
+  from {
+    background-position: 0 0; }
+
+  to {
+    background-position: 0 -144px; } }
+
+@-webkit-keyframes bounce-animation {
+  45% {
+    -webkit-transform: scaleY(0.75);
+            transform: scaleY(0.75); }
+
+  55% {
+    -webkit-transform: scaleY(0.75);
+            transform: scaleY(0.75); }
+
+  75% {
+    -webkit-transform: scaleY(1.1) translateY(-10px);
+            transform: scaleY(1.1) translateY(-10px); } }
+
+@keyframes bounce-animation {
+  45% {
+    -webkit-transform: scaleY(0.75);
+            transform: scaleY(0.75); }
+
+  55% {
+    -webkit-transform: scaleY(0.75);
+            transform: scaleY(0.75); }
+
+  75% {
+    -webkit-transform: scaleY(1.1) translateY(-10px);
+            transform: scaleY(1.1) translateY(-10px); } }
 
 .post pre, .post code {
   border: 1px solid #ddd;
@@ -469,7 +519,9 @@ body {
     display: none; }
 
 .site-nav {
+  position: relative;
   z-index: 11;
+  overflow: hidden;
   width: 100%;
   height: 52px;
   font-size: 12px;
@@ -482,13 +534,13 @@ body {
   z-index: 1;
   width: 50%;
   height: 52px;
-  padding: 19px 38px 0 0;
+  padding: 18px 37px 0 0;
   margin: 0;
   vertical-align: top; }
   .nav-section.nav-section-left {
     text-align: right; }
   .nav-section.nav-section-right {
-    padding-left: 38px;
+    padding-left: 37px;
     padding-right: 0;
     text-align: left; }
 
@@ -518,6 +570,12 @@ body {
   -webkit-transform-origin: 50% 100%;
       -ms-transform-origin: 50% 100%;
           transform-origin: 50% 100%; }
+  .nav-logo:hover, .nav-logo.bounce-animation {
+    -webkit-animation: bounce-animation 0.5s 1;
+            animation: bounce-animation 0.5s 1;
+    -webkit-transform: none;
+        -ms-transform: none;
+            transform: none; }
   .nav-logo:after {
     position: absolute;
     top: 0;
@@ -526,9 +584,6 @@ body {
     width: 10px;
     background: transparent;
     content: 'm'; }
-
-.twitter-bird {
-  display: none; }
 
 .slide-link {
   display: inline-block;
@@ -604,3 +659,46 @@ body {
     font-size: 0.569em; }
     .contact-link-codepen .contact-link-label:after {
       color: #72616e; }
+
+.follow-link {
+  display: block;
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  right: 0;
+  width: auto;
+  height: 36px;
+  padding: 8px 16px 8px 0;
+  margin-top: 8px;
+  margin-left: -50px;
+  text-align: left;
+  -webkit-transform: translate3d(100%, 0, 0);
+          transform: translate3d(100%, 0, 0);
+  -webkit-transition: -webkit-transform 0.5s;
+          transition: transform 0.5s; }
+  .follow-link:before {
+    position: absolute;
+    top: 0;
+    left: -44px;
+    width: 44px;
+    height: 36px;
+    background-image: url('/assets/images/larry.svg');
+    background-repeat: no-repeat;
+    -webkit-background-size: 36px 36px;
+            background-size: 36px;
+    -webkit-animation: birdflyin-animation 0.2s steps(4) 0 6;
+            animation: birdflyin-animation 0.2s steps(4) 0 6;
+    content: ''; }
+  .follow-link:hover, .follow-link.birdfly {
+    -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0); }
+    .follow-link:hover:before, .follow-link.birdfly:before {
+      -webkit-animation: birdflyout-animation 0.2s steps(4) 0 8;
+              animation: birdflyout-animation 0.2s steps(4) 0 8; }
+  .follow-link .twitter-follow-link {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 3px;
+    width: 52px;
+    height: 52px; }

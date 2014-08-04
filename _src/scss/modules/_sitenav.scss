@@ -1,5 +1,7 @@
 .site-nav {
+	position: relative;
 	z-index: 11;
+	overflow: hidden;
 	width: 100%;
 	height: $site-nav-height;
 	font-size: 12px;
@@ -13,7 +15,7 @@
 	z-index: 1;
 	width: 50%;
 	height: $site-nav-height;
-	padding: 19px 38px 0 0;
+	padding: 18px 37px 0 0;
 	margin: 0;
 	vertical-align: top;
 
@@ -22,7 +24,7 @@
 	}
 
 	&.nav-section-right {
-		padding-left: 38px;
+		padding-left: 37px;
 		padding-right: 0;
 		text-align: left;
 	}
@@ -59,6 +61,12 @@
 	text-decoration: none;
 	transform-origin: 50% 100%;
 
+	&:hover,
+	&.bounce-animation {
+		animation: bounce-animation 0.5s 1;
+		transform: none;
+	}
+
 	&:after {
 		position: absolute;
 		top: 0;
@@ -68,8 +76,4 @@
 		background: transparent;
 		content: 'm';
 	}
-}
-
-.twitter-bird {
-	display: none;
 }

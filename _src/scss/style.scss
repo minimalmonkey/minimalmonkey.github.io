@@ -10,6 +10,10 @@
 // fonts
 @import "fonts/_iconfont";
 
+// animations
+@import "animations/_birdfly",
+		"animations/_bounce";
+
 // modules
 @import "modules/_highlight",
 		"modules/_siteheader",
@@ -17,4 +21,5 @@
 
 // components
 @import "components/_slidelink",
-		"components/_contactlinks";
+		"components/_contactlinks",
+		"components/_followlink";

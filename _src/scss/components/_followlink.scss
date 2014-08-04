@@ -1,0 +1,52 @@
+$size: 36px;
+$follow-height: 20px;
+$follow-width: 156px;
+$padding: ($size - $follow-height) * 0.5;
+$margin: ($site-nav-height - $size) * 0.5;
+
+.follow-link {
+	display: block;
+	position: absolute;
+	z-index: 2;
+	top: 0;
+	right: 0;
+	width: auto;
+	height: $size;
+	padding: $padding $margin + $padding $padding 0;
+	margin-top: $margin;
+	margin-left: -50px;
+	text-align: left;
+	transform: translate3d(100%, 0, 0);
+	transition: transform 0.5s;
+
+	&:before {
+		position: absolute;
+		top: 0;
+		left: -$size - $padding;
+		width: $size + $padding;
+		height: $size;
+		background-image: url('/assets/images/larry.svg');
+		background-repeat: no-repeat;
+		background-size: $size;
+		animation: birdflyin-animation 0.2s steps(4) 0 6;
+		content: '';
+	}
+
+	&:hover,
+	&.birdfly {
+		transform: translate3d(0, 0, 0);
+
+		&:before {
+			animation: birdflyout-animation 0.2s steps(4) 0 8;
+		}
+	}
+
+	.twitter-follow-link {
+		display: block;
+		position: absolute;
+		top: 0;
+		left: 3px;
+		width: $site-nav-height;
+		height: $site-nav-height;
+	}
+}
