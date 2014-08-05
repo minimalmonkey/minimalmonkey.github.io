@@ -1,0 +1,7 @@
+@each $color in $colors {
+	$class: nth($color, 1);
+	$hex: nth($color, 2);
+	.#{$class} {
+		background: #{$hex};
+	}
+}

@@ -5,7 +5,8 @@
 
 // base
 @import "base/_normalize",
-		"base/_base";
+		"base/_base",
+		"base/_helpers";
 
 // fonts
 @import "fonts/_iconfont";
@@ -17,9 +18,14 @@
 // modules
 @import "modules/_highlight",
 		"modules/_siteheader",
-		"modules/_sitenav";
+		"modules/_sitenav",
+		"modules/_post",
+		"modules/_postheader",
+		"modules/_postcontent",
+		"modules/_panels";
 
 // components
 @import "components/_slidelink",
 		"components/_contactlinks",
-		"components/_followlink";
+		"components/_followlink",
+		"components/_colors";

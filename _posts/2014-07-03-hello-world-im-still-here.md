@@ -14,7 +14,7 @@ The first thing was finding a place to live. Having already navigated my way aro
 
 We got lucky in the end though and found a great place, a fantastic landlord and amazing views from our balcony (it’s so nice having outdoor space!).
 
-![View from my balcony, San Francisco](/images/hello-world-im-still-here/view-from-balcony.jpg)
+![View from my balcony, San Francisco](/images/hello-world-im-still-here/view-from-balcony.jpg){: .centered }
 
 My new job also took some adjusting. I’ve previously worked for agencies (they’ve not always liked to call themselves agencies – “studio”, “boutique” etc, but they were essentially agencies). My current job is working in-house, which is great but took time to get used to. My last couple of offices had around 20 people in them. My current job has a campus. Finally, my previous jobs were all based in a city but I’m now a long commute away.
 
