@@ -4,7 +4,8 @@
 	{% for post in site.posts %}
 		<li class="{{ post.color }}">
 			<span class="post-date">{{ post.date | date: "%b %-d, %Y" }}</span>
-			<a class="post-link" href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
+			<a class="post-link" href="{{ post.url | prepend: site.baseurl }}">{% if post.short_title %}{{ post.short_title }}{% else %}{{ post.title }}{% endif %}</a>
+			<p>{% if post.summary %}{{ post.summary }}{% else %}{{ post.excerpt | strip_html }}{% endif %}</p>
 		</li>
 	{% endfor %}
 	</ul>

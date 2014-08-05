@@ -214,11 +214,13 @@ body {
 .post pre, .post code {
   border: 1px solid #ddd;
   background-color: #f8f8f8;
-  padding: 8px 12px;
   border-radius: 3px;
   font-size: 15px;
   overflow: scroll;
   line-height: 1.5; }
+
+.post .highlight pre, .post .highlight code {
+  padding: 8px 12px; }
 
 .post pre code {
   border: 0;

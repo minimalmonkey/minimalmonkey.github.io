@@ -1,13 +1,16 @@
 ---
 layout: post
 title:  "CSS 3D Cube Tutorial"
+summary: "A short tutorial to show how simple it is to create a simple 3D cube using just CSS"
 date:   2012-07-19 00:00:00
 color:  red
 ---
 
-In my last post I talked about doing a tutorial for the CSS 3D Clock I recently made. However, instead I think I’ll just go over how to create a simple cube with CSS, and rotate it a bit with JS so we can see it really is 3D. Once you have the basics it’s up to you to go away and do something creative with it.
+In my last post I talked about doing a tutorial for the [CSS 3D Clock](http://flashmonkey.co.uk/lab/css-clock/) I recently made. However, instead I think I’ll just go over how to create a simple cube with CSS, and rotate it a bit with JS so we can see it really is 3D. Once you have the basics it’s up to you to go away and do something creative with it.
 
-Before we start I should mention that unless you are viewing this in a browser that is powered by WebKit you won’t see the examples. Currently that mean’s you would have to be using either Safari or Chrome.
+Before we start I should mention that unless you are viewing this in a browser that is powered by [WebKit](http://en.wikipedia.org/wiki/WebKit) you won’t see the examples. Currently that mean’s you would have to be using either Safari or Chrome.
+
+[![3D cube made using pure CSS](/images/css-3d-cube-tutorial/css-cube.png)](http://flashmonkey.co.uk/lab/css-cube/)
 
 So let’s start by looking at the markup. It’s very simple – a wrapper then 6 divs to represent each face of the cube.
 
@@ -38,7 +41,9 @@ Most of this is simple stuff you will have seen a million times before. Height a
 
 So what is ‘preserve-3d’ and why do we need it? You will require this if you are applying 3D transformations to the children of an already transformed element. Without it the child elements will appear on their own planes and would appear flat in front of their parent, as show below.
 
-Next we need to apply styles to the cube’s faces. The initial .face class is relatively straight forward. Here we just set a height and width (remember them, we’ll need those later), then just add some general aesthetic stuff like some inner shadow and opacity to make the cube look nice.
+![Issue when no 'preserve-3d'](/images/css-3d-cube-tutorial/issue.png)
+
+Next we need to apply styles to the cube’s faces. The initial **.face** class is relatively straight forward. Here we just set a height and width (remember them, we’ll need those later), then just add some general aesthetic stuff like some inner shadow and opacity to make the cube look nice.
 
 {% highlight css %}
 .face {
@@ -51,7 +56,7 @@ Next we need to apply styles to the cube’s faces. The initial .face class is r
 }
 {% endhighlight %}
 
-The only important thing here is ensuring positioning is set to absolute. This is so we can rotate the faces and move them about easily to create the cube – which brings us onto the next step.
+The only important thing here is ensuring positioning is set to **absolute**. This is so we can rotate the faces and move them about easily to create the cube – which brings us onto the next step.
 
 Finally, the bit where our cube comes together. We have to rotate our faces on certain axis, as beautifully illustrated by me on the right (that’s right I’ve got 3 arms) and move their positions to create a cube. We are using the size (height/width) of the faces to position them. Simple!
 
@@ -102,4 +107,4 @@ $(window).on('mousemove', function(event) {
 });
 {% endhighlight %}
 
-You can see a standalone version of the finished cube here and for further reading take a look at Peter Gasston’s Adventures In The Third Dimension: CSS 3D Transforms article over on Smashing Magazine’s website.
+You can see a standalone version of the finished cube [here](http://flashmonkey.co.uk/lab/css-cube/) and for further reading take a look at Peter Gasston’s [Adventures In The Third Dimension: CSS 3D Transforms](http://coding.smashingmagazine.com/2012/01/06/adventures-in-the-third-dimension-css-3-d-transforms/) article over on Smashing Magazine’s website.

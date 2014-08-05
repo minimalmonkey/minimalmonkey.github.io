@@ -1,35 +1,39 @@
 ---
 layout: post
 title:  "A Nice Recursion Example"
+short_title: "A nice recursion example"
+summary: "Recursion is cool. This is me trying to explain what it is with a nice example"
 date:   2013-04-03 00:00:00
 color:  lime
 ---
 
-Recursion is cool. It can be defined in a non computer science way as:
+Recursion is [cool](http://upload.wikimedia.org/wikipedia/commons/6/62/Droste.jpg). It can be defined in a non computer science way as:
 
-the process of repeating items in a self-similar way
+## the process of repeating items in a self-similar way
 
-You may have experienced a simple form of recursion in a clothing shop fitting room when each side of the cubicle has mirrors and you see your reflection repeated for infinity; as shown in this photo.
+You may have experienced a simple form of recursion in a clothing shop fitting room when each side of the cubicle has mirrors and you see your reflection repeated for infinity; as shown in [this photo](/images/a-nice-recursion-example/junith-mirror.jpg.
 
 Recursion is also a really powerful programming technique. In computer science it’s defined as:
 
-a method where the solution to a problem depends on solutions to smaller instances of the same problem
+## a method where the solution to a problem depends on solutions to smaller instances of the same problem
 
 Before I go on a little background behind this blog post. A friend of mine (no, not me but I won’t mention who) was recently interviewing for a new job and as part of the process was presented with this problem:
 
-Given a random matrix, where each cell is either 1 or 0, determine the groups of contiguous cells that have the value 1. Cells are considered contiguous if they are neighboring to the north, south, east or west; i.e. no disgonals
+**Given a random matrix, where each cell is either 1 or 0, determine the groups of contiguous cells that have the value 1. Cells are considered contiguous if they are neighboring to the north, south, east or west; i.e. no disgonals**
 
 The solution to the problem can be visualised in the below image.
 
+![Example 1](/images/a-nice-recursion-example/example-1.png)
+
 I had a quiet Monday night a couple of weeks ago and being a bit of a nerd I thought I’d give the challenge a go. You know, for fun.
 
-At first I thought the problem would be really easy but soon I realised it wasn’t as simple as it first seems. After staring at it for a bit I realised the solution was to use recursion!
+At first I thought the problem would be really easy but soon I realised it wasn’t as simple as it first seems. After staring at it for a bit I realised the solution was to use **recursion**!
 
 It’s actually a really nice example of recursion and that’s why I’m posting it here as I think it could help beginners understand what recursion is and how they can use it.
 
 So let’s look at how to solve this problem. We obviously need to loop through and see if a cell is a 0 or 1. Once we find a 1 we give it a random color then check it’s adjacent cells and if they are also 1′s give them the same color. If an adjacent cell is a 1, we should also check that cell’s adjacent cells and repeat the process until we have find a cell with no adjacent 1′s.
 
-So let’s look at this in code but with all the non-logic stuff stripped out – e.g. I’m not going to include the code for drawing to the canvas etc, you can view the final code with all that on CodePen here.
+So let’s look at this in code but with all the non-logic stuff stripped out – e.g. I’m not going to include the code for drawing to the canvas etc, you can view the final code with all that on CodePen [here](http://codepen.io/minimalmonkey/pen/LdHlA).
 
 {% highlight js %}
 // random matrix
@@ -91,8 +95,10 @@ var checkNeighbours = function(rows, cols, color) {
 };
 {% endhighlight %}
 
-In the above example we call the checkNeighbours function from within itself and continue to do so until we find a cell that has no unset adjacent 1′s. This is recursion.
+In the above example we call the **checkNeighbours** function **from within itself** and continue to do so until we find a cell that has no unset adjacent 1′s. This is recursion.
 
 See the below image to visualise the order in which the code runs through and colors each cell.
+
+![Example 2](/images/a-nice-recursion-example/example-2.gif)
 
 I hope this helps anyone who was struggling to get their head around what recursion is and how to use it. If it doesn’t make sense give me a shout in the comments and I’ll try to explain it further!
