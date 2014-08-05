@@ -19,10 +19,12 @@
 @import "modules/_highlight",
 		"modules/_siteheader",
 		"modules/_sitenav",
+		"modules/_pagecontent",
 		"modules/_post",
 		"modules/_postheader",
 		"modules/_postcontent",
-		"modules/_panels";
+		"modules/_panels",
+		"modules/_panel";
 
 // components
 @import "components/_slidelink",

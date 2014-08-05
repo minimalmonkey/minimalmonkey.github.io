@@ -1,18 +1,8 @@
 .panels {
-	ul {
-		padding: 0;
-		margin: 0;
-		list-style-type: none;
-		color: white;
-		text-align: center;
-	}
-
-	li {
-		padding: 10px;
-	}
-	a {
-		font-weight: 600;
-		color: white;
-		text-decoration: none;
-	}
+	display: flex;
+	position: absolute;
+	top: $site-nav-height;
+	bottom: 0;
+	overflow: hidden;
+	width: auto;
 }

@@ -1,13 +1,13 @@
 <div class="panels">
 
-	<ul class="posts">
 	{% for post in site.posts %}
-		<li class="{{ post.color }}">
-			<span class="post-date">{{ post.date | date: "%b %-d, %Y" }}</span>
-			<a class="post-link" href="{{ post.url | prepend: site.baseurl }}">{% if post.short_title %}{{ post.short_title }}{% else %}{{ post.title }}{% endif %}</a>
-			<p>{% if post.summary %}{{ post.summary }}{% else %}{{ post.excerpt | strip_html }}{% endif %}</p>
-		</li>
+	<a class="panel {{ post.color }}" href="{{ post.url | prepend: site.baseurl }}">
+		<div class="panel-content">
+			<span class="panel-date">{{ post.date | date: "%-d %b %Y" }}</span>
+			<h1 class="panel-headline">{% if post.short_title %}{{ post.short_title }}{% else %}{{ post.title }}{% endif %}</h1>
+			<p class="panel-summary">{% if post.summary %}{{ post.summary }}{% else %}{{ post.excerpt | strip_html }}{% endif %}</p>
+		</div>
+	</a>
 	{% endfor %}
-	</ul>
 
 </div>

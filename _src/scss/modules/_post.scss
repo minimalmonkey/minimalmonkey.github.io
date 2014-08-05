@@ -1,6 +1,23 @@
 .post {
-	max-width: 950px;
-	margin: 0 auto;
+	position: relative;
+	max-width: 940px;
+	margin: $site-nav-height auto 0;
 	color: #2d2d2d;
 	background: #fff;
+
+	&:before,
+	&:after {
+		display: block;
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		border-left: 5px solid rgba(0, 0, 0, 0.09);
+		content: '';
+	}
+	&:before {
+		left: -5px;
+	}
+	&:after {
+		right: -5px;
+	}
 }
