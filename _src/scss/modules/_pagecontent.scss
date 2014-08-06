@@ -1,0 +1,34 @@
+.page-content {
+	&.is-muted {
+		position: relative;
+		overflow: hidden;
+		height: 100%;
+	}
+}
+
+.page-content-item {
+	transform: translate3d(0, 0, 0);
+
+	.is-muted & {
+		transform: translate3d(0, $site-header-height - $site-nav-height, 0);
+	}
+}
+
+.site-header-close {
+	.is-muted & {
+		display: block;
+		position: absolute;
+		z-index: 10;
+		top: $site-header-height;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		background: #000;
+		opacity: 0.6;
+		transition: opacity 0.3s;
+
+		&:hover {
+			opacity: 0.4;
+		}
+	}
+}

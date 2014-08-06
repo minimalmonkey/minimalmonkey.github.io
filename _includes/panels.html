@@ -1,11 +1,12 @@
-<div class="panels">
+<div class="panels page-content-item">
 
 	{% for post in site.posts %}
 	<a class="panel {{ post.color }}" href="{{ post.url | prepend: site.baseurl }}">
 		<div class="panel-content">
-			<span class="panel-date">{{ post.date | date: "%-d %b %Y" }}</span>
+			<span class="panel-date smalltext">{{ post.date | date: "%-d %b %Y" }}</span>
 			<h1 class="panel-headline">{% if post.short_title %}{{ post.short_title }}{% else %}{{ post.title }}{% endif %}</h1>
 			<p class="panel-summary">{% if post.summary %}{{ post.summary }}{% else %}{{ post.excerpt | strip_html }}{% endif %}</p>
+			<span class="panel-read smalltext">Read article</span>
 		</div>
 	</a>
 	{% endfor %}

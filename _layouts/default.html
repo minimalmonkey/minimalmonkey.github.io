@@ -21,10 +21,14 @@ I like cats. But only Internet cats.
 
 		{% include header.html %}
 
-		<div class="page-content {{ page.color }}">
+		<div class="page-content {{ page.color }}{% if page.type == 'headerpage' %} is-muted{% endif %}">
+
+			<a class="site-header-close" href="{{ site.baseurl }}/"></a>
+
 			<div class="wrap">
 			{{ content }}
 			</div>
+
 		</div>
 
 		{% include footer.html %}

@@ -31,3 +31,19 @@
 	line-height: 1.55;
 	opacity: 0.5;
 }
+
+.panel-read {
+	position: absolute;
+	bottom: 32px;
+	padding-left: 24px;
+
+	&:before {
+		position: absolute;
+		top: -2px;
+		left: 0;
+		font-family: 'icons';
+		font-size: 17px;
+		text-transform: none;
+		content: "v";
+	}
+}

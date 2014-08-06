@@ -597,6 +597,33 @@ body {
     background: transparent;
     content: 'm'; }
 
+.page-content.is-muted {
+  position: relative;
+  overflow: hidden;
+  height: 100%; }
+
+.page-content-item {
+  -webkit-transform: translate3d(0, 0, 0);
+          transform: translate3d(0, 0, 0); }
+  .is-muted .page-content-item {
+    -webkit-transform: translate3d(0, 298px, 0);
+            transform: translate3d(0, 298px, 0); }
+
+.is-muted .site-header-close {
+  display: block;
+  position: absolute;
+  z-index: 10;
+  top: 350px;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: #000;
+  opacity: 0.6;
+  -webkit-transition: opacity 0.3s;
+          transition: opacity 0.3s; }
+  .is-muted .site-header-close:hover {
+    opacity: 0.4; }
+
 .post {
   position: relative;
   max-width: 940px;
@@ -625,10 +652,7 @@ body {
   .post-header .meta {
     padding: 0 2px;
     margin: 3px 0 0;
-    font-size: 12px;
-    font-weight: 600;
-    color: #c8c8c8;
-    text-transform: uppercase; }
+    color: #c8c8c8; }
 
 .post-content {
   max-width: 640px;
@@ -682,6 +706,19 @@ body {
   font-size: 15px;
   line-height: 1.55;
   opacity: 0.5; }
+
+.panel-read {
+  position: absolute;
+  bottom: 32px;
+  padding-left: 24px; }
+  .panel-read:before {
+    position: absolute;
+    top: -2px;
+    left: 0;
+    font-family: 'icons';
+    font-size: 17px;
+    text-transform: none;
+    content: "v"; }
 
 .slide-link {
   display: inline-block;
@@ -821,3 +858,8 @@ body {
 
 .purple {
   background: #72616e; }
+
+.smalltext {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase; }
