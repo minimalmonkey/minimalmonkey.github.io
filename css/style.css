@@ -684,6 +684,21 @@ body {
   width: 320px;
   color: white;
   text-decoration: none; }
+  .panel:before {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    bottom: -81px;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.23);
+    content: "";
+    -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+    -webkit-transition: -webkit-transform 0.35s;
+            transition: transform 0.35s; }
+  .panel:hover:before {
+    -webkit-transform: translate3d(0, -81px, 0);
+            transform: translate3d(0, -81px, 0); }
 
 .panel-content {
   display: absolute;

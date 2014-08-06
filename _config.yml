@@ -7,6 +7,7 @@ baseurl: ""
 url: "http://minimalmonkey.com"
 twitter_username: minimalmonkey
 github_username:  minimalmonkey
+paginate: 10
 
 # Build settings
 markdown: kramdown

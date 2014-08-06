@@ -1,6 +1,6 @@
 <div class="panels page-content-item">
 
-	{% for post in site.posts %}
+	{% for post in paginator.posts %}
 	<a class="panel {{ post.color }}" href="{{ post.url | prepend: site.baseurl }}">
 		<div class="panel-content">
 			<span class="panel-date smalltext">{{ post.date | date: "%-d %b %Y" }}</span>
