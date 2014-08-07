@@ -40,13 +40,13 @@ $margin: ($site-nav-height - $size) * 0.5;
 			animation: birdflyout-animation 0.2s steps(4) 0 8;
 		}
 	}
+}
 
-	.twitter-follow-link {
-		display: block;
-		position: absolute;
-		top: 0;
-		left: 3px;
-		width: $site-nav-height;
-		height: $site-nav-height;
-	}
+.twitter-follow-link {
+	display: block;
+	position: absolute;
+	top: 0;
+	left: 3px;
+	width: $site-nav-height;
+	height: $site-nav-height;
 }

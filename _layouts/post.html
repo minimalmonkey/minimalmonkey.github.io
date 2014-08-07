@@ -3,9 +3,9 @@ layout: default
 ---
 <div class="post page-content-item">
 
-	<header class="post-header">
+	<header class="postheader">
 		<h1>{{ page.title }}</h1>
-		<p class="meta smalltext">{{ page.date | date: "%-d %b %Y" }}{% if page.author %} • {{ page.author }}{% endif %}{% if page.meta %} • {{ page.meta }}{% endif %}</p>
+		<p class="postheader-meta smalltext">{{ page.date | date: "%-d %b %Y" }}{% if page.author %} • {{ page.author }}{% endif %}{% if page.meta %} • {{ page.meta }}{% endif %}</p>
 	</header>
 
 	<article class="post-content">

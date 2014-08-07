@@ -20,38 +20,38 @@ $contact-link-transition-duration: 0.35s;
 	border-radius: 1em;
 	transform: translate3d(0, 0, 0);
 	transition: border $contact-link-transition-duration;
+}
 
-	&.contact-link-twitter {
-		line-height: 0.99em;
+.contact-link-twitter {
+	line-height: 0.99em;
 
-		&:hover {
-			border: 2px solid $contact-links-color-twitter;
-		}
+	&:hover {
+		border: 2px solid $contact-links-color-twitter;
 	}
+}
 
-	&.contact-link-linkedin {
-		line-height: 0.9em;
+.contact-link-linkedin {
+	line-height: 0.9em;
 
-		&:hover {
-			border: 2px solid $contact-links-color-linkedin;
-		}
+	&:hover {
+		border: 2px solid $contact-links-color-linkedin;
 	}
+}
 
-	&.contact-link-email {
-		padding-right: 0.04em;
-		line-height: 0.9em;
+.contact-link-email {
+	padding-right: 0.04em;
+	line-height: 0.9em;
 
-		&:hover {
-			border: 2px solid $contact-links-color-email;
-		}
+	&:hover {
+		border: 2px solid $contact-links-color-email;
 	}
+}
 
-	&.contact-link-codepen {
-		line-height: 0.92em;
+.contact-link-codepen {
+	line-height: 0.92em;
 
-		&:hover {
-			border: 2px solid $contact-links-color-codepen;
-		}
+	&:hover {
+		border: 2px solid $contact-links-color-codepen;
 	}
 }
 

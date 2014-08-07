@@ -1,4 +1,4 @@
-.post-header {
+.postheader {
 	padding: 28px 0 5px;
 	text-align: center;
 
@@ -7,10 +7,10 @@
 		margin: 8px auto 0;
 		font-size: 40px;
 	}
+}
 
-	.meta {
-		padding: 0 2px;
-		margin: 3px 0 0;
-		color: #c8c8c8;
-	}
+.postheader-meta {
+	padding: 0 2px;
+	margin: 3px 0 0;
+	color: #c8c8c8;
 }

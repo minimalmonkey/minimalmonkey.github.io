@@ -139,11 +139,17 @@ table {
 html, body {
   height: 100%; }
 
-* {
+html {
   -webkit-box-sizing: border-box;
-          box-sizing: border-box;
+          box-sizing: border-box; }
+
+*, *:before, *:after {
+  -webkit-box-sizing: inherit;
+          box-sizing: inherit;
   -webkit-transition-timing-function: ease-out;
-  -webkit-font-smoothing: antialiased; }
+          transition-timing-function: ease-out;
+  -webkit-font-smoothing: antialiased;
+  font-smoothing: antialiased; }
 
 body {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -501,7 +507,7 @@ body {
   color: #009999; }
 
 /* Literal.Number.Integer.Long */
-.site-header {
+.siteheader {
   position: fixed;
   top: 0;
   z-index: 10;
@@ -510,24 +516,24 @@ body {
   height: 350px;
   text-align: center;
   background-color: #fcfcfc; }
-  .site-header.is-collapsed {
+  .siteheader.is-collapsed {
     height: 52px;
     background-color: #f3f3f3; }
 
-.header-headline {
+.siteheader-headline {
   margin: 29px 0 25px;
   color: #e54b4b;
   font-size: 36px; }
 
-.header-page {
+.siteheader-page {
   max-width: 700px;
   margin: 0 auto;
   font-size: 18px;
   line-height: 1.4;
   color: #696969; }
-  .header-page p {
+  .siteheader-page p {
     margin: 15px 0 25px; }
-  .header-page.is-hidden {
+  .siteheader-page.is-hidden {
     display: none; }
 
 .site-nav {
@@ -549,12 +555,14 @@ body {
   padding: 18px 37px 0 0;
   margin: 0;
   vertical-align: top; }
-  .nav-section.nav-section-left {
-    text-align: right; }
-  .nav-section.nav-section-right {
-    padding-left: 37px;
-    padding-right: 0;
-    text-align: left; }
+
+.nav-section-left {
+  text-align: right; }
+
+.nav-section-right {
+  padding-left: 37px;
+  padding-right: 0;
+  text-align: left; }
 
 .nav-link {
   padding-left: 2px;
@@ -642,17 +650,18 @@ body {
   .post:after {
     right: -5px; }
 
-.post-header {
+.postheader {
   padding: 28px 0 5px;
   text-align: center; }
-  .post-header h1 {
+  .postheader h1 {
     max-width: 640px;
     margin: 8px auto 0;
     font-size: 40px; }
-  .post-header .meta {
-    padding: 0 2px;
-    margin: 3px 0 0;
-    color: #c8c8c8; }
+
+.postheader-meta {
+  padding: 0 2px;
+  margin: 3px 0 0;
+  color: #c8c8c8; }
 
 .post-content {
   max-width: 640px;
@@ -773,23 +782,27 @@ body {
           transform: translate3d(0, 0, 0);
   -webkit-transition: border 0.35s;
           transition: border 0.35s; }
-  .contact-link.contact-link-twitter {
-    line-height: 0.99em; }
-    .contact-link.contact-link-twitter:hover {
-      border: 2px solid #32abdf; }
-  .contact-link.contact-link-linkedin {
-    line-height: 0.9em; }
-    .contact-link.contact-link-linkedin:hover {
-      border: 2px solid #1875b2; }
-  .contact-link.contact-link-email {
-    padding-right: 0.04em;
-    line-height: 0.9em; }
-    .contact-link.contact-link-email:hover {
-      border: 2px solid #e24e4b; }
-  .contact-link.contact-link-codepen {
-    line-height: 0.92em; }
-    .contact-link.contact-link-codepen:hover {
-      border: 2px solid #72616e; }
+
+.contact-link-twitter {
+  line-height: 0.99em; }
+  .contact-link-twitter:hover {
+    border: 2px solid #32abdf; }
+
+.contact-link-linkedin {
+  line-height: 0.9em; }
+  .contact-link-linkedin:hover {
+    border: 2px solid #1875b2; }
+
+.contact-link-email {
+  padding-right: 0.04em;
+  line-height: 0.9em; }
+  .contact-link-email:hover {
+    border: 2px solid #e24e4b; }
+
+.contact-link-codepen {
+  line-height: 0.92em; }
+  .contact-link-codepen:hover {
+    border: 2px solid #72616e; }
 
 .contact-link-label {
   -webkit-transition: -webkit-transform 0.35s;
@@ -846,13 +859,14 @@ body {
     .follow-link:hover:before, .follow-link.birdfly:before {
       -webkit-animation: birdflyout-animation 0.2s steps(4) 0 8;
               animation: birdflyout-animation 0.2s steps(4) 0 8; }
-  .follow-link .twitter-follow-link {
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 3px;
-    width: 52px;
-    height: 52px; }
+
+.twitter-follow-link {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 3px;
+  width: 52px;
+  height: 52px; }
 
 .orange {
   background: #e8846b; }

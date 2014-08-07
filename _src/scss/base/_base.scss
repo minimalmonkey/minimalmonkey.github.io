@@ -3,10 +3,15 @@ body {
 	height: 100%;
 }
 
-* {
+html {
 	box-sizing: border-box;
-	-webkit-transition-timing-function: ease-out;
+}
+
+*, *:before, *:after {
+	box-sizing: inherit;
+	transition-timing-function: ease-out;
 	-webkit-font-smoothing: antialiased;
+	font-smoothing: antialiased;
 }
 
 body {

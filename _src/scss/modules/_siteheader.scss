@@ -1,4 +1,4 @@
-.site-header {
+.siteheader {
 	position: fixed;
 	top: 0;
 	z-index: 10;
@@ -14,13 +14,13 @@
 	}
 }
 
-.header-headline {
+.siteheader-headline {
 	margin: 29px 0 25px;
 	color: $red;
 	font-size: 36px;
 }
 
-.header-page {
+.siteheader-page {
 	max-width: 700px;
 	margin: 0 auto;
 	font-size: 18px;
