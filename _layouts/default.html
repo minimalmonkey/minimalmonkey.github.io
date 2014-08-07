@@ -26,7 +26,13 @@ I like cats. But only Internet cats.
 			<a class="site-header-close" href="{{ site.baseurl }}/"></a>
 
 			<div class="wrap">
-			{{ content }}
+				{{ content }}
+				{% if page.next.url %}
+				<a class="post-nav post-nav-next" href="{{page.next.url}}"></a> <!-- &laquo; {{page.next.title}} -->
+				{% endif %}
+				{% if page.previous.url %}
+				<a class="post-nav post-nav-previous" href="{{page.previous.url}}"></a> <!-- {{page.previous.title}} &raquo; -->
+				{% endif %}
 			</div>
 
 		</div>

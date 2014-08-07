@@ -520,7 +520,7 @@ body {
   font-size: 36px; }
 
 .header-page {
-  width: 700px;
+  max-width: 700px;
   margin: 0 auto;
   font-size: 18px;
   line-height: 1.4;
@@ -676,7 +676,8 @@ body {
   top: 52px;
   bottom: 0;
   overflow: hidden;
-  width: auto; }
+  width: auto;
+  min-width: 100%; }
 
 .panel {
   display: block;
@@ -878,3 +879,94 @@ body {
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase; }
+
+.post-nav {
+  display: block;
+  position: fixed;
+  width: 50px;
+  height: 100%;
+  top: 0; }
+  .post-nav:before {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.23);
+    content: "";
+    -webkit-transition: -webkit-transform 0.3s;
+            transition: transform 0.3s; }
+  .post-nav:after {
+    position: absolute;
+    top: 50%;
+    left: -5px;
+    width: 50px;
+    height: 66px;
+    margin-top: -7px;
+    opacity: 0.75;
+    color: white;
+    font-family: 'icons';
+    font-size: 60px;
+    font-weight: 500;
+    line-height: 66px;
+    text-align: center;
+    -webkit-transition: opacity 0.3s;
+            transition: opacity 0.3s; }
+  .post-nav:hover:before {
+    -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0); }
+  .post-nav:hover:after {
+    opacity: 1; }
+
+.post-nav-next {
+  left: 0; }
+  .post-nav-next:before {
+    -webkit-transform: translate3d(-100%, 0, 0);
+            transform: translate3d(-100%, 0, 0); }
+  .post-nav-next:after {
+    content: "<"; }
+
+.post-nav-previous {
+  right: 0; }
+  .post-nav-previous:before {
+    -webkit-transform: translate3d(100%, 0, 0);
+            transform: translate3d(100%, 0, 0); }
+  .post-nav-previous:after {
+    content: ">"; }
+
+.page-nav-next {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  z-index: 11;
+  overflow: hidden;
+  width: 53px;
+  height: 53px;
+  font-family: 'icons';
+  font-size: 55px;
+  color: #b3b3b3;
+  line-height: 1;
+  background: white;
+  -webkit-transition: -webkit-transform 0.35s;
+          transition: transform 0.35s; }
+  .page-nav-next:before, .page-nav-next:after {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    content: '/';
+    -webkit-transition: -webkit-transform 0.35s;
+            transition: transform 0.35s; }
+  .page-nav-next:before {
+    left: -100%;
+    color: #999; }
+  .page-nav-next:hover:before, .page-nav-next:hover:after {
+    -webkit-transform: translateX(100%);
+        -ms-transform: translateX(100%);
+            transform: translateX(100%); }
+  .page-nav-next.is-hidden {
+    -webkit-transform: translateX(100%);
+        -ms-transform: translateX(100%);
+            transform: translateX(100%); }
