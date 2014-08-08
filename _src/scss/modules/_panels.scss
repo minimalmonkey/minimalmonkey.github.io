@@ -1,9 +1,14 @@
 .panels {
-	display: flex;
-	position: absolute;
+	display: block;
+	position: relative;
 	top: $site-nav-height;
 	bottom: 0;
 	overflow: hidden;
 	width: auto;
 	min-width: 100%;
+
+	@media (min-width: $bp-stack-width) {
+		display: flex;
+		position: absolute;
+	}
 }

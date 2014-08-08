@@ -1,11 +1,15 @@
 $article-transition-duration: 0.3s;
 
 .post-nav {
-	display: block;
+	display: none;
 	position: fixed;
 	width: 50px;
 	height: 100%;
 	top: 0;
+
+	@media (min-width: $bp-post-nav) {
+		display: block;
+	}
 
 	&:before {
 		position: absolute;

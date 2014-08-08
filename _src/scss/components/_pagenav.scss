@@ -1,10 +1,9 @@
 .page-nav-next {
-	position: fixed;
-	right: 0;
-	bottom: 0;
+	display: block;
+	position: relative;
 	z-index: 11;
 	overflow: hidden;
-	width: 53px;
+	width: 100%;
 	height: 53px;
 	font-family: 'icons';
 	font-size: 55px;
@@ -17,27 +16,59 @@
 	&:after {
 		position: absolute;
 		top: 0;
-		left: 0;
+		left: 50%;
 		z-index: 1;
-		width: 100%;
+		width: 53px;
 		height: 100%;
-		content: '/';
+		margin-left: -27px;
+		content: "\\";
 		transition: transform 0.35s;
 	}
 
 	&:before {
-		left: -100%;
+		top: -100%;
 		color: #999;
 	}
 
 	&:hover {
 		&:before,
 		&:after {
-			transform: translateX(100%);
+			transform: translateY(100%);
 		}
 	}
 
 	&.is-hidden {
-		transform: translateX(100%);
+		display: none;
+	}
+
+	@media (min-width: $bp-stack-width) {
+		position: fixed;
+		width: 53px;
+		right: 0;
+		bottom: 0;
+
+		&:before,
+		&:after {
+			left: 0;
+			margin-left: 0;
+			content: "/";
+		}
+
+		&:before {
+			top: 0;
+			left: -100%;
+		}
+
+		&:hover {
+			&:before,
+			&:after {
+				transform: translateX(100%);
+			}
+		}
+
+		&.is-hidden {
+			display: block;
+			transform: translateX(100%);
+		}
 	}
 }

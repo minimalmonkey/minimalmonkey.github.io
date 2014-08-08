@@ -6,13 +6,13 @@ $contact-links-color-codepen:  #72616e;
 $contact-link-transition-duration: 0.35s;
 
 .contact-links {
-	font-size: 65px;
+	font-size: 3.62em;
 }
 
 .contact-link {
 	width: 1em;
 	height: 1em;
-	margin: 0 0.154em;
+	margin: 0.14em 0.154em 0;
 	font-family: 'icons';
 	line-height: 1em;
 	color: $contact-links-color-grey;
@@ -24,6 +24,7 @@ $contact-link-transition-duration: 0.35s;
 
 .contact-link-twitter {
 	line-height: 0.99em;
+	padding-left: 0.01em;
 
 	&:hover {
 		border: 2px solid $contact-links-color-twitter;
@@ -31,6 +32,7 @@ $contact-link-transition-duration: 0.35s;
 }
 
 .contact-link-linkedin {
+	padding-left: 0.03em;
 	line-height: 0.9em;
 
 	&:hover {

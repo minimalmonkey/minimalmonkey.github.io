@@ -6,6 +6,7 @@
 	line-height: 1.5;
 
 	p {
+		padding: 0 5%;
 		margin: 25px 0;
 	}
 
@@ -16,5 +17,11 @@
 	a {
 		color: #16528e;
 		text-decoration: none;
+	}
+
+	@media (min-width: $bp-post-content-padding) {
+		p {
+			padding: 0;
+		}
 	}
 }
