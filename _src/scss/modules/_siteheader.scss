@@ -1,7 +1,7 @@
 .siteheader {
 	position: fixed;
 	top: 0;
-	z-index: 10;
+	z-index: 11;
 	overflow: hidden;
 	width: 100%;
 	height: $site-header-height;
@@ -39,5 +39,24 @@
 
 	&.is-hidden {
 		display: none;
+	}
+}
+
+.siteheader-close {
+	.is-muted & {
+		display: block;
+		position: absolute;
+		z-index: 10;
+		top: $site-header-height;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		background: #000;
+		opacity: 0.6;
+		transition: opacity 0.3s;
+
+		&:hover {
+			opacity: 0.4;
+		}
 	}
 }

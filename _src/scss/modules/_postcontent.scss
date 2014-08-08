@@ -1,12 +1,11 @@
 .post-content {
 	max-width: 640px;
-	padding: 9px 0 35px;
+	padding: 9px 3% 35px;
 	margin: 0 auto;
 	font-size: 16px;
 	line-height: 1.5;
 
 	p {
-		padding: 0 5%;
 		margin: 25px 0;
 	}
 
@@ -20,8 +19,6 @@
 	}
 
 	@media (min-width: $bp-post-content-padding) {
-		p {
-			padding: 0;
-		}
+		padding: 9px 0 35px;
 	}
 }

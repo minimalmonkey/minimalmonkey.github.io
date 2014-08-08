@@ -510,7 +510,7 @@ body {
 .siteheader {
   position: fixed;
   top: 0;
-  z-index: 10;
+  z-index: 11;
   overflow: hidden;
   width: 100%;
   height: 350px;
@@ -540,6 +540,21 @@ body {
     margin: 0.84em 0 1.4em; }
   .siteheader-page.is-hidden {
     display: none; }
+
+.is-muted .siteheader-close {
+  display: block;
+  position: absolute;
+  z-index: 10;
+  top: 350px;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: #000;
+  opacity: 0.6;
+  -webkit-transition: opacity 0.3s;
+          transition: opacity 0.3s; }
+  .is-muted .siteheader-close:hover {
+    opacity: 0.4; }
 
 .site-nav {
   position: relative;
@@ -622,21 +637,6 @@ body {
     -webkit-transform: translate3d(0, 298px, 0);
             transform: translate3d(0, 298px, 0); }
 
-.is-muted .site-header-close {
-  display: block;
-  position: absolute;
-  z-index: 10;
-  top: 350px;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background: #000;
-  opacity: 0.6;
-  -webkit-transition: opacity 0.3s;
-          transition: opacity 0.3s; }
-  .is-muted .site-header-close:hover {
-    opacity: 0.4; }
-
 .post {
   position: relative;
   max-width: 940px;
@@ -672,12 +672,11 @@ body {
 
 .post-content {
   max-width: 640px;
-  padding: 9px 0 35px;
+  padding: 9px 3% 35px;
   margin: 0 auto;
   font-size: 16px;
   line-height: 1.5; }
   .post-content p {
-    padding: 0 5%;
     margin: 25px 0; }
   .post-content img {
     max-width: 100%; }
@@ -685,8 +684,8 @@ body {
     color: #16528e;
     text-decoration: none; }
   @media (min-width: 660px) {
-    .post-content p {
-      padding: 0; } }
+    .post-content {
+      padding: 9px 0 35px; } }
 
 .panels {
   display: block;
@@ -716,7 +715,6 @@ body {
     bottom: -81px;
     left: 0;
     background-color: rgba(0, 0, 0, 0.23);
-    content: "";
     -webkit-transform: translate3d(0, 0, 0);
             transform: translate3d(0, 0, 0);
     -webkit-transition: -webkit-transform 0.35s;
@@ -726,13 +724,15 @@ body {
             transform: translate3d(0, -81px, 0); }
   @media (min-width: 570px) {
     .panel {
-      width: 320px; } }
+      width: 320px; }
+      .panel:before {
+        content: ""; } }
 
 .panel-content {
   display: absolute;
   width: 100%;
   height: 100%;
-  padding: 32px 30px 100px;
+  padding: 32px 30px 72px;
   font-size: 9px; }
   @media (min-width: 570px) {
     .panel-content {
