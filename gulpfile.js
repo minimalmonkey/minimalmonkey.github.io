@@ -1,7 +1,7 @@
-var gulp = require('gulp');
+var gulp =   require('gulp');
+var sass =   require('gulp-ruby-sass');
 var prefix = require('gulp-autoprefixer');
-var sass = require('gulp-sass');
-var watch = require('gulp-watch');
+var watch =  require('gulp-watch');
 
 gulp.task('default', function() {
 	gulp.start('sass');

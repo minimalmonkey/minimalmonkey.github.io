@@ -36,13 +36,13 @@
 	text-transform: uppercase;
 
 	&.is-selected {
-		border-bottom: 1px solid $navy;
+		border-bottom: 1px solid getcolor(navy);
 	}
 }
 
 .nav-link-label {
 	&:after {
-		color: $navy;
+		color: getcolor(navy);
 	}
 }
 

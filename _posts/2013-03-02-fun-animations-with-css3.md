@@ -23,7 +23,7 @@ This is made possible by CSS3 animation and the sprite sheet shown above. If you
 
 Below are two examples. The one on the left was my first attempt, I just jumped straight in without thinking and I got the effect you’ll see if you hover the bird. Kind of an obvious mistake. The example on the right uses the **step** parameter. It took a little searching to find out about **step** but once I knew about it I got the perfect effect without the need for any JavaScript. Hover the bird on the right to see it in action.
 
-<div style="margin: 0 auto; width: 350px; height: 150px; overflow: hidden;">
+<div style="margin: 0 auto; max-width: 350px; height: 150px; overflow: hidden;">
 	<iframe style="border: none; display: inline-block; float: left;" name="twitter-bird" src="http://www.minimalmonkey.com/lab/css3-animations/twitter.html" width="380px" height="150px" frameborder="0" scrolling="auto" name="twitter-bird"></iframe>
 </div>
 
@@ -49,7 +49,7 @@ Below are two examples. The one on the left was my first attempt, I just jumped 
 
 Next up is my favourite little animation on the site – the bouncy hover state on the logo.
 
-<div style="margin: 0 auto; width: 254px; height: 200px; overflow: hidden;">
+<div style="margin: 0 auto; max-width: 254px; height: 200px; overflow: hidden;">
 	<iframe style="overflow: hidden; border: none; display: inline-block; float: left;" name="logo" src="http://www.minimalmonkey.com/lab/css3-animations/logo.html" width="254px" height="200px" frameborder="0" scrolling="auto" name="logo"></iframe>
 </div>
 

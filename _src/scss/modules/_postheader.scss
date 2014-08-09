@@ -1,11 +1,15 @@
 .postheader {
-	padding: 28px 0 5px;
+	padding: 28px 4% 5px;
 	text-align: center;
 
 	h1 {
 		max-width: 640px;
 		margin: 8px auto 0;
 		font-size: 40px;
+	}
+
+	@media (min-width: $bp-post-content-padding) {
+		padding: 28px 0 5px;
 	}
 }
 

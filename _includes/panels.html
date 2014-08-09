@@ -14,7 +14,7 @@
 	{% endif %}
 
 	{% for post in posts limit:site.per_page %}
-	<a class="panel {{ post.color }}" href="{{ post.url | prepend: site.baseurl }}">
+	<a class="panel color-{{ post.color }}" href="{{ post.url | prepend: site.baseurl }}">
 		<div class="panel-content">
 			<span class="panel-date smalltext">{{ post.date | date: "%-d %b %Y" }}</span>
 			<h1 class="panel-headline">{% if post.short_title %}{{ post.short_title }}{% else %}{{ post.title }}{% endif %}</h1>
