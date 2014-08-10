@@ -23,16 +23,15 @@ I like cats. But only Internet cats.
 
 		<div class="page-content color-{{ page.color }}{% if page.type == 'headerpage' %} is-muted{% endif %}">
 
-			<a class="siteheader-close" href="{{ site.baseurl }}/"></a>
+			<nav class="pagenav">
+				<a class="siteheader-close" href="{{ site.baseurl }}/" aria-label="Close header"></a>
+				<a class="post-nav-close{% if page.path contains '_posts/' %}{% else %} is-hidden{% endif %}" href="{{ site.baseurl }}/" aria-label="Close article">x</a>
+				<a class="post-nav post-nav-next{% if page.next.url %}{% else %} is-hidden{% endif %}" href="{{page.next.url}}" aria-label="Read the next article: {{page.next.title}}"></a>
+				<a class="post-nav post-nav-previous{% if page.previous.url %}{% else %} is-hidden{% endif %}" href="{{page.previous.url}}" aria-label="Read the previous article: {{page.previous.title}}"></a>
+			</nav>
 
 			<div class="wrap">
 				{{ content }}
-				{% if page.next.url %}
-				<a class="post-nav post-nav-next" href="{{page.next.url}}"></a> <!-- &laquo; {{page.next.title}} -->
-				{% endif %}
-				{% if page.previous.url %}
-				<a class="post-nav post-nav-previous" href="{{page.previous.url}}"></a> <!-- {{page.previous.title}} &raquo; -->
-				{% endif %}
 			</div>
 
 		</div>

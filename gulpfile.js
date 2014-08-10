@@ -9,7 +9,9 @@ gulp.task('default', function() {
 
 gulp.task('sass', function () {
 	gulp.src('./_src/scss/*.scss')
-		.pipe(sass())
+		.pipe(sass({
+			style: 'compressed'
+		}))
 		.pipe(gulp.dest('./css'))
 		.pipe(prefix("last 1 version", "> 1%", "ie 8", "ie 7"))
 		.pipe(gulp.dest('./css/'));

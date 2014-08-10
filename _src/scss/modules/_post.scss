@@ -1,6 +1,6 @@
 .post {
 	position: relative;
-	max-width: 940px;
+	max-width: $post-max-width;
 	margin: $site-nav-height auto 0;
 	color: #2d2d2d;
 	background: #fff;
