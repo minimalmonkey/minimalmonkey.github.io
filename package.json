@@ -9,7 +9,8 @@
     "browserify": "^5.9.1",
     "vinyl-source-stream": "^0.1.1",
     "gulp-uglify": "^0.3.1",
-    "streamify": "^0.2.4"
+    "streamify": "^0.2.4",
+    "require-dir": "^0.1.0"
   },
   "keywords": [],
   "private": true
