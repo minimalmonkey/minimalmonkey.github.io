@@ -18,16 +18,38 @@ $transition-duration: 0.35s;
 		transition: transform $transition-duration;
 	}
 
+	&:after {
+		position: absolute;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		background-color: rgba(0, 0, 0, 0.45);
+		opacity: 0;
+		transition: opacity 0.35s;
+
+		.is-hovered & {
+			opacity: 1;
+		}
+	}
+
 	&:hover {
 		&:before {
 			transform: translate3d(0, -81px, 0);
+		}
+
+		&:after {
+			.is-hovered & {
+				opacity: 0;
+			}
 		}
 	}
 
 	@media (min-width: $bp-stack-width) {
 		width: 320px;
 
-		&:before {
+		&:before,
+		&:after {
 			content: "";
 		}
 	}
