@@ -1,4 +1,4 @@
-.site-nav {
+.sitenav {
 	position: relative;
 	z-index: 11;
 	overflow: hidden;
@@ -9,7 +9,7 @@
 	letter-spacing: 2px;
 }
 
-.nav-section {
+.sitenav-section {
 	display: inline-block;
 	position: relative;
 	z-index: 1;
@@ -20,60 +20,12 @@
 	vertical-align: top;
 }
 
-.nav-section-left {
+.sitenav-leftsection {
 	text-align: right;
 }
 
-.nav-section-right {
+.sitenav-rightsection {
 	padding-left: 37px;
 	padding-right: 0;
 	text-align: left;
-}
-
-.nav-link {
-	padding-left: 2px;
-	color: #898989;
-	text-transform: uppercase;
-
-	&.is-selected {
-		border-bottom: 1px solid getcolor(navy);
-	}
-}
-
-.nav-link-label {
-	&:after {
-		color: getcolor(navy);
-	}
-}
-
-.nav-logo {
-	display: inline-block;
-	position: absolute;
-	top: 0;
-	left: 50%;
-	z-index: 2;
-	width: 24px;
-	height: 24px;
-	margin: 13px 0 0 -12px;
-	color: black;
-	font-family: 'icons';
-	font-size: 25px;
-	text-decoration: none;
-	transform-origin: 50% 100%;
-
-	&:hover,
-	&.bounce-animation {
-		animation: bounce-animation 0.5s 1;
-		transform: none;
-	}
-
-	&:after {
-		position: absolute;
-		top: 0;
-		left: 0;
-		height: 10px;
-		width: 10px;
-		background: transparent;
-		content: 'm';
-	}
 }

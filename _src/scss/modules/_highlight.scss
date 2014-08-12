@@ -1,11 +1,11 @@
 .post pre,
 .post code {
+	overflow:scroll;
 	border: 1px solid #ddd;
-	background-color: #f8f8f8;
 	border-radius: 3px;
 	font-size: 15px;
-	overflow:scroll;
 	line-height: 1.5;
+	background-color: #f8f8f8;
 }
 
 .post .highlight pre,
@@ -13,15 +13,10 @@
 	padding: 8px 12px;
 }
 
-.post pre,
-.post code {
-
-}
-
 .post pre code {
-	border: 0;
 	padding-right: 0;
 	padding-left: 0;
+	border: 0;
 }
 
 .hll { background-color: #ffffcc }

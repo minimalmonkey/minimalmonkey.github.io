@@ -1,19 +1,19 @@
 $slide-link-transition-duration: 0.3s;
 
-.slide-link {
+.slidelink {
 	display: inline-block;
 	position: relative;
 	overflow: hidden;
 	text-decoration: none;
 }
 
-.slide-link-label {
+.slidelink-label {
 	display: inline-block;
 	position: relative;
 	transition: transform $slide-link-transition-duration;
 	vertical-align: middle;
 
-	.slide-link:hover &,
+	.slidelink:hover &,
 	.is-selected & {
 		transform: translate3d(0, 100%, 0);
 	}

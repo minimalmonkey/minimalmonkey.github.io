@@ -1,18 +1,18 @@
 <header class="siteheader{% if page.type != 'headerpage' %} is-collapsed{% endif %}">
 
-	<nav class="site-nav">
+	<nav class="sitenav">
 
-		<div class="nav-section nav-section-left">
-			<a class="slide-link nav-link{% if page.permalink == '/about/' %} is-selected{% endif %}" href="{{ site.baseurl }}/about/">
-				<span class="slide-link-label nav-link-label" data-label="About">About</span>
+		<div class="sitenav-section sitenav-leftsection">
+			<a class="slidelink sitenavlink{% if page.permalink == '/about/' %} is-selected{% endif %}" href="{{ site.baseurl }}/about/">
+				<span class="slidelink-label sitenavlink-label" data-label="About">About</span>
 			</a>
-		</div><div class="nav-section nav-section-right">
-			<a class="slide-link nav-link{% if page.permalink == '/contact/' %} is-selected{% endif %}" href="{{ site.baseurl }}/contact/">
-				<span class="slide-link-label nav-link-label" data-label="Contact">Contact</span>
+		</div><div class="sitenav-section sitenav-rightsection">
+			<a class="slidelink sitenavlink{% if page.permalink == '/contact/' %} is-selected{% endif %}" href="{{ site.baseurl }}/contact/">
+				<span class="slidelink-label sitenavlink-label" data-label="Contact">Contact</span>
 			</a>
 		</div>
 
-		<a class="nav-logo" href="{{ site.baseurl }}/" aria-label="Home"></a>
+		<a class="sitenavlink-logo" href="{{ site.baseurl }}/" aria-label="Home"></a>
 
 		{% if site.twitter_username %}
 		<div class="follow-link">

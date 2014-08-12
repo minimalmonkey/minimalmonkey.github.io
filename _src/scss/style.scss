@@ -1,36 +1,41 @@
 // constants
-@import "constants/_colors",
-		"constants/_layout",
-		"constants/_transitions";
+@import "constants/colors",
+		"constants/layout",
+		"constants/transitions";
+
+// functions
+@import "functions/getcolor",
+		"functions/getem";
 
 // base
-@import "base/_normalize",
-		"base/_base",
-		"base/_helpers";
+@import "base/normalize",
+		"base/base",
+		"base/helpers";
 
 // fonts
-@import "fonts/_iconfont";
+@import "fonts/iconfont";
 
 // animations
-@import "animations/_birdfly",
-		"animations/_bounce";
+@import "animations/birdfly",
+		"animations/bounce";
 
 // modules
-@import "modules/_highlight",
-		"modules/_siteheader",
-		"modules/_sitenav",
-		"modules/_pagecontent",
-		"modules/_post",
-		"modules/_postheader",
-		"modules/_postcontent",
-		"modules/_panels",
-		"modules/_panel";
+@import "modules/highlight",
+		"modules/siteheader",
+		"modules/sitenav",
+		"modules/pagecontent",
+		"modules/post",
+		"modules/postheader",
+		"modules/postcontent",
+		"modules/panels",
+		"modules/panel";
 
 // components
-@import "components/_slidelink",
-		"components/_smalltext",
-		"components/_contactlinks",
-		"components/_followlink",
-		"components/_colors",
-		"components/_postnav",
-		"components/_pagenav";
+@import "components/slidelink",
+		"components/smalltext",
+		"components/contactlinks",
+		"components/followlink",
+		"components/colors",
+		"components/sitenavlink",
+		"components/postnav",
+		"components/pagenav";

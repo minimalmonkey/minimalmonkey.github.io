@@ -20,21 +20,21 @@
 }
 
 .siteheader-headline {
-	margin: 0.8em 0 0.69em;
+	margin: getem(8px) 0 getem(7px);
 	color: getcolor(red);
-	font-size: 3.6em;
+	font-size: getem(36px);
 }
 
 .siteheader-page {
 	max-width: 700px;
-	padding: 0 1em;
+	padding: 0 getem(10px);
 	margin: 0 auto;
-	font-size: 1.8em;
+	font-size: getem(18px);
 	line-height: 1.4;
 	color: #696969;
 
 	p {
-		margin: 0.84em 0 1.4em;
+		margin: getem(8px) 0 getem(14px);
 	}
 
 	&.is-hidden {

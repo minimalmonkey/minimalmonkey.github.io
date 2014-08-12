@@ -7,7 +7,3 @@ $colors: (
 	purple: #72616e,
 	red:    #e54b4b
 );
-
-@function getcolor($name) {
-	@return map-get($colors, $name);
-}

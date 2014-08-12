@@ -1,4 +1,4 @@
-.page-content {
+.pagecontent {
 	&.is-muted {
 		position: relative;
 		overflow: hidden;
@@ -6,7 +6,7 @@
 	}
 }
 
-.page-content-item {
+.pagecontent-item {
 	transform: translate3d(0, 0, 0);
 
 	.is-muted & {
