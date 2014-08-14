@@ -19,6 +19,12 @@ $margin: ($site-nav-height - $size) * 0.5;
 	transform: translate3d(100%, 0, 0);
 	transition: transform 0.5s;
 
+	.no-js & {
+		padding-top: 11px;
+		font-weight: 600;
+		letter-spacing: 1px;
+	}
+
 	&:before {
 		position: absolute;
 		top: 0;
