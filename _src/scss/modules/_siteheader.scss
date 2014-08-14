@@ -8,10 +8,15 @@
 	font-size: 8px;
 	text-align: center;
 	background-color: #fcfcfc;
+	transition: transform 0.3s ease-in-out 0.2s;
 
 	&.is-collapsed {
 		height: $site-nav-height;
 		background-color: #f3f3f3;
+	}
+
+	.js .is-intro.is-panels & {
+		transform: translateY(-100%);
 	}
 
 	@media (min-width: $bp-stack-width) {

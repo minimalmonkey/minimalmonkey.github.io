@@ -6,12 +6,20 @@ function Panels (options) {
 
 	this.el = document.getElementById(options.id);
 	this.panels = document.querySelectorAll('#' + options.id + ' .panel');
+	this.totalPanels = this.panels.length;
 	this.currentIndex = -1;
 
 	this.onMouseOver = this.onMouseOver.bind(this);
 	this.onMouseOut = this.onMouseOut.bind(this);
 
-	this.enable();
+	if (document.body.classList.contains('is-intro')) {
+		this.onIntroEnded = this.onIntroEnded.bind(this);
+		// webkitTransitionEnd otransitionend msTransitionEnd transitionend
+		this.panels[this.totalPanels - 1].addEventListener('webkitTransitionEnd', this.onIntroEnded, false);
+	}
+	else {
+		this.enable();
+	}
 }
 
 var proto = Panels.prototype;
@@ -22,14 +30,14 @@ proto.addListenerToPanels = function () {
 			this.onPanelMouseOver(index);
 		};
 	}
-	var len = this.panels.length;
+	var len = this.totalPanels;
 	while (len--) {
 		this.panels[len].addEventListener('mouseover', callback(len).bind(this), false);
 	}
 };
 
 proto.removeListenerFromPanels = function () {
-	var len = this.panels.length;
+	var len = this.totalPanels;
 	while (len--) {
 		//
 	}
@@ -42,7 +50,7 @@ proto.addExpandClass = function () {
 		this.panels[this.currentIndex - 1].classList.add('is-shrunk-left');
 	}
 
-	if (this.currentIndex < this.panels.length - 1) {
+	if (this.currentIndex < this.totalPanels - 1) {
 		this.panels[this.currentIndex + 1].classList.add('is-shrunk-right');
 	}
 };
@@ -55,10 +63,26 @@ proto.removeExpandClass = function () {
 			this.panels[this.currentIndex - 1].classList.remove('is-shrunk-left');
 		}
 
-		if (this.currentIndex < this.panels.length - 1) {
+		if (this.currentIndex < this.totalPanels - 1) {
 			this.panels[this.currentIndex + 1].classList.remove('is-shrunk-right');
 		}
 	}
+};
+
+proto.onIntroEnded = function (evt) {
+	// webkitTransitionEnd otransitionend msTransitionEnd transitionend
+	this.panels[this.totalPanels - 1].removeEventListener('webkitTransitionEnd', this.onIntroEnded);
+	this.enable();
+
+	var onMouseMove = function (evt) {
+		document.removeEventListener('mousemove', onMouseMove);
+		var index = Array.prototype.slice.call(this.panels).indexOf(evt.target);
+		if (index > -1) {
+			this.onMouseOver();
+			this.onPanelMouseOver(index);
+		}
+	}.bind(this);
+	document.addEventListener('mousemove', onMouseMove, false);
 };
 
 proto.onPanelMouseOver = function (index) {
@@ -89,8 +113,10 @@ proto.onMouseOut = function (evt) {
 };
 
 proto.enable = function () {
-	this.el.addEventListener('mouseover', this.onMouseOver, false);
-	this.addListenerToPanels();
+	if (this.el) {
+		this.el.addEventListener('mouseover', this.onMouseOver, false);
+		this.addListenerToPanels();
+	}
 };
 
 proto.disable = function () {
