@@ -19,7 +19,9 @@
 			<span class="panel-date smalltext">{{ post.date | date: "%-d %b %Y" }}</span>
 			<h1 class="panel-headline">{% if post.short_title %}{{ post.short_title }}{% else %}{{ post.title }}{% endif %}</h1>
 			<p class="panel-summary">{% if post.summary %}{{ post.summary }}{% else %}{{ post.excerpt | strip_html }}{% endif %}</p>
-			<span class="panel-read smalltext">Read article</span>
+			<div class="panel-read">
+				<span class="panel-read-text smalltext">Read article</span>
+			</div>
 		</div>
 	</a>
 	{% endfor %}

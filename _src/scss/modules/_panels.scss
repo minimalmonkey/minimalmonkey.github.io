@@ -6,6 +6,7 @@
 	overflow: hidden;
 	width: auto;
 	min-width: 100%;
+	min-height: 460px;
 
 	@media (min-width: $bp-stack-width) {
 		display: flex;
