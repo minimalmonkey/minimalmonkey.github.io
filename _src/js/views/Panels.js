@@ -1,6 +1,7 @@
 'use strict';
 
 var isMouseOut = require('../utils/isMouseOut');
+var ScrollToEnd = require('../components/ScrollToEnd');
 
 function Panels (options) {
 
@@ -11,6 +12,7 @@ function Panels (options) {
 
 	this.onMouseOver = this.onMouseOver.bind(this);
 	this.onMouseOut = this.onMouseOut.bind(this);
+	this.onScrolledToEnd = this.onScrolledToEnd.bind(this);
 
 	if (document.body.classList.contains('is-intro')) {
 		this.onIntroEnded = this.onIntroEnded.bind(this);
@@ -112,10 +114,19 @@ proto.onMouseOut = function (evt) {
 	}
 };
 
+proto.onScrolledToEnd = function (evt) {
+	this.el.removeEventListener('reachedend', this.onScrolledToEnd);
+	// load next page
+};
+
 proto.enable = function () {
 	if (this.el) {
 		this.el.addEventListener('mouseover', this.onMouseOver, false);
+		this.el.addEventListener('reachedend', this.onScrolledToEnd, false);
 		this.addListenerToPanels();
+		if (this.scrollToEnd === undefined) {
+			this.scrollToEnd = new ScrollToEnd(this.el);
+		}
 	}
 };
 

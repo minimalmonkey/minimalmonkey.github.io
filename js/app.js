@@ -13,7 +13,55 @@ window.requestAnimationFrame(function () {
 var loadScript = require('./external/loadScript');
 loadScript('twitter-wjs', '//platform.twitter.com/widgets.js', 500);
 
-},{"./external/loadScript":2,"./views/Panels":4}],2:[function(require,module,exports){
+},{"./external/loadScript":3,"./views/Panels":6}],2:[function(require,module,exports){
+'use strict';
+
+var throttleEvent = require('../utils/throttleEvent');
+
+function ScrollToEnd (el) {
+	this.onScrolled = this.onScrolled.bind(this);
+	this.onResized = this.onResized.bind(this);
+	this.update(el);
+	this.enable();
+}
+
+var proto = ScrollToEnd.prototype;
+
+proto.update = function (el) {
+	this.el = el;
+	this.onResized();
+};
+
+proto.onScrolled = function (evt) {
+	if (window.pageXOffset >= this.widthMinusWindow) {
+		var reachedEnd = new CustomEvent('reachedend', {
+			detail: {}
+		});
+		this.el.dispatchEvent(reachedEnd);
+	}
+};
+
+proto.onResized = function (evt) {
+	this.widthMinusWindow = this.el.offsetWidth - window.innerWidth;
+};
+
+proto.enable = function () {
+	this.throttledScroll = throttleEvent(this.onScrolled, 50);
+	window.addEventListener('scroll', this.throttledScroll, false);
+
+	this.throttledResize = throttleEvent(this.onResized, 50);
+	window.addEventListener('resize', this.throttledResize, false);
+	this.onResized();
+};
+
+proto.disable = function () {
+	window.removeEventListener('scroll', this.throttledScroll);
+	window.removeEventListener('resize', this.throttledResize);
+};
+
+module.exports = ScrollToEnd;
+
+},{"../utils/throttleEvent":5}],3:[function(require,module,exports){
 'use strict';
 
 /**
@@ -58,7 +106,7 @@ module.exports = function loadScript (id, src, delay, dest) {
 	}, delay);
 };
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 'use strict';
 
 /**
@@ -90,10 +138,37 @@ module.exports = function isMouseOut (evt) {
 	return true;
 };
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
+'use strict';
+
+/**
+ * @name throttleEvent
+ * Throttles an event.
+ *
+ * @kind function
+ *
+ * @param {String} evt
+ *        Event name.
+ *
+ * @returns {Function} Returns object.
+ */
+module.exports = function throttleEvent (callback, delay) {
+	var timeout = null;
+	return function (evt) {
+		if (timeout === null) {
+			timeout = setTimeout(function () {
+				callback.call();
+				timeout = null;
+			}, delay);
+		}
+	};
+};
+
+},{}],6:[function(require,module,exports){
 'use strict';
 
 var isMouseOut = require('../utils/isMouseOut');
+var ScrollToEnd = require('../components/ScrollToEnd');
 
 function Panels (options) {
 
@@ -104,6 +179,7 @@ function Panels (options) {
 
 	this.onMouseOver = this.onMouseOver.bind(this);
 	this.onMouseOut = this.onMouseOut.bind(this);
+	this.onScrolledToEnd = this.onScrolledToEnd.bind(this);
 
 	if (document.body.classList.contains('is-intro')) {
 		this.onIntroEnded = this.onIntroEnded.bind(this);
@@ -205,10 +281,19 @@ proto.onMouseOut = function (evt) {
 	}
 };
 
+proto.onScrolledToEnd = function (evt) {
+	this.el.removeEventListener('reachedend', this.onScrolledToEnd);
+	// load next page
+};
+
 proto.enable = function () {
 	if (this.el) {
 		this.el.addEventListener('mouseover', this.onMouseOver, false);
+		this.el.addEventListener('reachedend', this.onScrolledToEnd, false);
 		this.addListenerToPanels();
+		if (this.scrollToEnd === undefined) {
+			this.scrollToEnd = new ScrollToEnd(this.el);
+		}
 	}
 };
 
@@ -220,4 +305,4 @@ proto.disable = function () {
 
 module.exports = Panels;
 
-},{"../utils/isMouseOut":3}]},{},[1]);
+},{"../components/ScrollToEnd":2,"../utils/isMouseOut":4}]},{},[1]);
