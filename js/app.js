@@ -3,7 +3,8 @@
 
 var Panels = require('./views/Panels');
 var panels = new Panels({
-	id: 'panels'
+	id: 'panels',
+	navId: 'panels-nav'
 });
 
 window.requestAnimationFrame(function () {
@@ -13,7 +14,7 @@ window.requestAnimationFrame(function () {
 var loadScript = require('./external/loadScript');
 loadScript('twitter-wjs', '//platform.twitter.com/widgets.js', 500);
 
-},{"./external/loadScript":3,"./views/Panels":6}],2:[function(require,module,exports){
+},{"./external/loadScript":4,"./views/Panels":7}],2:[function(require,module,exports){
 'use strict';
 
 var throttleEvent = require('../utils/throttleEvent');
@@ -61,7 +62,39 @@ proto.disable = function () {
 
 module.exports = ScrollToEnd;
 
-},{"../utils/throttleEvent":5}],3:[function(require,module,exports){
+},{"../utils/throttleEvent":6}],3:[function(require,module,exports){
+'use strict';
+
+module.exports = function loadPanels (url, callback) {
+
+	var req = new XMLHttpRequest();
+
+	req.onload = function () {
+
+		if (req.readyState === 4) {
+			if (req.status === 200) {
+
+				var fragment = document.createDocumentFragment();
+				fragment.appendChild(document.createElement('body'));
+				var body = fragment.firstElementChild;
+				body.innerHTML = this.responseText;
+
+				var panels = fragment.querySelectorAll('#panels .panel');
+				var nav = fragment.querySelectorAll('#panels-nav');
+
+				callback.call(this, {
+					nav: nav,
+					panels: panels
+				});
+			}
+		}
+	};
+
+	req.open('get', url, true);
+	req.send();
+};
+
+},{}],4:[function(require,module,exports){
 'use strict';
 
 /**
@@ -106,7 +139,7 @@ module.exports = function loadScript (id, src, delay, dest) {
 	}, delay);
 };
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 'use strict';
 
 /**
@@ -138,7 +171,7 @@ module.exports = function isMouseOut (evt) {
 	return true;
 };
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 'use strict';
 
 /**
@@ -164,22 +197,30 @@ module.exports = function throttleEvent (callback, delay) {
 	};
 };
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 'use strict';
 
 var isMouseOut = require('../utils/isMouseOut');
+var loadPanels = require('../components/loadPanels');
+
+var PanelsNav = require('./components/PanelsNav');
 var ScrollToEnd = require('../components/ScrollToEnd');
 
 function Panels (options) {
 
 	this.el = document.getElementById(options.id);
+	this.nav = new PanelsNav({
+		id: options.navId
+	});
 	this.panels = document.querySelectorAll('#' + options.id + ' .panel');
+	this.panels = Array.prototype.slice.call(this.panels);
 	this.totalPanels = this.panels.length;
 	this.currentIndex = -1;
 
 	this.onMouseOver = this.onMouseOver.bind(this);
 	this.onMouseOut = this.onMouseOut.bind(this);
 	this.onScrolledToEnd = this.onScrolledToEnd.bind(this);
+	this.onPanelsLoaded = this.onPanelsLoaded.bind(this);
 
 	if (document.body.classList.contains('is-intro')) {
 		this.onIntroEnded = this.onIntroEnded.bind(this);
@@ -193,22 +234,18 @@ function Panels (options) {
 
 var proto = Panels.prototype;
 
-proto.addListenerToPanels = function () {
+proto.addPanels = function (index, append) {
 	function callback (index) {
 		return function () {
 			this.onPanelMouseOver(index);
 		};
 	}
-	var len = this.totalPanels;
-	while (len--) {
-		this.panels[len].addEventListener('mouseover', callback(len).bind(this), false);
-	}
-};
-
-proto.removeListenerFromPanels = function () {
-	var len = this.totalPanels;
-	while (len--) {
-		//
+	index = index || 0;
+	for (index; index < this.totalPanels; ++index) {
+		this.panels[index].addEventListener('mouseover', callback(index).bind(this), false);
+		if (append) {
+			this.el.appendChild(this.panels[index]);
+		}
 	}
 };
 
@@ -245,7 +282,7 @@ proto.onIntroEnded = function (evt) {
 
 	var onMouseMove = function (evt) {
 		document.removeEventListener('mousemove', onMouseMove);
-		var index = Array.prototype.slice.call(this.panels).indexOf(evt.target);
+		var index = this.panels.indexOf(evt.target);
 		if (index > -1) {
 			this.onMouseOver();
 			this.onPanelMouseOver(index);
@@ -281,16 +318,25 @@ proto.onMouseOut = function (evt) {
 	}
 };
 
+proto.onPanelsLoaded = function (obj) {
+	this.panels = this.panels.concat(Array.prototype.slice.call(obj.panels));
+
+	var index = this.totalPanels;
+	this.totalPanels = this.panels.length;
+	this.addPanels(index, true);
+};
+
 proto.onScrolledToEnd = function (evt) {
 	this.el.removeEventListener('reachedend', this.onScrolledToEnd);
-	// load next page
+	this.nav.isLoading(true);
+	loadPanels(this.nav.getPath(), this.onPanelsLoaded);
 };
 
 proto.enable = function () {
 	if (this.el) {
 		this.el.addEventListener('mouseover', this.onMouseOver, false);
 		this.el.addEventListener('reachedend', this.onScrolledToEnd, false);
-		this.addListenerToPanels();
+		this.addPanels();
 		if (this.scrollToEnd === undefined) {
 			this.scrollToEnd = new ScrollToEnd(this.el);
 		}
@@ -300,9 +346,43 @@ proto.enable = function () {
 proto.disable = function () {
 	this.el.removeEventListener('mouseover', this.onMouseOver);
 	this.el.removeEventListener('mouseout', this.onMouseOut);
-	this.removeListenerFromPanels();
 };
 
 module.exports = Panels;
 
-},{"../components/ScrollToEnd":2,"../utils/isMouseOut":4}]},{},[1]);
+},{"../components/ScrollToEnd":2,"../components/loadPanels":3,"../utils/isMouseOut":5,"./components/PanelsNav":8}],8:[function(require,module,exports){
+'use strict';
+
+function PanelsNav (options) {
+
+	this.el = document.getElementById(options.id);
+	this.hide();
+}
+
+var proto = PanelsNav.prototype;
+
+proto.isLoading = function (loading) {
+	if (loading) {
+		this.el.classList.add('is-loading');
+		this.show();
+	}
+	else {
+		this.el.classList.remove('is-loading');
+	}
+};
+
+proto.show = function () {
+	this.el.classList.remove('is-hidden');
+};
+
+proto.hide = function () {
+	this.el.classList.add('is-hidden');
+};
+
+proto.getPath = function () {
+	return this.el.href;
+};
+
+module.exports = PanelsNav;
+
+},{}]},{},[1]);

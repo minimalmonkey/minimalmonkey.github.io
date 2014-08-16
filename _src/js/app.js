@@ -2,7 +2,8 @@
 
 var Panels = require('./views/Panels');
 var panels = new Panels({
-	id: 'panels'
+	id: 'panels',
+	navId: 'panels-nav'
 });
 
 window.requestAnimationFrame(function () {

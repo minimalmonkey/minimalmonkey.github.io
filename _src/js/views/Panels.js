@@ -1,18 +1,26 @@
 'use strict';
 
 var isMouseOut = require('../utils/isMouseOut');
+var loadPanels = require('../components/loadPanels');
+
+var PanelsNav = require('./components/PanelsNav');
 var ScrollToEnd = require('../components/ScrollToEnd');
 
 function Panels (options) {
 
 	this.el = document.getElementById(options.id);
+	this.nav = new PanelsNav({
+		id: options.navId
+	});
 	this.panels = document.querySelectorAll('#' + options.id + ' .panel');
+	this.panels = Array.prototype.slice.call(this.panels);
 	this.totalPanels = this.panels.length;
 	this.currentIndex = -1;
 
 	this.onMouseOver = this.onMouseOver.bind(this);
 	this.onMouseOut = this.onMouseOut.bind(this);
 	this.onScrolledToEnd = this.onScrolledToEnd.bind(this);
+	this.onPanelsLoaded = this.onPanelsLoaded.bind(this);
 
 	if (document.body.classList.contains('is-intro')) {
 		this.onIntroEnded = this.onIntroEnded.bind(this);
@@ -26,22 +34,18 @@ function Panels (options) {
 
 var proto = Panels.prototype;
 
-proto.addListenerToPanels = function () {
+proto.addPanels = function (index, append) {
 	function callback (index) {
 		return function () {
 			this.onPanelMouseOver(index);
 		};
 	}
-	var len = this.totalPanels;
-	while (len--) {
-		this.panels[len].addEventListener('mouseover', callback(len).bind(this), false);
-	}
-};
-
-proto.removeListenerFromPanels = function () {
-	var len = this.totalPanels;
-	while (len--) {
-		//
+	index = index || 0;
+	for (index; index < this.totalPanels; ++index) {
+		this.panels[index].addEventListener('mouseover', callback(index).bind(this), false);
+		if (append) {
+			this.el.appendChild(this.panels[index]);
+		}
 	}
 };
 
@@ -78,7 +82,7 @@ proto.onIntroEnded = function (evt) {
 
 	var onMouseMove = function (evt) {
 		document.removeEventListener('mousemove', onMouseMove);
-		var index = Array.prototype.slice.call(this.panels).indexOf(evt.target);
+		var index = this.panels.indexOf(evt.target);
 		if (index > -1) {
 			this.onMouseOver();
 			this.onPanelMouseOver(index);
@@ -114,16 +118,25 @@ proto.onMouseOut = function (evt) {
 	}
 };
 
+proto.onPanelsLoaded = function (obj) {
+	this.panels = this.panels.concat(Array.prototype.slice.call(obj.panels));
+
+	var index = this.totalPanels;
+	this.totalPanels = this.panels.length;
+	this.addPanels(index, true);
+};
+
 proto.onScrolledToEnd = function (evt) {
 	this.el.removeEventListener('reachedend', this.onScrolledToEnd);
-	// load next page
+	this.nav.isLoading(true);
+	loadPanels(this.nav.getPath(), this.onPanelsLoaded);
 };
 
 proto.enable = function () {
 	if (this.el) {
 		this.el.addEventListener('mouseover', this.onMouseOver, false);
 		this.el.addEventListener('reachedend', this.onScrolledToEnd, false);
-		this.addListenerToPanels();
+		this.addPanels();
 		if (this.scrollToEnd === undefined) {
 			this.scrollToEnd = new ScrollToEnd(this.el);
 		}
@@ -133,7 +146,6 @@ proto.enable = function () {
 proto.disable = function () {
 	this.el.removeEventListener('mouseover', this.onMouseOver);
 	this.el.removeEventListener('mouseout', this.onMouseOut);
-	this.removeListenerFromPanels();
 };
 
 module.exports = Panels;
