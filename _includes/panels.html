@@ -9,7 +9,7 @@
 		{% if paginator.next_page_path %}
 			{% assign next_page_path = paginator.next_page_path %}
 		{% else %}
-			{% assign next_page_path = "/" %}
+			{% assign next_page_path = false %}
 		{% endif %}
 	{% endif %}
 
@@ -28,4 +28,6 @@
 
 </div>
 
-<a id="panels-nav" class="panels-nav{% if next_page_path == '/' %} is-hidden{% endif %}" href="{{ next_page_path }}"></a>
+{% if next_page_path %}
+<a id="panels-nav" class="panels-nav{% if page.type != 'headerpage' %} is-hidden{% endif %}" href="{{ next_page_path }}"></a>
+{% endif %}

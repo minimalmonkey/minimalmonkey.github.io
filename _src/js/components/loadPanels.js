@@ -15,7 +15,7 @@ module.exports = function loadPanels (url, callback) {
 				body.innerHTML = this.responseText;
 
 				var panels = fragment.querySelectorAll('#panels .panel');
-				var nav = fragment.querySelectorAll('#panels-nav');
+				var nav = fragment.querySelector('#panels-nav');
 
 				callback.call(this, {
 					nav: nav,

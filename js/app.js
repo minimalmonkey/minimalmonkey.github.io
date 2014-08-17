@@ -24,21 +24,72 @@ function ScrollToEnd (el) {
 	this.onResized = this.onResized.bind(this);
 	this.update(el);
 	this.enable();
+	this.points = [];
 }
 
 var proto = ScrollToEnd.prototype;
+
+proto.scrollToPoint = function (index) {
+	if (this.points[index]) {
+		var tx = this.points[index];
+		var animateScroll = function () {
+			var px = window.pageXOffset;
+			var lx = window.pageXOffset;
+			var vx = (tx - px) * 0.175;
+			px += vx;
+			window.scrollTo(px, window.pageYOffset);
+			if (~~px != lx) {
+				window.requestAnimationFrame(animateScroll);
+			}
+		};
+		animateScroll();
+	}
+};
 
 proto.update = function (el) {
 	this.el = el;
 	this.onResized();
 };
 
+proto.addPoint = function (p) {
+	if (this.points.indexOf(p) < 0) {
+		this.points.push(p);
+	}
+};
+
+proto.removePoint = function (p) {
+	var index = this.points.indexOf(p);
+	if (index > -1) {
+		this.points.splice(index);
+	}
+};
+
+proto.clearPoints = function () {
+	this.points = [];
+};
+
 proto.onScrolled = function (evt) {
-	if (window.pageXOffset >= this.widthMinusWindow) {
+
+	var scrollLeft = window.pageXOffset;
+	if (scrollLeft >= this.widthMinusWindow) {
 		var reachedEnd = new CustomEvent('reachedend', {
 			detail: {}
 		});
 		this.el.dispatchEvent(reachedEnd);
+	}
+
+	if (this.points.length) {
+		var i = this.points.length;
+		while (i--) {
+			if (scrollLeft >= this.points[i]) {
+				var reachedPoint = new CustomEvent('reachedpoint', {
+					detail: {
+						point: this.points[i]
+					}
+				});
+				this.el.dispatchEvent(reachedPoint);
+			}
+		}
 	}
 };
 
@@ -80,7 +131,7 @@ module.exports = function loadPanels (url, callback) {
 				body.innerHTML = this.responseText;
 
 				var panels = fragment.querySelectorAll('#panels .panel');
-				var nav = fragment.querySelectorAll('#panels-nav');
+				var nav = fragment.querySelector('#panels-nav');
 
 				callback.call(this, {
 					nav: nav,
@@ -220,7 +271,9 @@ function Panels (options) {
 	this.onMouseOver = this.onMouseOver.bind(this);
 	this.onMouseOut = this.onMouseOut.bind(this);
 	this.onScrolledToEnd = this.onScrolledToEnd.bind(this);
+	this.onScrolledToPoint = this.onScrolledToPoint.bind(this);
 	this.onPanelsLoaded = this.onPanelsLoaded.bind(this);
+	this.onNavClicked = this.onNavClicked.bind(this);
 
 	if (document.body.classList.contains('is-intro')) {
 		this.onIntroEnded = this.onIntroEnded.bind(this);
@@ -240,6 +293,7 @@ proto.addPanels = function (index, append) {
 			this.onPanelMouseOver(index);
 		};
 	}
+	// TODO: add `is-shrunk-right` to the first added element if append is `true` and we're hovering
 	index = index || 0;
 	for (index; index < this.totalPanels; ++index) {
 		this.panels[index].addEventListener('mouseover', callback(index).bind(this), false);
@@ -319,17 +373,48 @@ proto.onMouseOut = function (evt) {
 };
 
 proto.onPanelsLoaded = function (obj) {
+	this.nav.setLoading(false);
 	this.panels = this.panels.concat(Array.prototype.slice.call(obj.panels));
-
 	var index = this.totalPanels;
 	this.totalPanels = this.panels.length;
 	this.addPanels(index, true);
+
+	this.scrollToEnd.addPoint(this.scrollToEnd.widthMinusWindow + this.panels[0].offsetWidth);
+	this.el.addEventListener('reachedpoint', this.onScrolledToPoint, false);
+	this.nav.el.addEventListener('click', this.onNavClicked, false);
+
+	if (obj.nav) {
+		this.nav.setPath(obj.nav.href);
+		this.scrollToEnd.update(this.el);
+		this.el.addEventListener('reachedend', this.onScrolledToEnd, false);
+	}
+	else {
+		this.allPanelsLoaded = true;
+	}
 };
 
 proto.onScrolledToEnd = function (evt) {
 	this.el.removeEventListener('reachedend', this.onScrolledToEnd);
-	this.nav.isLoading(true);
+	this.nav.setLoading(true);
 	loadPanels(this.nav.getPath(), this.onPanelsLoaded);
+};
+
+proto.onScrolledToPoint = function (evt) {
+	this.el.removeEventListener('reachedpoint', this.onScrolledToPoint);
+	this.scrollToEnd.clearPoints();
+	this.nav.hide();
+	if (this.allPanelsLoaded) {
+		this.scrollToEnd.disable();
+	}
+};
+
+proto.onNavClicked = function (evt) {
+	evt.preventDefault();
+	if (!this.nav.getLoading()) {
+		this.scrollToEnd.scrollToPoint(0);
+		this.onScrolledToPoint();
+		this.nav.el.removeEventListener('click', this.onNavClicked);
+	}
 };
 
 proto.enable = function () {
@@ -361,8 +446,13 @@ function PanelsNav (options) {
 
 var proto = PanelsNav.prototype;
 
-proto.isLoading = function (loading) {
-	if (loading) {
+proto.getLoading = function () {
+	return this.loading;
+};
+
+proto.setLoading = function (loading) {
+	this.loading = loading;
+	if (this.loading) {
 		this.el.classList.add('is-loading');
 		this.show();
 	}
@@ -381,6 +471,10 @@ proto.hide = function () {
 
 proto.getPath = function () {
 	return this.el.href;
+};
+
+proto.setPath = function (path) {
+	this.el.href = path;
 };
 
 module.exports = PanelsNav;

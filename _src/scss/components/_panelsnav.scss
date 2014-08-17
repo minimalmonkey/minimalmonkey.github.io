@@ -37,6 +37,27 @@
 		}
 	}
 
+	&.is-loading {
+		&:before {
+			top: 50%;
+			left: 50%;
+			width: 30px;
+			height: 30px;
+			margin: -15px 0 0 -15px;
+			border-radius: 30px;
+			border-top: 2px solid rgba(0, 0, 0, 0.2);
+			border-right: 2px solid rgba(0, 0, 0, 0.2);
+			border-bottom: 2px solid rgba(0, 0, 0, 0.2);
+			border-left: 2px solid rgba(0, 0, 0, 0.4);
+			content: "";
+			animation: loadspin 0.7s infinite linear;
+		}
+		&:before,
+		&:after,
+			transform: translateX(-200%);
+		}
+	}
+
 	&.is-hidden {
 		display: none;
 	}

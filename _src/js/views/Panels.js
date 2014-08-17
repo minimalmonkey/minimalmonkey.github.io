@@ -20,7 +20,9 @@ function Panels (options) {
 	this.onMouseOver = this.onMouseOver.bind(this);
 	this.onMouseOut = this.onMouseOut.bind(this);
 	this.onScrolledToEnd = this.onScrolledToEnd.bind(this);
+	this.onScrolledToPoint = this.onScrolledToPoint.bind(this);
 	this.onPanelsLoaded = this.onPanelsLoaded.bind(this);
+	this.onNavClicked = this.onNavClicked.bind(this);
 
 	if (document.body.classList.contains('is-intro')) {
 		this.onIntroEnded = this.onIntroEnded.bind(this);
@@ -40,6 +42,7 @@ proto.addPanels = function (index, append) {
 			this.onPanelMouseOver(index);
 		};
 	}
+	// TODO: add `is-shrunk-right` to the first added element if append is `true` and we're hovering
 	index = index || 0;
 	for (index; index < this.totalPanels; ++index) {
 		this.panels[index].addEventListener('mouseover', callback(index).bind(this), false);
@@ -119,17 +122,48 @@ proto.onMouseOut = function (evt) {
 };
 
 proto.onPanelsLoaded = function (obj) {
+	this.nav.setLoading(false);
 	this.panels = this.panels.concat(Array.prototype.slice.call(obj.panels));
-
 	var index = this.totalPanels;
 	this.totalPanels = this.panels.length;
 	this.addPanels(index, true);
+
+	this.scrollToEnd.addPoint(this.scrollToEnd.widthMinusWindow + this.panels[0].offsetWidth);
+	this.el.addEventListener('reachedpoint', this.onScrolledToPoint, false);
+	this.nav.el.addEventListener('click', this.onNavClicked, false);
+
+	if (obj.nav) {
+		this.nav.setPath(obj.nav.href);
+		this.scrollToEnd.update(this.el);
+		this.el.addEventListener('reachedend', this.onScrolledToEnd, false);
+	}
+	else {
+		this.allPanelsLoaded = true;
+	}
 };
 
 proto.onScrolledToEnd = function (evt) {
 	this.el.removeEventListener('reachedend', this.onScrolledToEnd);
-	this.nav.isLoading(true);
+	this.nav.setLoading(true);
 	loadPanels(this.nav.getPath(), this.onPanelsLoaded);
+};
+
+proto.onScrolledToPoint = function (evt) {
+	this.el.removeEventListener('reachedpoint', this.onScrolledToPoint);
+	this.scrollToEnd.clearPoints();
+	this.nav.hide();
+	if (this.allPanelsLoaded) {
+		this.scrollToEnd.disable();
+	}
+};
+
+proto.onNavClicked = function (evt) {
+	evt.preventDefault();
+	if (!this.nav.getLoading()) {
+		this.scrollToEnd.scrollToPoint(0);
+		this.onScrolledToPoint();
+		this.nav.el.removeEventListener('click', this.onNavClicked);
+	}
 };
 
 proto.enable = function () {
