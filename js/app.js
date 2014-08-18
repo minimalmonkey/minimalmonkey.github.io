@@ -19,7 +19,7 @@ loadScript('twitter-wjs', '//platform.twitter.com/widgets.js', 500);
 
 var throttleEvent = require('../utils/throttleEvent');
 
-function ScrollToEnd (el) {
+function ScrollEvents (el) {
 	this.onScrolled = this.onScrolled.bind(this);
 	this.onResized = this.onResized.bind(this);
 	this.update(el);
@@ -27,7 +27,7 @@ function ScrollToEnd (el) {
 	this.points = [];
 }
 
-var proto = ScrollToEnd.prototype;
+var proto = ScrollEvents.prototype;
 
 proto.scrollToPoint = function (index) {
 	if (this.points[index]) {
@@ -111,13 +111,14 @@ proto.disable = function () {
 	window.removeEventListener('resize', this.throttledResize);
 };
 
-module.exports = ScrollToEnd;
+module.exports = ScrollEvents;
 
 },{"../utils/throttleEvent":6}],3:[function(require,module,exports){
 'use strict';
 
-module.exports = function loadPanels (url, callback) {
+module.exports = function loadPanels (url, callback, selectors) {
 
+	selectors = selectors || [];
 	var req = new XMLHttpRequest();
 
 	req.onload = function () {
@@ -127,16 +128,17 @@ module.exports = function loadPanels (url, callback) {
 
 				var fragment = document.createDocumentFragment();
 				fragment.appendChild(document.createElement('body'));
-				var body = fragment.firstElementChild;
+				var body = fragment.querySelector('body');
 				body.innerHTML = this.responseText;
 
-				var panels = fragment.querySelectorAll('#panels .panel');
-				var nav = fragment.querySelector('#panels-nav');
+				var elements = [];
+				var i = selectors.length;
 
-				callback.call(this, {
-					nav: nav,
-					panels: panels
-				});
+				while (i--) {
+					elements[i] = fragment.querySelectorAll(selectors[i]);
+				}
+
+				callback.apply(this, elements.length ? elements : [this.responseText]);
 			}
 		}
 	};
@@ -252,10 +254,10 @@ module.exports = function throttleEvent (callback, delay) {
 'use strict';
 
 var isMouseOut = require('../utils/isMouseOut');
-var loadPanels = require('../components/loadPanels');
+var loadPage = require('../components/loadPage');
 
 var PanelsNav = require('./components/PanelsNav');
-var ScrollToEnd = require('../components/ScrollToEnd');
+var ScrollEvents = require('../components/ScrollEvents');
 
 function Panels (options) {
 
@@ -372,20 +374,21 @@ proto.onMouseOut = function (evt) {
 	}
 };
 
-proto.onPanelsLoaded = function (obj) {
+proto.onPanelsLoaded = function (panels, nav) {
+
 	this.nav.setLoading(false);
-	this.panels = this.panels.concat(Array.prototype.slice.call(obj.panels));
+	this.panels = this.panels.concat(Array.prototype.slice.call(panels));
 	var index = this.totalPanels;
 	this.totalPanels = this.panels.length;
 	this.addPanels(index, true);
 
-	this.scrollToEnd.addPoint(this.scrollToEnd.widthMinusWindow + this.panels[0].offsetWidth);
+	this.scrollEvents.addPoint(this.scrollEvents.widthMinusWindow + this.panels[0].offsetWidth);
 	this.el.addEventListener('reachedpoint', this.onScrolledToPoint, false);
 	this.nav.el.addEventListener('click', this.onNavClicked, false);
 
-	if (obj.nav) {
-		this.nav.setPath(obj.nav.href);
-		this.scrollToEnd.update(this.el);
+	if (nav[0]) {
+		this.nav.setPath(nav[0].href);
+		this.scrollEvents.update(this.el);
 		this.el.addEventListener('reachedend', this.onScrolledToEnd, false);
 	}
 	else {
@@ -396,22 +399,22 @@ proto.onPanelsLoaded = function (obj) {
 proto.onScrolledToEnd = function (evt) {
 	this.el.removeEventListener('reachedend', this.onScrolledToEnd);
 	this.nav.setLoading(true);
-	loadPanels(this.nav.getPath(), this.onPanelsLoaded);
+	loadPage(this.nav.getPath(), this.onPanelsLoaded, ['#panels .panel', '#panels-nav']);
 };
 
 proto.onScrolledToPoint = function (evt) {
 	this.el.removeEventListener('reachedpoint', this.onScrolledToPoint);
-	this.scrollToEnd.clearPoints();
+	this.scrollEvents.clearPoints();
 	this.nav.hide();
 	if (this.allPanelsLoaded) {
-		this.scrollToEnd.disable();
+		this.scrollEvents.disable();
 	}
 };
 
 proto.onNavClicked = function (evt) {
 	evt.preventDefault();
 	if (!this.nav.getLoading()) {
-		this.scrollToEnd.scrollToPoint(0);
+		this.scrollEvents.scrollToPoint(0);
 		this.onScrolledToPoint();
 		this.nav.el.removeEventListener('click', this.onNavClicked);
 	}
@@ -422,8 +425,8 @@ proto.enable = function () {
 		this.el.addEventListener('mouseover', this.onMouseOver, false);
 		this.el.addEventListener('reachedend', this.onScrolledToEnd, false);
 		this.addPanels();
-		if (this.scrollToEnd === undefined) {
-			this.scrollToEnd = new ScrollToEnd(this.el);
+		if (this.scrollEvents === undefined) {
+			this.scrollEvents = new ScrollEvents(this.el);
 		}
 	}
 };
@@ -435,7 +438,7 @@ proto.disable = function () {
 
 module.exports = Panels;
 
-},{"../components/ScrollToEnd":2,"../components/loadPanels":3,"../utils/isMouseOut":5,"./components/PanelsNav":8}],8:[function(require,module,exports){
+},{"../components/ScrollEvents":2,"../components/loadPage":3,"../utils/isMouseOut":5,"./components/PanelsNav":8}],8:[function(require,module,exports){
 'use strict';
 
 function PanelsNav (options) {

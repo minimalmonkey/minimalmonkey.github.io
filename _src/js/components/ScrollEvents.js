@@ -2,7 +2,7 @@
 
 var throttleEvent = require('../utils/throttleEvent');
 
-function ScrollToEnd (el) {
+function ScrollEvents (el) {
 	this.onScrolled = this.onScrolled.bind(this);
 	this.onResized = this.onResized.bind(this);
 	this.update(el);
@@ -10,7 +10,7 @@ function ScrollToEnd (el) {
 	this.points = [];
 }
 
-var proto = ScrollToEnd.prototype;
+var proto = ScrollEvents.prototype;
 
 proto.scrollToPoint = function (index) {
 	if (this.points[index]) {
@@ -94,4 +94,4 @@ proto.disable = function () {
 	window.removeEventListener('resize', this.throttledResize);
 };
 
-module.exports = ScrollToEnd;
+module.exports = ScrollEvents;

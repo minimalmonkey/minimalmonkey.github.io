@@ -1,10 +1,10 @@
 'use strict';
 
 var isMouseOut = require('../utils/isMouseOut');
-var loadPanels = require('../components/loadPanels');
+var loadPage = require('../components/loadPage');
 
 var PanelsNav = require('./components/PanelsNav');
-var ScrollToEnd = require('../components/ScrollToEnd');
+var ScrollEvents = require('../components/ScrollEvents');
 
 function Panels (options) {
 
@@ -121,20 +121,21 @@ proto.onMouseOut = function (evt) {
 	}
 };
 
-proto.onPanelsLoaded = function (obj) {
+proto.onPanelsLoaded = function (panels, nav) {
+
 	this.nav.setLoading(false);
-	this.panels = this.panels.concat(Array.prototype.slice.call(obj.panels));
+	this.panels = this.panels.concat(Array.prototype.slice.call(panels));
 	var index = this.totalPanels;
 	this.totalPanels = this.panels.length;
 	this.addPanels(index, true);
 
-	this.scrollToEnd.addPoint(this.scrollToEnd.widthMinusWindow + this.panels[0].offsetWidth);
+	this.scrollEvents.addPoint(this.scrollEvents.widthMinusWindow + this.panels[0].offsetWidth);
 	this.el.addEventListener('reachedpoint', this.onScrolledToPoint, false);
 	this.nav.el.addEventListener('click', this.onNavClicked, false);
 
-	if (obj.nav) {
-		this.nav.setPath(obj.nav.href);
-		this.scrollToEnd.update(this.el);
+	if (nav[0]) {
+		this.nav.setPath(nav[0].href);
+		this.scrollEvents.update(this.el);
 		this.el.addEventListener('reachedend', this.onScrolledToEnd, false);
 	}
 	else {
@@ -145,22 +146,22 @@ proto.onPanelsLoaded = function (obj) {
 proto.onScrolledToEnd = function (evt) {
 	this.el.removeEventListener('reachedend', this.onScrolledToEnd);
 	this.nav.setLoading(true);
-	loadPanels(this.nav.getPath(), this.onPanelsLoaded);
+	loadPage(this.nav.getPath(), this.onPanelsLoaded, ['#panels .panel', '#panels-nav']);
 };
 
 proto.onScrolledToPoint = function (evt) {
 	this.el.removeEventListener('reachedpoint', this.onScrolledToPoint);
-	this.scrollToEnd.clearPoints();
+	this.scrollEvents.clearPoints();
 	this.nav.hide();
 	if (this.allPanelsLoaded) {
-		this.scrollToEnd.disable();
+		this.scrollEvents.disable();
 	}
 };
 
 proto.onNavClicked = function (evt) {
 	evt.preventDefault();
 	if (!this.nav.getLoading()) {
-		this.scrollToEnd.scrollToPoint(0);
+		this.scrollEvents.scrollToPoint(0);
 		this.onScrolledToPoint();
 		this.nav.el.removeEventListener('click', this.onNavClicked);
 	}
@@ -171,8 +172,8 @@ proto.enable = function () {
 		this.el.addEventListener('mouseover', this.onMouseOver, false);
 		this.el.addEventListener('reachedend', this.onScrolledToEnd, false);
 		this.addPanels();
-		if (this.scrollToEnd === undefined) {
-			this.scrollToEnd = new ScrollToEnd(this.el);
+		if (this.scrollEvents === undefined) {
+			this.scrollEvents = new ScrollEvents(this.el);
 		}
 	}
 };
