@@ -8,14 +8,21 @@
 	font-size: 8px;
 	text-align: center;
 	background-color: #fcfcfc;
-	transition: transform 0.3s ease-in-out 0.2s;
+
+	.is-panels & {
+		transition: transform 0.3s ease-in-out 0.2s;
+	}
+
+	.is-post & {
+		transition: transform 0.3s ease-in-out;
+	}
 
 	&.is-collapsed {
 		height: $site-nav-height;
 		background-color: #f3f3f3;
 	}
 
-	.js .is-intro.is-panels & {
+	.js .is-intro & {
 		transform: translateY(-100%);
 	}
 

@@ -3,10 +3,16 @@
 function PanelsNav (options) {
 
 	this.el = document.getElementById(options.id);
-	this.hide();
+	if (this.hasEl()) {
+		this.hide();
+	}
 }
 
 var proto = PanelsNav.prototype;
+
+proto.hasEl = function () {
+	return this.el !== null;
+};
 
 proto.getLoading = function () {
 	return this.loading;

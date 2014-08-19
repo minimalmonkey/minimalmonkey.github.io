@@ -1,9 +1,15 @@
 .post {
 	position: relative;
 	max-width: $post-max-width;
-	margin: $site-nav-height auto 0;
+	margin: 0 auto;
 	color: #2d2d2d;
 	background: #fff;
+	transition: opacity 0.35s ease-in-out 0.1s, transform 0.35s ease-in-out 0.1s;
+
+	.js .is-intro & {
+		opacity: 0;
+		transform: translateY(200px);
+	}
 
 	&:before,
 	&:after {

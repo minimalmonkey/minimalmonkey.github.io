@@ -52,8 +52,9 @@
 			content: "";
 			animation: loadspin 0.7s infinite linear;
 		}
+
 		&:before,
-		&:after,
+		&:after {
 			transform: translateX(-200%);
 		}
 	}

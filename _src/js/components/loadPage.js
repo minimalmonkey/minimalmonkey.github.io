@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function loadPanels (url, callback, selectors) {
+module.exports = function loadPage (url, callback, selectors) {
 
 	selectors = selectors || [];
 	var req = new XMLHttpRequest();

@@ -24,7 +24,7 @@ function Panels (options) {
 	this.onPanelsLoaded = this.onPanelsLoaded.bind(this);
 	this.onNavClicked = this.onNavClicked.bind(this);
 
-	if (document.body.classList.contains('is-intro')) {
+	if (document.body.classList.contains('is-panels', 'is-intro')) {
 		this.onIntroEnded = this.onIntroEnded.bind(this);
 		// webkitTransitionEnd otransitionend msTransitionEnd transitionend
 		this.panels[this.totalPanels - 1].addEventListener('webkitTransitionEnd', this.onIntroEnded, false);
@@ -172,7 +172,7 @@ proto.enable = function () {
 		this.el.addEventListener('mouseover', this.onMouseOver, false);
 		this.el.addEventListener('reachedend', this.onScrolledToEnd, false);
 		this.addPanels();
-		if (this.scrollEvents === undefined) {
+		if (this.nav.hasEl() && this.scrollEvents === undefined) {
 			this.scrollEvents = new ScrollEvents(this.el);
 		}
 	}

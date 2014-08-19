@@ -1,4 +1,6 @@
 .pagecontent {
+	padding-top: $site-nav-height;
+
 	&.is-muted {
 		position: relative;
 		overflow: hidden;

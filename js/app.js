@@ -1,20 +1,27 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
+var loadScript = require('./external/loadScript');
+
 var Panels = require('./views/Panels');
+var Posts = require('./views/Posts');
+
 var panels = new Panels({
 	id: 'panels',
 	navId: 'panels-nav'
+});
+
+var posts = new Posts({
+	//
 });
 
 window.requestAnimationFrame(function () {
 	document.body.classList.remove('is-intro');
 });
 
-var loadScript = require('./external/loadScript');
-loadScript('twitter-wjs', '//platform.twitter.com/widgets.js', 500);
+// loadScript('twitter-wjs', '//platform.twitter.com/widgets.js', 500);
 
-},{"./external/loadScript":4,"./views/Panels":7}],2:[function(require,module,exports){
+},{"./external/loadScript":4,"./views/Panels":7,"./views/Posts":8}],2:[function(require,module,exports){
 'use strict';
 
 var throttleEvent = require('../utils/throttleEvent');
@@ -277,7 +284,7 @@ function Panels (options) {
 	this.onPanelsLoaded = this.onPanelsLoaded.bind(this);
 	this.onNavClicked = this.onNavClicked.bind(this);
 
-	if (document.body.classList.contains('is-intro')) {
+	if (document.body.classList.contains('is-panels', 'is-intro')) {
 		this.onIntroEnded = this.onIntroEnded.bind(this);
 		// webkitTransitionEnd otransitionend msTransitionEnd transitionend
 		this.panels[this.totalPanels - 1].addEventListener('webkitTransitionEnd', this.onIntroEnded, false);
@@ -425,7 +432,7 @@ proto.enable = function () {
 		this.el.addEventListener('mouseover', this.onMouseOver, false);
 		this.el.addEventListener('reachedend', this.onScrolledToEnd, false);
 		this.addPanels();
-		if (this.scrollEvents === undefined) {
+		if (this.nav.hasEl() && this.scrollEvents === undefined) {
 			this.scrollEvents = new ScrollEvents(this.el);
 		}
 	}
@@ -438,16 +445,45 @@ proto.disable = function () {
 
 module.exports = Panels;
 
-},{"../components/ScrollEvents":2,"../components/loadPage":3,"../utils/isMouseOut":5,"./components/PanelsNav":8}],8:[function(require,module,exports){
+},{"../components/ScrollEvents":2,"../components/loadPage":3,"../utils/isMouseOut":5,"./components/PanelsNav":9}],8:[function(require,module,exports){
+'use strict';
+
+var loadPage = require('../components/loadPage');
+
+function Posts (options) {
+	// console.log('Posts:', this.el);
+}
+
+var proto = Posts.prototype;
+
+proto.enable = function () {
+	if (this.el) {
+		//
+	}
+};
+
+proto.disable = function () {
+	//
+};
+
+module.exports = Posts;
+
+},{"../components/loadPage":3}],9:[function(require,module,exports){
 'use strict';
 
 function PanelsNav (options) {
 
 	this.el = document.getElementById(options.id);
-	this.hide();
+	if (this.hasEl()) {
+		this.hide();
+	}
 }
 
 var proto = PanelsNav.prototype;
+
+proto.hasEl = function () {
+	return this.el !== null;
+};
 
 proto.getLoading = function () {
 	return this.loading;
