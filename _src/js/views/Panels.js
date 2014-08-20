@@ -146,7 +146,7 @@ proto.onPanelsLoaded = function (panels, nav) {
 proto.onScrolledToEnd = function (evt) {
 	this.el.removeEventListener('reachedend', this.onScrolledToEnd);
 	this.nav.setLoading(true);
-	loadPage(this.nav.getPath(), this.onPanelsLoaded, ['#panels .panel', '#panels-nav']);
+	loadPage(this.nav.getPath(), this.onPanelsLoaded, '#panels .panel', '#panels-nav');
 };
 
 proto.onScrolledToPoint = function (evt) {

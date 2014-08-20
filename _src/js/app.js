@@ -18,4 +18,4 @@ window.requestAnimationFrame(function () {
 	document.body.classList.remove('is-intro');
 });
 
-loadScript('twitter-wjs', '//platform.twitter.com/widgets.js', 500);
+loadScript('twitter-wjs', '//platform.twitter.com/widgets.js', 2000);

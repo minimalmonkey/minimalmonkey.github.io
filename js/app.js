@@ -19,7 +19,7 @@ window.requestAnimationFrame(function () {
 	document.body.classList.remove('is-intro');
 });
 
-// loadScript('twitter-wjs', '//platform.twitter.com/widgets.js', 500);
+loadScript('twitter-wjs', '//platform.twitter.com/widgets.js', 2000);
 
 },{"./external/loadScript":4,"./views/Panels":7,"./views/Posts":8}],2:[function(require,module,exports){
 'use strict';
@@ -123,9 +123,9 @@ module.exports = ScrollEvents;
 },{"../utils/throttleEvent":6}],3:[function(require,module,exports){
 'use strict';
 
-module.exports = function loadPanels (url, callback, selectors) {
+module.exports = function loadPage (url, callback) {
 
-	selectors = selectors || [];
+	var selectors = Array.prototype.slice.call(arguments).splice(2);
 	var req = new XMLHttpRequest();
 
 	req.onload = function () {
@@ -406,7 +406,7 @@ proto.onPanelsLoaded = function (panels, nav) {
 proto.onScrolledToEnd = function (evt) {
 	this.el.removeEventListener('reachedend', this.onScrolledToEnd);
 	this.nav.setLoading(true);
-	loadPage(this.nav.getPath(), this.onPanelsLoaded, ['#panels .panel', '#panels-nav']);
+	loadPage(this.nav.getPath(), this.onPanelsLoaded, '#panels .panel', '#panels-nav');
 };
 
 proto.onScrolledToPoint = function (evt) {
@@ -451,10 +451,30 @@ module.exports = Panels;
 var loadPage = require('../components/loadPage');
 
 function Posts (options) {
-	// console.log('Posts:', this.el);
+	this.loadSiblingPosts();
 }
 
 var proto = Posts.prototype;
+
+proto.loadSiblingPosts = function () {
+	var nextNav = document.querySelector('.post-nav-next');
+	if (nextNav && !nextNav.classList.contains('is-hidden')) {
+		loadPage(nextNav.href, function (pagecontent) {
+			this.onSiblingPostLoaded(pagecontent, nextNav);
+		}.bind(this), '.pagecontent');
+	}
+
+	var previousNav = document.querySelector('.post-nav-previous');
+	if (previousNav && !previousNav.classList.contains('is-hidden')) {
+		loadPage(previousNav.href, function (pagecontent) {
+			this.onSiblingPostLoaded(pagecontent, previousNav);
+		}.bind(this), '.pagecontent');
+	}
+};
+
+proto.onSiblingPostLoaded = function (pagecontent, nav) {
+	nav.classList.add('color-' + pagecontent[0].dataset.color);
+};
 
 proto.enable = function () {
 	if (this.el) {

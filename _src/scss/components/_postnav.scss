@@ -4,8 +4,9 @@
 	width: 50px;
 	height: 100%;
 	top: 0;
+	background: rgba(0, 0, 0, 0.23);
 	transform: translate3d(0, 0, 0);
-	transition: transform 0.3s;
+	transition: transform 0.5s ease-out 0.1s;
 
 	@media (min-width: $bp-post-nav) {
 		display: block;
@@ -17,8 +18,9 @@
 		right: 0;
 		bottom: 0;
 		left: 0;
-		background: rgba(0, 0, 0, 0.23);
+		background: inherit;
 		content: "";
+		transform: translate3d(0, 0, 0);
 		transition: transform 0.3s;
 	}
 
@@ -40,10 +42,6 @@
 	}
 
 	&:hover {
-		&:before {
-			transform: translate3d(0, 0, 0);
-		}
-
 		&:after {
 			opacity: 1;
 		}
@@ -56,18 +54,22 @@
 
 .post-nav-next {
 	left: 0;
+	transform: translate3d(-100%, 0, 0);
 
-	&:before {
-		transform: translate3d(-100%, 0, 0);
+	&:hover {
+		&:before {
+			transform: translate3d(100%, 0, 0);
+		}
 	}
 
 	&:after {
 		content: "<";
+		transform: translate3d(100%, 0, 0);
 	}
 
-	.is-intro &,
+	.js .is-intro &,
 	&.is-hidden {
-		transform: translate3d(-100%, 0, 0);
+		transform: translate3d(-200%, 0, 0);
 
 		.is-muted & {
 			transform: translate3d(-100%, $site-header-height - $site-nav-height, 0);
@@ -77,18 +79,22 @@
 
 .post-nav-previous {
 	right: 0;
+	transform: translate3d(100%, 0, 0);
 
-	&:before {
-		transform: translate3d(100%, 0, 0);
+	&:hover {
+		&:before {
+			transform: translate3d(-100%, 0, 0);
+		}
 	}
 
 	&:after {
 		content: ">";
+		transform: translate3d(-100%, 0, 0);
 	}
 
-	.is-intro &,
+	.js .is-intro &,
 	&.is-hidden {
-		transform: translate3d(100%, 0, 0);
+		transform: translate3d(200%, 0, 0);
 
 		.is-muted & {
 			transform: translate3d(100%, $site-header-height - $site-nav-height, 0);

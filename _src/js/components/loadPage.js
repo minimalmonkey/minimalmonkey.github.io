@@ -1,8 +1,8 @@
 'use strict';
 
-module.exports = function loadPage (url, callback, selectors) {
+module.exports = function loadPage (url, callback) {
 
-	selectors = selectors || [];
+	var selectors = Array.prototype.slice.call(arguments).splice(2);
 	var req = new XMLHttpRequest();
 
 	req.onload = function () {
