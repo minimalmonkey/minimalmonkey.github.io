@@ -3,8 +3,13 @@
 
 var loadScript = require('./external/loadScript');
 
+var Router = require('./components/Router');
 var Panels = require('./views/Panels');
 var Posts = require('./views/Posts');
+
+var router = new Router({
+	//
+});
 
 var panels = new Panels({
 	id: 'panels',
@@ -21,7 +26,84 @@ window.requestAnimationFrame(function () {
 
 loadScript('twitter-wjs', '//platform.twitter.com/widgets.js', 2000);
 
-},{"./external/loadScript":4,"./views/Panels":7,"./views/Posts":8}],2:[function(require,module,exports){
+},{"./components/Router":2,"./external/loadScript":6,"./views/Panels":10,"./views/Posts":11}],2:[function(require,module,exports){
+'use strict';
+
+var addEventListenerList = require('../utils/addEventListenerList');
+var routeToRegExp = require('./routeToRegExp');
+
+function Router (options) {
+	this.onClicked = this.onClicked.bind(this);
+	addEventListenerList(document.querySelectorAll('[data-router]'), 'click', this.onClicked);
+
+	window.addEventListener('popstate', function(evt) {
+		this.navigate(location.pathname, true);
+	}.bind(this));
+
+	this.routes = {};
+}
+
+var proto = Router.prototype;
+
+proto.onClicked = function (evt) {
+	evt.preventDefault();
+	this.navigate(evt.currentTarget.pathname);
+};
+
+proto.navigate = function (route, silent) {
+	if (!silent) {
+		history.pushState(null, null, route);
+	}
+	this.match(route);
+};
+
+proto.add = function (route, callback) {
+
+	route = routeToRegExp(route);
+
+	if (this.routes[route]) {
+		if (this.routes[route].indexOf(callback) < 0) {
+			this.routes[route].push(callback);
+		}
+	}
+	else {
+		this.routes[route] = [route, callback];
+	}
+};
+
+proto.remove = function (route, callback) {
+	//
+};
+
+proto.match = function (route, callback) {
+	for (var key in this.routes) {
+
+		console.log(route, this.routes[key][0], this.routes[key][0].exec(route));
+
+		if (this.routes[key][0].test(route)) {
+			var i = this.routes[key].length;
+			while (--i > 0) {
+
+				// var args = router.extractParameters(route, fragment);
+
+				this.routes[key][i].apply(this, []);
+			}
+			// break;
+		}
+	}
+};
+
+proto.enable = function () {
+	//
+};
+
+proto.disable = function () {
+	//
+};
+
+module.exports = Router;
+
+},{"../utils/addEventListenerList":7,"./routeToRegExp":5}],3:[function(require,module,exports){
 'use strict';
 
 var throttleEvent = require('../utils/throttleEvent');
@@ -120,7 +202,7 @@ proto.disable = function () {
 
 module.exports = ScrollEvents;
 
-},{"../utils/throttleEvent":6}],3:[function(require,module,exports){
+},{"../utils/throttleEvent":9}],4:[function(require,module,exports){
 'use strict';
 
 module.exports = function loadPage (url, callback) {
@@ -154,7 +236,31 @@ module.exports = function loadPage (url, callback) {
 	req.send();
 };
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
+'use strict';
+
+var optionalParam = /\((.*?)\)/g;
+var namedParam    = /(\(\?)?:\w+/g;
+var splatParam    = /\*\w+/g;
+var escapeRegExp  = /[\-{}\[\]+?.,\\\^$|#\s]/g;
+
+module.exports = function routeToRegExp (route) {
+
+	if (route.exec) {
+		return route;
+	}
+
+	route = route.replace(escapeRegExp, '\\$&')
+				.replace(optionalParam, '(?:$1)?')
+				.replace(namedParam, function(match, optional) {
+					return optional ? match : '([^/?]+)';
+				})
+				.replace(splatParam, '([^?]*?)');
+
+	return new RegExp('^' + route + '(?:\\?([\\s\\S]*))?$');
+};
+
+},{}],6:[function(require,module,exports){
 'use strict';
 
 /**
@@ -199,7 +305,17 @@ module.exports = function loadScript (id, src, delay, dest) {
 	}, delay);
 };
 
-},{}],5:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
+'use strict';
+
+module.exports = function addEventListenerList (list, type, listener, useCapture) {
+	var i = list.length;
+	while (i--) {
+		list[i].addEventListener(type, listener, useCapture);
+	}
+};
+
+},{}],8:[function(require,module,exports){
 'use strict';
 
 /**
@@ -231,7 +347,7 @@ module.exports = function isMouseOut (evt) {
 	return true;
 };
 
-},{}],6:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 
 /**
@@ -257,7 +373,7 @@ module.exports = function throttleEvent (callback, delay) {
 	};
 };
 
-},{}],7:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 'use strict';
 
 var isMouseOut = require('../utils/isMouseOut');
@@ -445,7 +561,7 @@ proto.disable = function () {
 
 module.exports = Panels;
 
-},{"../components/ScrollEvents":2,"../components/loadPage":3,"../utils/isMouseOut":5,"./components/PanelsNav":9}],8:[function(require,module,exports){
+},{"../components/ScrollEvents":3,"../components/loadPage":4,"../utils/isMouseOut":8,"./components/PanelsNav":12}],11:[function(require,module,exports){
 'use strict';
 
 var loadPage = require('../components/loadPage');
@@ -488,7 +604,7 @@ proto.disable = function () {
 
 module.exports = Posts;
 
-},{"../components/loadPage":3}],9:[function(require,module,exports){
+},{"../components/loadPage":4}],12:[function(require,module,exports){
 'use strict';
 
 function PanelsNav (options) {

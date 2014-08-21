@@ -3,16 +3,16 @@
 	<nav class="sitenav">
 
 		<div class="sitenav-section sitenav-leftsection">
-			<a class="slidelink sitenavlink{% if page.permalink == '/about/' %} is-selected{% endif %}" href="{{ site.baseurl }}/about/">
+			<a class="slidelink sitenavlink{% if page.permalink == '/about/' %} is-selected{% endif %}" href="{{ site.baseurl }}/about/" data-router>
 				<span class="slidelink-label sitenavlink-label" data-label="About">About</span>
 			</a>
 		</div><div class="sitenav-section sitenav-rightsection">
-			<a class="slidelink sitenavlink{% if page.permalink == '/contact/' %} is-selected{% endif %}" href="{{ site.baseurl }}/contact/">
+			<a class="slidelink sitenavlink{% if page.permalink == '/contact/' %} is-selected{% endif %}" href="{{ site.baseurl }}/contact/" data-router>
 				<span class="slidelink-label sitenavlink-label" data-label="Contact">Contact</span>
 			</a>
 		</div>
 
-		<a class="sitenavlink-logo" href="{{ site.baseurl }}/" aria-label="Home"></a>
+		<a class="sitenavlink-logo" href="{{ site.baseurl }}/" aria-label="Home" data-router></a>
 
 		{% if site.twitter_username %}
 		<div class="follow-link">
