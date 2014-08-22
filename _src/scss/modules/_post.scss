@@ -22,14 +22,16 @@
 	}
 
 	@media (min-width: $bp-show-post-borders) {
-		.js .is-intro & {
-			opacity: 0;
-			transform: translateY(200px);
-		}
-
 		&:before,
 		&:after {
 			content: '';
+		}
+	}
+
+	@media (min-width: $bp-stack-width) {
+		.js .is-intro & {
+			opacity: 0;
+			transform: translateY(200px);
 		}
 	}
 }

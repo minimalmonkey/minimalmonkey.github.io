@@ -79,7 +79,7 @@
 	opacity: 0;
 	transition: opacity 0.3s;
 
-	.is-muted & {
+	.is-disabled & {
 		right: 0;
 		bottom: 0;
 		opacity: 0.6;

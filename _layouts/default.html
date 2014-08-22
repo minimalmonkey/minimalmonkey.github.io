@@ -21,7 +21,7 @@ I like cats. But only Internet cats.
 
 		{% include header.html %}
 
-		<div id="pagecontent" class="pagecontent{% if page.color %} color-{{ page.color }}{% endif %}{% if page.type == 'headerpage' %} is-muted{% endif %}"{% if page.color %} data-color="{{ page.color }}"{% endif %}>
+		<div id="pagecontent" class="pagecontent{% if page.color %} color-{{ page.color }}{% endif %}{% if page.type == 'headerpage' %} is-disabled{% endif %}"{% if page.color %} data-color="{{ page.color }}"{% endif %}>
 
 			<nav class="pagenav">
 				<a class="siteheader-close" href="{{ site.baseurl }}/" aria-label="Close header" data-router-></a>

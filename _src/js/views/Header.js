@@ -20,7 +20,7 @@ var proto = Header.prototype;
 
 proto.show = function (key) {
 	this.el.classList.remove('is-collapsed');
-	this.pageContent.classList.add('is-muted');
+	this.pageContent.classList.add('is-disabled');
 
 	var currentNav = document.querySelector('.sitenavlink.is-selected');
 	if (currentNav) {

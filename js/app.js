@@ -20,11 +20,16 @@ var showHeader = function (match, params) {
 	header.show(match);
 };
 
+var showPost = function (match, params) {
+	console.log('showPost', params);
+};
+
 var headerLinks = header.getPageLinks();
 var i = headerLinks.length;
 while (i--) {
 	router.add(headerLinks[i], showHeader);
 }
+router.add('*post', showPost);
 
 // intro
 window.requestAnimationFrame(function () {
@@ -95,7 +100,7 @@ proto.match = function (route, callback) {
 			while (--i > 0) {
 				this.routes[key][i].apply(this, exec.splice(0, 2));
 			}
-			// break;
+			break;
 		}
 	}
 };
@@ -403,7 +408,7 @@ var proto = Header.prototype;
 
 proto.show = function (key) {
 	this.el.classList.remove('is-collapsed');
-	this.pageContent.classList.add('is-muted');
+	this.pageContent.classList.add('is-disabled');
 
 	var currentNav = document.querySelector('.sitenavlink.is-selected');
 	if (currentNav) {

@@ -58,7 +58,7 @@ proto.match = function (route, callback) {
 			while (--i > 0) {
 				this.routes[key][i].apply(this, exec.splice(0, 2));
 			}
-			// break;
+			break;
 		}
 	}
 };

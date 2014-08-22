@@ -152,11 +152,14 @@ $panel-expand-scale: 50 / 320;
 	z-index: 2;
 	font-size: getem(15px);
 	line-height: 1.55;
-	opacity: 0.5;
-	transition: opacity $panel-expand-duration;
 
-	.is-expanded & {
-		opacity: 1;
+	@media (min-width: $bp-stack-width) {
+		opacity: 0.5;
+		transition: opacity $panel-expand-duration;
+
+		.is-expanded & {
+			opacity: 1;
+		}
 	}
 }
 
@@ -213,7 +216,7 @@ $panel-expand-scale: 50 / 320;
 	position: absolute;
 	z-index: 2;
 	top: 34px;
-	left: 40px;
+	left: 30px;
 	width: 100%;
 	padding-left: 24px;
 
@@ -225,5 +228,9 @@ $panel-expand-scale: 50 / 320;
 		font-size: 17px;
 		text-transform: none;
 		content: "v";
+	}
+
+	@media (min-width: $bp-stack-width) {
+		left: 40px;
 	}
 }

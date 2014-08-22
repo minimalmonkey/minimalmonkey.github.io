@@ -19,11 +19,16 @@ var showHeader = function (match, params) {
 	header.show(match);
 };
 
+var showPost = function (match, params) {
+	console.log('showPost', params);
+};
+
 var headerLinks = header.getPageLinks();
 var i = headerLinks.length;
 while (i--) {
 	router.add(headerLinks[i], showHeader);
 }
+router.add('*post', showPost);
 
 // intro
 window.requestAnimationFrame(function () {

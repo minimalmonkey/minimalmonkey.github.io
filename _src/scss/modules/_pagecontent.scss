@@ -2,7 +2,7 @@
 	overflow: hidden;
 	padding-top: $site-nav-height;
 
-	&.is-muted {
+	&.is-disabled {
 		position: relative;
 		overflow: hidden;
 		height: 100%;
@@ -13,7 +13,7 @@
 	transform: translate3d(0, 0, 0);
 	transition: transform $header-open-duration;
 
-	.is-muted & {
+	.is-disabled & {
 		transform: translate3d(0, $site-header-height - $site-nav-height, 0);
 		transition: transform $header-open-duration;
 	}
