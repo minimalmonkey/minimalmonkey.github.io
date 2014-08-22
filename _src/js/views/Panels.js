@@ -6,13 +6,10 @@ var loadPage = require('../components/loadPage');
 var PanelsNav = require('./components/PanelsNav');
 var ScrollEvents = require('../components/ScrollEvents');
 
-function Panels (options) {
-
-	this.el = document.getElementById(options.id);
-	this.nav = new PanelsNav({
-		id: options.navId
-	});
-	this.panels = document.querySelectorAll('#' + options.id + ' .panel');
+function Panels () {
+	this.el = document.getElementById('panels');
+	this.nav = new PanelsNav();
+	this.panels = document.querySelectorAll('#panels .panel');
 	this.panels = Array.prototype.slice.call(this.panels);
 	this.totalPanels = this.panels.length;
 	this.currentIndex = -1;

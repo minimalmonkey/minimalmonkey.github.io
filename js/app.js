@@ -4,35 +4,43 @@
 var loadScript = require('./external/loadScript');
 
 var Router = require('./components/Router');
+var Header = require('./views/Header');
 var Panels = require('./views/Panels');
 var Posts = require('./views/Posts');
 
-var router = new Router({
-	//
-});
+// views
+var header = new Header();
+var panels = new Panels();
+var posts = new Posts();
 
-var panels = new Panels({
-	id: 'panels',
-	navId: 'panels-nav'
-});
+// router
+var router = new Router();
 
-var posts = new Posts({
-	//
-});
+var showHeader = function (match, params) {
+	header.show(match);
+};
 
+var headerLinks = header.getPageLinks();
+var i = headerLinks.length;
+while (i--) {
+	router.add(headerLinks[i], showHeader);
+}
+
+// intro
 window.requestAnimationFrame(function () {
 	document.body.classList.remove('is-intro');
 });
 
-loadScript('twitter-wjs', '//platform.twitter.com/widgets.js', 2000);
+// external
+// loadScript('twitter-wjs', '//platform.twitter.com/widgets.js', 2000);
 
-},{"./components/Router":2,"./external/loadScript":6,"./views/Panels":10,"./views/Posts":11}],2:[function(require,module,exports){
+},{"./components/Router":2,"./external/loadScript":6,"./views/Header":10,"./views/Panels":11,"./views/Posts":12}],2:[function(require,module,exports){
 'use strict';
 
 var addEventListenerList = require('../utils/addEventListenerList');
 var routeToRegExp = require('./routeToRegExp');
 
-function Router (options) {
+function Router () {
 	this.onClicked = this.onClicked.bind(this);
 	addEventListenerList(document.querySelectorAll('[data-router]'), 'click', this.onClicked);
 
@@ -51,6 +59,9 @@ proto.onClicked = function (evt) {
 };
 
 proto.navigate = function (route, silent) {
+	if (route === location.pathname) {
+		return;
+	}
 	if (!silent) {
 		history.pushState(null, null, route);
 	}
@@ -76,17 +87,13 @@ proto.remove = function (route, callback) {
 };
 
 proto.match = function (route, callback) {
+	var exec;
 	for (var key in this.routes) {
-
-		console.log(route, this.routes[key][0], this.routes[key][0].exec(route));
-
-		if (this.routes[key][0].test(route)) {
+		exec = this.routes[key][0].exec(route);
+		if (exec && exec.length) {
 			var i = this.routes[key].length;
 			while (--i > 0) {
-
-				// var args = router.extractParameters(route, fragment);
-
-				this.routes[key][i].apply(this, []);
+				this.routes[key][i].apply(this, exec.splice(0, 2));
 			}
 			// break;
 		}
@@ -376,19 +383,67 @@ module.exports = function throttleEvent (callback, delay) {
 },{}],10:[function(require,module,exports){
 'use strict';
 
+function Header () {
+	this.el = document.getElementById('siteheader');
+	this.pageContent = document.getElementById('pagecontent');
+	this.pages = {};
+	var pages = document.querySelectorAll('.siteheader-page');
+	var url;
+	var i = pages.length;
+	while (i--) {
+		url = pages[i].id.split('-')[0];
+		this.pages['/' + url + '/'] = {
+			nav: document.querySelector('.sitenav a[href*="' + url + '"]'),
+			page: pages[i]
+		};
+	}
+}
+
+var proto = Header.prototype;
+
+proto.show = function (key) {
+	this.el.classList.remove('is-collapsed');
+	this.pageContent.classList.add('is-muted');
+
+	var currentNav = document.querySelector('.sitenavlink.is-selected');
+	if (currentNav) {
+		currentNav.classList.remove('is-selected');
+	}
+
+	var currentPage = document.querySelector('.siteheader-page.is-visible');
+	if (currentPage) {
+		currentPage.classList.remove('is-visible');
+	}
+
+	this.pages[key].nav.classList.add('is-selected');
+	this.pages[key].page.classList.add('is-visible');
+};
+
+proto.getPageLinks = function () {
+	var links = document.querySelectorAll('.sitenavlink[data-router]');
+	var pathnames = [];
+	var i = links.length;
+	while (i--) {
+		pathnames[i] = links[i].pathname;
+	}
+	return pathnames;
+};
+
+module.exports = Header;
+
+},{}],11:[function(require,module,exports){
+'use strict';
+
 var isMouseOut = require('../utils/isMouseOut');
 var loadPage = require('../components/loadPage');
 
 var PanelsNav = require('./components/PanelsNav');
 var ScrollEvents = require('../components/ScrollEvents');
 
-function Panels (options) {
-
-	this.el = document.getElementById(options.id);
-	this.nav = new PanelsNav({
-		id: options.navId
-	});
-	this.panels = document.querySelectorAll('#' + options.id + ' .panel');
+function Panels () {
+	this.el = document.getElementById('panels');
+	this.nav = new PanelsNav();
+	this.panels = document.querySelectorAll('#panels .panel');
 	this.panels = Array.prototype.slice.call(this.panels);
 	this.totalPanels = this.panels.length;
 	this.currentIndex = -1;
@@ -561,7 +616,7 @@ proto.disable = function () {
 
 module.exports = Panels;
 
-},{"../components/ScrollEvents":3,"../components/loadPage":4,"../utils/isMouseOut":8,"./components/PanelsNav":12}],11:[function(require,module,exports){
+},{"../components/ScrollEvents":3,"../components/loadPage":4,"../utils/isMouseOut":8,"./components/PanelsNav":13}],12:[function(require,module,exports){
 'use strict';
 
 var loadPage = require('../components/loadPage');
@@ -604,15 +659,11 @@ proto.disable = function () {
 
 module.exports = Posts;
 
-},{"../components/loadPage":4}],12:[function(require,module,exports){
+},{"../components/loadPage":4}],13:[function(require,module,exports){
 'use strict';
 
-function PanelsNav (options) {
-
-	this.el = document.getElementById(options.id);
-	if (this.hasEl()) {
-		this.hide();
-	}
+function PanelsNav () {
+	this.el = document.getElementById('panels-nav');
 }
 
 var proto = PanelsNav.prototype;

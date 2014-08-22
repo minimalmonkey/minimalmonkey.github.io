@@ -1,5 +1,9 @@
 @each $color, $hex in $colors {
 	.color-#{$color} {
 		background: #{$hex};
+
+		@include selection {
+			background: #{$hex};
+		}
 	}
 }

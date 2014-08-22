@@ -3,24 +3,32 @@
 var loadScript = require('./external/loadScript');
 
 var Router = require('./components/Router');
+var Header = require('./views/Header');
 var Panels = require('./views/Panels');
 var Posts = require('./views/Posts');
 
-var router = new Router({
-	//
-});
+// views
+var header = new Header();
+var panels = new Panels();
+var posts = new Posts();
 
-var panels = new Panels({
-	id: 'panels',
-	navId: 'panels-nav'
-});
+// router
+var router = new Router();
 
-var posts = new Posts({
-	//
-});
+var showHeader = function (match, params) {
+	header.show(match);
+};
 
+var headerLinks = header.getPageLinks();
+var i = headerLinks.length;
+while (i--) {
+	router.add(headerLinks[i], showHeader);
+}
+
+// intro
 window.requestAnimationFrame(function () {
 	document.body.classList.remove('is-intro');
 });
 
-loadScript('twitter-wjs', '//platform.twitter.com/widgets.js', 2000);
+// external
+// loadScript('twitter-wjs', '//platform.twitter.com/widgets.js', 2000);

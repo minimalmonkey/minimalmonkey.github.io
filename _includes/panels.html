@@ -14,7 +14,7 @@
 	{% endif %}
 
 	{% for post in posts limit:site.per_page %}
-	<a class="panel color-{{ post.color }}" href="{{ post.url | prepend: site.baseurl }}" data-router>
+	<a class="panel color-{{ post.color }}" href="{{ post.url | prepend: site.baseurl }}" data-router->
 		<div class="panel-content">
 			<span class="panel-date smalltext">{{ post.date | date: "%-d %b %Y" }}</span>
 			<h1 class="panel-headline">{% if post.short_title %}{{ post.short_title }}{% else %}{{ post.title }}{% endif %}</h1>
@@ -29,5 +29,5 @@
 </div>
 
 {% if next_page_path %}
-<a id="panels-nav" class="panels-nav{% if page.type != 'headerpage' %} is-hidden{% endif %}" href="{{ next_page_path }}"></a>
+<a id="panels-nav" class="panels-nav is-hidden" href="{{ next_page_path }}"></a>
 {% endif %}

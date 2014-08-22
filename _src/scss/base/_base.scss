@@ -14,6 +14,11 @@ html {
 	font-smoothing: antialiased;
 }
 
+@include selection {
+	color: white;
+	background: getcolor(purple);
+}
+
 body {
 	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	margin: 0;

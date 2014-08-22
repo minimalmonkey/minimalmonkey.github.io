@@ -1,11 +1,13 @@
 .sitenavlink {
 	padding-left: 2px;
+	border-bottom: 1px solid transparent;
 	color: #898989;
 	text-decoration: none;
 	text-transform: uppercase;
 
 	&.is-selected {
 		border-bottom: 1px solid getcolor(navy);
+		transition: border-bottom 0.3s;
 	}
 }
 

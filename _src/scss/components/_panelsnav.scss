@@ -60,7 +60,9 @@
 	}
 
 	&.is-hidden {
-		display: none;
+		.js & {
+			display: none;
+		}
 	}
 
 	@media (min-width: $bp-stack-width) {
@@ -89,8 +91,10 @@
 		}
 
 		&.is-hidden {
-			display: block;
-			transform: translateX(100%);
+			.js & {
+				display: block;
+				transform: translateX(100%);
+			}
 		}
 	}
 }

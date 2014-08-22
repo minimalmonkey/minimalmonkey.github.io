@@ -3,7 +3,7 @@
 var addEventListenerList = require('../utils/addEventListenerList');
 var routeToRegExp = require('./routeToRegExp');
 
-function Router (options) {
+function Router () {
 	this.onClicked = this.onClicked.bind(this);
 	addEventListenerList(document.querySelectorAll('[data-router]'), 'click', this.onClicked);
 
@@ -22,6 +22,9 @@ proto.onClicked = function (evt) {
 };
 
 proto.navigate = function (route, silent) {
+	if (route === location.pathname) {
+		return;
+	}
 	if (!silent) {
 		history.pushState(null, null, route);
 	}
@@ -47,17 +50,13 @@ proto.remove = function (route, callback) {
 };
 
 proto.match = function (route, callback) {
+	var exec;
 	for (var key in this.routes) {
-
-		console.log(route, this.routes[key][0], this.routes[key][0].exec(route));
-
-		if (this.routes[key][0].test(route)) {
+		exec = this.routes[key][0].exec(route);
+		if (exec && exec.length) {
 			var i = this.routes[key].length;
 			while (--i > 0) {
-
-				// var args = router.extractParameters(route, fragment);
-
-				this.routes[key][i].apply(this, []);
+				this.routes[key][i].apply(this, exec.splice(0, 2));
 			}
 			// break;
 		}

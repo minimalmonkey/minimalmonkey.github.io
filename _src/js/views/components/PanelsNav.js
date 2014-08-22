@@ -1,11 +1,7 @@
 'use strict';
 
-function PanelsNav (options) {
-
-	this.el = document.getElementById(options.id);
-	if (this.hasEl()) {
-		this.hide();
-	}
+function PanelsNav () {
+	this.el = document.getElementById('panels-nav');
 }
 
 var proto = PanelsNav.prototype;

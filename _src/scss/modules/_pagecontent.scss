@@ -10,8 +10,10 @@
 
 .pagecontent-item {
 	transform: translate3d(0, 0, 0);
+	transition: transform $header-open-duration;
 
 	.is-muted & {
 		transform: translate3d(0, $site-header-height - $site-nav-height, 0);
+		transition: transform $header-open-duration;
 	}
 }

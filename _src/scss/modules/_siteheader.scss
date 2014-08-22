@@ -9,13 +9,14 @@
 	text-align: center;
 	background-color: #fcfcfc;
 	transform: translate3d(0, 0, 0);
+	transition: height $header-open-duration;
 
 	.is-panels & {
-		transition: transform 0.35s ease-in-out 0.3s;
+		transition: height $header-open-duration, transform 0.35s ease-in-out 0.3s;
 	}
 
 	.is-post & {
-		transition: transform 0.35s ease-in-out 0.05s;
+		transition: height $header-open-duration, transform 0.35s ease-in-out 0.05s;
 	}
 
 	&.is-collapsed {
@@ -39,34 +40,49 @@
 }
 
 .siteheader-page {
+	display: block;
+	position: absolute;
+	overflow: hidden;
+	width: 0;
 	max-width: 700px;
 	padding: 0 getem(10px);
 	margin: 0 auto;
+	opacity: 0;
 	font-size: getem(18px);
 	line-height: 1.4;
 	color: #696969;
+	transition: width 0 linear 0.3s, opacity 0.3s;
 
 	p {
 		margin: getem(8px) 0 getem(14px);
 	}
 
-	&.is-hidden {
-		display: none;
+	&.is-visible {
+		width: 100%;
+		opacity: 1;
+		transition: width 0 linear 0, opacity 0.3s;
+	}
+
+	@media (min-width: 700px) {
+		left: 50%;
+		margin-left: -350px;
 	}
 }
 
 .siteheader-close {
+	display: block;
+	position: absolute;
+	z-index: 10;
+	top: $site-nav-height;
+	left: 0;
+	background: #000;
+	opacity: 0;
+	transition: opacity 0.3s;
+
 	.is-muted & {
-		display: block;
-		position: absolute;
-		z-index: 10;
-		top: $site-header-height;
 		right: 0;
 		bottom: 0;
-		left: 0;
-		background: #000;
 		opacity: 0.6;
-		transition: opacity 0.3s;
 
 		&:hover {
 			opacity: 0.4;

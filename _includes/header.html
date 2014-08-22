@@ -1,4 +1,4 @@
-<header class="siteheader{% if page.type != 'headerpage' %} is-collapsed{% endif %}">
+<header id="siteheader" class="siteheader{% if page.type != 'headerpage' %} is-collapsed{% endif %}">
 
 	<nav class="sitenav">
 
@@ -25,11 +25,11 @@
 
 	<h1 class="siteheader-headline">{{ site.tagline }}</h1>
 
-	<div class="siteheader-page{% if page.permalink != '/about/' %} is-hidden{% endif %}">
+	<div id="about-page" class="siteheader-page{% if page.permalink == '/about/' %} is-visible{% endif %}">
 		{% include about.html %}
 	</div>
 
-	<div class="siteheader-page{% if page.permalink != '/contact/' %} is-hidden{% endif %}">
+	<div id="contact-page" class="siteheader-page{% if page.permalink == '/contact/' %} is-visible{% endif %}">
 		{% include contact.html %}
 	</div>
 
