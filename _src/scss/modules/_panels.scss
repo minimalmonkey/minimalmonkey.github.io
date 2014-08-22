@@ -1,7 +1,6 @@
 .panels {
 	display: block;
 	position: relative;
-	top: $site-nav-height;
 	bottom: 0;
 	overflow: hidden;
 	width: auto;
@@ -11,5 +10,6 @@
 	@media (min-width: $bp-stack-width) {
 		display: flex;
 		position: absolute;
+		top: $site-nav-height;
 	}
 }

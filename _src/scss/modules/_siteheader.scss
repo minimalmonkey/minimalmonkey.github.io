@@ -24,12 +24,12 @@
 		background-color: #f3f3f3;
 	}
 
-	.js .is-intro & {
-		transform: translate3d(0, -100%, 0);
-	}
-
 	@media (min-width: $bp-stack-width) {
 		font-size: 10px;
+
+		.js .is-intro & {
+			transform: translate3d(0, -100%, 0);
+		}
 	}
 }
 

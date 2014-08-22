@@ -6,11 +6,6 @@
 	background: #fff;
 	transition: opacity 0.35s ease-in-out 0.1s, transform 0.35s ease-in-out 0.1s;
 
-	.js .is-intro & {
-		opacity: 0;
-		transform: translateY(200px);
-	}
-
 	&:before,
 	&:after {
 		display: block;
@@ -27,6 +22,11 @@
 	}
 
 	@media (min-width: $bp-show-post-borders) {
+		.js .is-intro & {
+			opacity: 0;
+			transform: translateY(200px);
+		}
+
 		&:before,
 		&:after {
 			content: '';
