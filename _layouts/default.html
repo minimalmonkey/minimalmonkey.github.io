@@ -24,10 +24,10 @@ I like cats. But only Internet cats.
 		<div id="pagecontent" class="pagecontent{% if page.color %} color-{{ page.color }}{% endif %}{% if page.type == 'headerpage' %} is-disabled{% endif %}"{% if page.color %} data-color="{{ page.color }}"{% endif %}>
 
 			<nav class="pagenav">
-				<a class="siteheader-close" href="{{ site.baseurl }}/" aria-label="Close header" data-router-></a>
-				<a class="post-nav-close{% if page.path contains '_posts/' %}{% else %} is-hidden{% endif %}" href="{{ site.baseurl }}/" aria-label="Close article" data-router->x</a>
-				<a class="post-nav post-nav-next{% if page.next.url %}{% else %} is-hidden{% endif %}" href="{{page.next.url}}" aria-label="Read the next article: {{page.next.title}}" data-router-></a>
-				<a class="post-nav post-nav-previous{% if page.previous.url %}{% else %} is-hidden{% endif %}" href="{{page.previous.url}}" aria-label="Read the previous article: {{page.previous.title}}" data-router-></a>
+				<a class="siteheader-close" href="{{ site.baseurl }}/" aria-label="Close header" data-router></a>
+				<a class="post-nav-close{% if page.path contains '_posts/' %}{% else %} is-hidden{% endif %}" href="{{ site.baseurl }}/" aria-label="Close article" data-router>x</a>
+				<a class="post-nav post-nav-next{% if page.next.url %}{% else %} is-hidden{% endif %}" href="{{page.next.url}}" aria-label="Read the next article: {{page.next.title}}" data-router></a>
+				<a class="post-nav post-nav-previous{% if page.previous.url %}{% else %} is-hidden{% endif %}" href="{{page.previous.url}}" aria-label="Read the previous article: {{page.previous.title}}" data-router></a>
 			</nav>
 
 			<div class="wrap">

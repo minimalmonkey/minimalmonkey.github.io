@@ -1,8 +1,10 @@
 'use strict';
 
 var gulp = require('gulp');
-var sass = require('gulp-ruby-sass');
+var header = require('gulp-header');
 var prefix = require('gulp-autoprefixer');
+var rename = require('gulp-rename');
+var sass = require('gulp-ruby-sass');
 var watch = require('gulp-watch');
 
 gulp.task('default', function() {
@@ -11,13 +13,12 @@ gulp.task('default', function() {
 });
 
 gulp.task('sass', function () {
-	gulp.src('./_src/scss/*.scss')
-		.pipe(sass({
-			style: 'compressed'
-		}))
-		.pipe(gulp.dest('./css'))
+	gulp.src('./_src/scss/style.scss')
+		.pipe(sass())
+		.pipe(rename({suffix: '.built'}))
+		.pipe(header('/* BUILT FILE DO NOT EDIT */\n\n'))
 		.pipe(prefix("last 1 version", "> 1%", "ie 8", "ie 7"))
-		.pipe(gulp.dest('./css/'));
+        .pipe(gulp.dest('./css/'));
 });
 
 gulp.task('watch-sass', function () {

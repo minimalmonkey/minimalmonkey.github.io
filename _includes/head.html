@@ -7,8 +7,8 @@
 	<meta name="description" content="{{ site.description }}">
 
 	<link rel="canonical" href="{{ page.url | replace:'index.html','' | prepend: site.baseurl | prepend: site.url }}">
-	<link rel="stylesheet" href="{{ "/css/style.css" | prepend: site.baseurl }}">
+	<link rel="stylesheet" href="{{ '/css/style.built.css' | prepend: site.baseurl }}">
 
-	<script>(function(h){h.className = h.className.replace('no-js','js')})(document.documentElement)</script>
+	<script>(function(h){if(h.classList){h.className=h.className.replace('no-js','js')}}(document.documentElement))</script>
 
 </head>

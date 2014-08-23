@@ -65,6 +65,10 @@
 		}
 	}
 
+	.no-js .is-header & {
+		display: none;
+	}
+
 	@media (min-width: $bp-stack-width) {
 		position: fixed;
 		width: 53px;

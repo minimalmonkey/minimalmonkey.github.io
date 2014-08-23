@@ -1,45 +1,64 @@
+/* BUILT FILE DO NOT EDIT */
+
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
-
-var loadScript = require('./external/loadScript');
 
 var Router = require('./components/Router');
 var Header = require('./views/Header');
 var Panels = require('./views/Panels');
 var Posts = require('./views/Posts');
 
-// views
-var header = new Header();
-var panels = new Panels();
-var posts = new Posts();
+function App () {
 
-// router
-var router = new Router();
+	this.showHeader = this.showHeader.bind(this);
+	this.showHome = this.showHome.bind(this);
+	this.showPost = this.showPost.bind(this);
 
-var showHeader = function (match, params) {
-	header.show(match);
+	this.initViews();
+	this.initRouter();
+
+	window.requestAnimationFrame(function () {
+		document.body.classList.remove('is-intro');
+	});
+}
+
+var proto = App.prototype;
+
+proto.initViews = function () {
+	this.header = new Header();
+	this.panels = new Panels();
+	this.posts = new Posts();
 };
 
-var showPost = function (match, params) {
+proto.initRouter = function () {
+	this.router = new Router();
+
+	var headerLinks = this.header.getPageLinks();
+	var i = headerLinks.length;
+	while (i--) {
+		this.router.add(headerLinks[i], this.showHeader);
+	}
+	this.router.add('/', this.showHome);
+	this.router.add('*post', this.showPost);
+};
+
+proto.showHeader = function (match, params) {
+	this.header.open(match);
+};
+
+proto.showHome = function (match, params) {
+	if (this.header.isOpen) {
+		this.header.close();
+	}
+};
+
+proto.showPost = function (match, params) {
 	console.log('showPost', params);
 };
 
-var headerLinks = header.getPageLinks();
-var i = headerLinks.length;
-while (i--) {
-	router.add(headerLinks[i], showHeader);
-}
-router.add('*post', showPost);
+module.exports = App;
 
-// intro
-window.requestAnimationFrame(function () {
-	document.body.classList.remove('is-intro');
-});
-
-// external
-// loadScript('twitter-wjs', '//platform.twitter.com/widgets.js', 2000);
-
-},{"./components/Router":2,"./external/loadScript":6,"./views/Header":10,"./views/Panels":11,"./views/Posts":12}],2:[function(require,module,exports){
+},{"./components/Router":2,"./views/Header":11,"./views/Panels":12,"./views/Posts":13}],2:[function(require,module,exports){
 'use strict';
 
 var addEventListenerList = require('../utils/addEventListenerList');
@@ -115,7 +134,7 @@ proto.disable = function () {
 
 module.exports = Router;
 
-},{"../utils/addEventListenerList":7,"./routeToRegExp":5}],3:[function(require,module,exports){
+},{"../utils/addEventListenerList":8,"./routeToRegExp":5}],3:[function(require,module,exports){
 'use strict';
 
 var throttleEvent = require('../utils/throttleEvent');
@@ -214,7 +233,7 @@ proto.disable = function () {
 
 module.exports = ScrollEvents;
 
-},{"../utils/throttleEvent":9}],4:[function(require,module,exports){
+},{"../utils/throttleEvent":10}],4:[function(require,module,exports){
 'use strict';
 
 module.exports = function loadPage (url, callback) {
@@ -320,6 +339,19 @@ module.exports = function loadScript (id, src, delay, dest) {
 },{}],7:[function(require,module,exports){
 'use strict';
 
+// app
+if (document.documentElement.classList) {
+	var App = require('./App');
+	new App();
+}
+
+// external
+var loadScript = require('./external/loadScript');
+loadScript('twitter-wjs', '//platform.twitter.com/widgets.js', 2000);
+
+},{"./App":1,"./external/loadScript":6}],8:[function(require,module,exports){
+'use strict';
+
 module.exports = function addEventListenerList (list, type, listener, useCapture) {
 	var i = list.length;
 	while (i--) {
@@ -327,7 +359,7 @@ module.exports = function addEventListenerList (list, type, listener, useCapture
 	}
 };
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 
 /**
@@ -359,7 +391,7 @@ module.exports = function isMouseOut (evt) {
 	return true;
 };
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 'use strict';
 
 /**
@@ -385,7 +417,7 @@ module.exports = function throttleEvent (callback, delay) {
 	};
 };
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 'use strict';
 
 function Header () {
@@ -406,10 +438,23 @@ function Header () {
 
 var proto = Header.prototype;
 
-proto.show = function (key) {
+proto.open = function (key) {
+	this.isOpen = true;
 	this.el.classList.remove('is-collapsed');
 	this.pageContent.classList.add('is-disabled');
+	this.hideCurrent();
+	this.pages[key].nav.classList.add('is-selected');
+	this.pages[key].page.classList.add('is-visible');
+};
 
+proto.close = function () {
+	this.isOpen = false;
+	this.el.classList.add('is-collapsed');
+	this.pageContent.classList.remove('is-disabled');
+	this.hideCurrent();
+};
+
+proto.hideCurrent = function () {
 	var currentNav = document.querySelector('.sitenavlink.is-selected');
 	if (currentNav) {
 		currentNav.classList.remove('is-selected');
@@ -419,9 +464,6 @@ proto.show = function (key) {
 	if (currentPage) {
 		currentPage.classList.remove('is-visible');
 	}
-
-	this.pages[key].nav.classList.add('is-selected');
-	this.pages[key].page.classList.add('is-visible');
 };
 
 proto.getPageLinks = function () {
@@ -436,7 +478,7 @@ proto.getPageLinks = function () {
 
 module.exports = Header;
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 'use strict';
 
 var isMouseOut = require('../utils/isMouseOut');
@@ -621,7 +663,7 @@ proto.disable = function () {
 
 module.exports = Panels;
 
-},{"../components/ScrollEvents":3,"../components/loadPage":4,"../utils/isMouseOut":8,"./components/PanelsNav":13}],12:[function(require,module,exports){
+},{"../components/ScrollEvents":3,"../components/loadPage":4,"../utils/isMouseOut":9,"./components/PanelsNav":14}],13:[function(require,module,exports){
 'use strict';
 
 var loadPage = require('../components/loadPage');
@@ -664,7 +706,7 @@ proto.disable = function () {
 
 module.exports = Posts;
 
-},{"../components/loadPage":4}],13:[function(require,module,exports){
+},{"../components/loadPage":4}],14:[function(require,module,exports){
 'use strict';
 
 function PanelsNav () {
@@ -710,4 +752,4 @@ proto.setPath = function (path) {
 
 module.exports = PanelsNav;
 
-},{}]},{},[1]);
+},{}]},{},[7]);

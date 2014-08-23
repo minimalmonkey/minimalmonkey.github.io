@@ -18,10 +18,23 @@ function Header () {
 
 var proto = Header.prototype;
 
-proto.show = function (key) {
+proto.open = function (key) {
+	this.isOpen = true;
 	this.el.classList.remove('is-collapsed');
 	this.pageContent.classList.add('is-disabled');
+	this.hideCurrent();
+	this.pages[key].nav.classList.add('is-selected');
+	this.pages[key].page.classList.add('is-visible');
+};
 
+proto.close = function () {
+	this.isOpen = false;
+	this.el.classList.add('is-collapsed');
+	this.pageContent.classList.remove('is-disabled');
+	this.hideCurrent();
+};
+
+proto.hideCurrent = function () {
 	var currentNav = document.querySelector('.sitenavlink.is-selected');
 	if (currentNav) {
 		currentNav.classList.remove('is-selected');
@@ -31,9 +44,6 @@ proto.show = function (key) {
 	if (currentPage) {
 		currentPage.classList.remove('is-visible');
 	}
-
-	this.pages[key].nav.classList.add('is-selected');
-	this.pages[key].page.classList.add('is-visible');
 };
 
 proto.getPageLinks = function () {
