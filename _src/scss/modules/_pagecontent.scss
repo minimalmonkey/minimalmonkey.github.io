@@ -1,5 +1,6 @@
 .pagecontent {
 	overflow: hidden;
+	min-height: 100%;
 	padding-top: $site-nav-height;
 
 	&.is-disabled {

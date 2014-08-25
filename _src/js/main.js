@@ -8,4 +8,4 @@ if (document.documentElement.classList) {
 
 // external
 var loadScript = require('./external/loadScript');
-loadScript('twitter-wjs', '//platform.twitter.com/widgets.js', 2000);
+// loadScript('twitter-wjs', '//platform.twitter.com/widgets.js', 2000);

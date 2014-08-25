@@ -53,7 +53,9 @@ proto.showHome = function (match, params) {
 };
 
 proto.showPost = function (match, params) {
-	console.log('showPost', params);
+	var color = this.panels.transitionToPost(params);
+	document.getElementById('pagecontent').classList.add('color-' + color);
+	document.body.classList.add('is-muted');
 };
 
 module.exports = App;
@@ -347,7 +349,7 @@ if (document.documentElement.classList) {
 
 // external
 var loadScript = require('./external/loadScript');
-loadScript('twitter-wjs', '//platform.twitter.com/widgets.js', 2000);
+// loadScript('twitter-wjs', '//platform.twitter.com/widgets.js', 2000);
 
 },{"./App":1,"./external/loadScript":6}],8:[function(require,module,exports){
 'use strict';
@@ -643,6 +645,12 @@ proto.onNavClicked = function (evt) {
 		this.onScrolledToPoint();
 		this.nav.el.removeEventListener('click', this.onNavClicked);
 	}
+};
+
+proto.transitionToPost = function (url) {
+	console.log('transitionToPost:', url, this.panels[this.currentIndex].dataset.color);
+	this.disable();
+	return this.panels[this.currentIndex].dataset.color;
 };
 
 proto.enable = function () {

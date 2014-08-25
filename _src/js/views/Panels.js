@@ -164,6 +164,12 @@ proto.onNavClicked = function (evt) {
 	}
 };
 
+proto.transitionToPost = function (url) {
+	console.log('transitionToPost:', url, this.panels[this.currentIndex].dataset.color);
+	this.disable();
+	return this.panels[this.currentIndex].dataset.color;
+};
+
 proto.enable = function () {
 	if (this.el) {
 		this.el.addEventListener('mouseover', this.onMouseOver, false);
