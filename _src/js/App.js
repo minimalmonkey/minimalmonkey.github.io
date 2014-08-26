@@ -51,8 +51,7 @@ proto.showHome = function (match, params) {
 
 proto.showPost = function (match, params) {
 	this.panels.disable();
-	var color = this.panels.getCurrentColor();
-	// document.getElementById('pagecontent').classList.add('color-' + color);
+	var color = this.panels.getCurrentColor(params);
 	document.body.classList.add('is-muted', 'is-transition-topost', 'color-' + color);
 	this.panels.transitionToPost();
 };

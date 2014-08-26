@@ -54,15 +54,14 @@ proto.showHome = function (match, params) {
 
 proto.showPost = function (match, params) {
 	this.panels.disable();
-	var color = this.panels.getCurrentColor();
-	// document.getElementById('pagecontent').classList.add('color-' + color);
+	var color = this.panels.getCurrentColor(params);
 	document.body.classList.add('is-muted', 'is-transition-topost', 'color-' + color);
 	this.panels.transitionToPost();
 };
 
 module.exports = App;
 
-},{"./components/Router":2,"./views/Header":11,"./views/Panels":12,"./views/Posts":13}],2:[function(require,module,exports){
+},{"./components/Router":2,"./views/Header":12,"./views/Panels":13,"./views/Posts":14}],2:[function(require,module,exports){
 'use strict';
 
 var addEventListenerList = require('../utils/addEventListenerList');
@@ -424,6 +423,35 @@ module.exports = function throttleEvent (callback, delay) {
 },{}],11:[function(require,module,exports){
 'use strict';
 
+var transitionEnd;
+
+/* From Modernizr */
+module.exports = function transitionEndEvent () {
+
+	if (transitionEnd) {
+		return transitionEnd;
+	}
+
+	var t;
+	var el = document.createElement('fakeelement');
+	var transitions = {
+		'transition':'transitionend',
+		'OTransition':'oTransitionEnd',
+		'MozTransition':'transitionend',
+		'WebkitTransition':'webkitTransitionEnd'
+	};
+
+	for (t in transitions) {
+		if ( el.style[t] !== undefined ) {
+			transitionEnd = transitions[t];
+			return transitionEnd;
+		}
+	}
+};
+
+},{}],12:[function(require,module,exports){
+'use strict';
+
 function Header () {
 	this.el = document.getElementById('siteheader');
 	this.pageContent = document.getElementById('pagecontent');
@@ -482,11 +510,12 @@ proto.getPageLinks = function () {
 
 module.exports = Header;
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 'use strict';
 
 var isMouseOut = require('../utils/isMouseOut');
 var loadPage = require('../components/loadPage');
+var transitionEndEvent = require('../utils/transitionEndEvent');
 
 var PanelsNav = require('./components/PanelsNav');
 var ScrollEvents = require('../components/ScrollEvents');
@@ -496,6 +525,7 @@ function Panels () {
 	this.nav = new PanelsNav();
 	this.panels = document.querySelectorAll('#panels .panel');
 	this.panels = Array.prototype.slice.call(this.panels);
+	this.panelsUrlMap = {};
 	this.totalPanels = this.panels.length;
 	this.currentIndex = -1;
 
@@ -508,8 +538,7 @@ function Panels () {
 
 	if (document.body.classList.contains('is-panels', 'is-intro')) {
 		this.onIntroEnded = this.onIntroEnded.bind(this);
-		// webkitTransitionEnd otransitionend msTransitionEnd transitionend
-		this.panels[this.totalPanels - 1].addEventListener('webkitTransitionEnd', this.onIntroEnded, false);
+		this.panels[this.totalPanels - 1].addEventListener(transitionEndEvent(), this.onIntroEnded, false);
 	}
 	else {
 		this.enable();
@@ -525,11 +554,14 @@ proto.addPanels = function (index, append) {
 		};
 	}
 	// TODO: add `is-shrunk-right` to the first added element if append is `true` and we're hovering
+	var panel;
 	index = index || 0;
 	for (index; index < this.totalPanels; ++index) {
-		this.panels[index].addEventListener('mouseover', callback(index).bind(this), false);
+		panel = this.panels[index];
+		panel.addEventListener('mouseover', callback(index).bind(this), false);
+		this.panelsUrlMap[panel.pathname] = panel;
 		if (append) {
-			this.el.appendChild(this.panels[index]);
+			this.el.appendChild(panel);
 		}
 	}
 };
@@ -561,8 +593,7 @@ proto.removeExpandClass = function () {
 };
 
 proto.onIntroEnded = function (evt) {
-	// webkitTransitionEnd otransitionend msTransitionEnd transitionend
-	this.panels[this.totalPanels - 1].removeEventListener('webkitTransitionEnd', this.onIntroEnded);
+	this.panels[this.totalPanels - 1].removeEventListener(transitionEndEvent(), this.onIntroEnded);
 	this.enable();
 
 	var onMouseMove = function (evt) {
@@ -650,8 +681,8 @@ proto.onNavClicked = function (evt) {
 };
 
 proto.getCurrentColor = function (url) {
-	// TODO: if currentIndex exists use that otherwise get panel from url
-	return this.panels[this.currentIndex].dataset.color;
+	var panel = this.currentIndex ? this.panels[this.currentIndex] : this.panelsUrlMap[url];
+	return panel.dataset.color;
 };
 
 proto.transitionToPost = function () {
@@ -705,7 +736,7 @@ proto.disable = function () {
 
 module.exports = Panels;
 
-},{"../components/ScrollEvents":3,"../components/loadPage":4,"../utils/isMouseOut":9,"./components/PanelsNav":14}],13:[function(require,module,exports){
+},{"../components/ScrollEvents":3,"../components/loadPage":4,"../utils/isMouseOut":9,"../utils/transitionEndEvent":11,"./components/PanelsNav":15}],14:[function(require,module,exports){
 'use strict';
 
 var loadPage = require('../components/loadPage');
@@ -758,7 +789,7 @@ proto.disable = function () {
 
 module.exports = Posts;
 
-},{"../components/loadPage":4}],14:[function(require,module,exports){
+},{"../components/loadPage":4}],15:[function(require,module,exports){
 'use strict';
 
 function PanelsNav () {
