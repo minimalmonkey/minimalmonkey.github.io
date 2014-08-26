@@ -13,6 +13,7 @@ function App () {
 	this.showHeader = this.showHeader.bind(this);
 	this.showHome = this.showHome.bind(this);
 	this.showPost = this.showPost.bind(this);
+	this.onPanelToPostComplete = this.onPanelToPostComplete.bind(this);
 
 	this.initViews();
 	this.initRouter();
@@ -56,12 +57,18 @@ proto.showPost = function (match, params) {
 	this.panels.disable();
 	var color = this.panels.getCurrentColor(params);
 	document.body.classList.add('is-muted', 'is-transition-topost', 'color-' + color);
-	this.panels.transitionToPost();
+	this.watcher = this.panels.transitionToPost();
+	this.watcher.on('complete', this.onPanelToPostComplete);
+};
+
+proto.onPanelToPostComplete = function () {
+	this.watcher.off('complete', this.onPanelToPostComplete);
+	this.watcher = undefined;
 };
 
 module.exports = App;
 
-},{"./components/Router":2,"./views/Header":12,"./views/Panels":13,"./views/Posts":14}],2:[function(require,module,exports){
+},{"./components/Router":2,"./views/Header":13,"./views/Panels":14,"./views/Posts":15}],2:[function(require,module,exports){
 'use strict';
 
 var addEventListenerList = require('../utils/addEventListenerList');
@@ -137,7 +144,7 @@ proto.disable = function () {
 
 module.exports = Router;
 
-},{"../utils/addEventListenerList":8,"./routeToRegExp":5}],3:[function(require,module,exports){
+},{"../utils/addEventListenerList":9,"./routeToRegExp":6}],3:[function(require,module,exports){
 'use strict';
 
 var throttleEvent = require('../utils/throttleEvent');
@@ -236,7 +243,53 @@ proto.disable = function () {
 
 module.exports = ScrollEvents;
 
-},{"../utils/throttleEvent":10}],4:[function(require,module,exports){
+},{"../utils/throttleEvent":11}],4:[function(require,module,exports){
+'use strict';
+
+function TransitionWatcher () {
+	this.listeners = [];
+}
+
+var proto = TransitionWatcher.prototype;
+
+proto.complete = function () {
+	this.trigger('complete');
+};
+
+proto.trigger = function (evt) {
+	if (this.listeners[evt] && this.listeners[evt].length) {
+		var i = this.listeners[evt].length;
+		while (i--) {
+			this.listeners[evt][i].call();
+		}
+	}
+};
+
+proto.on = function (evt, callback) {
+	if (this.listeners[evt]) {
+		this.listeners[evt].push(callback);
+	}
+	else {
+		this.listeners[evt] = [callback];
+	}
+};
+
+proto.off = function (evt, callback) {
+	if (this.listeners[evt] && this.listeners[evt].length) {
+		var i = this.listeners[evt].indexOf(callback);
+		if (i > -1) {
+			this.listeners[evt].splice(i, 1);
+		}
+	}
+};
+
+proto.clear = function () {
+	this.listeners = [];
+};
+
+module.exports = TransitionWatcher;
+
+},{}],5:[function(require,module,exports){
 'use strict';
 
 module.exports = function loadPage (url, callback) {
@@ -270,7 +323,7 @@ module.exports = function loadPage (url, callback) {
 	req.send();
 };
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 'use strict';
 
 var optionalParam = /\((.*?)\)/g;
@@ -294,7 +347,7 @@ module.exports = function routeToRegExp (route) {
 	return new RegExp('^' + route + '(?:\\?([\\s\\S]*))?$');
 };
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 'use strict';
 
 /**
@@ -339,7 +392,7 @@ module.exports = function loadScript (id, src, delay, dest) {
 	}, delay);
 };
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict';
 
 // app
@@ -352,7 +405,7 @@ if (document.documentElement.classList) {
 var loadScript = require('./external/loadScript');
 // loadScript('twitter-wjs', '//platform.twitter.com/widgets.js', 2000);
 
-},{"./App":1,"./external/loadScript":6}],8:[function(require,module,exports){
+},{"./App":1,"./external/loadScript":7}],9:[function(require,module,exports){
 'use strict';
 
 module.exports = function addEventListenerList (list, type, listener, useCapture) {
@@ -362,7 +415,7 @@ module.exports = function addEventListenerList (list, type, listener, useCapture
 	}
 };
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 'use strict';
 
 /**
@@ -394,7 +447,7 @@ module.exports = function isMouseOut (evt) {
 	return true;
 };
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 'use strict';
 
 /**
@@ -420,7 +473,7 @@ module.exports = function throttleEvent (callback, delay) {
 	};
 };
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 'use strict';
 
 var transitionEnd;
@@ -449,7 +502,7 @@ module.exports = function transitionEndEvent () {
 	}
 };
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 'use strict';
 
 function Header () {
@@ -510,7 +563,7 @@ proto.getPageLinks = function () {
 
 module.exports = Header;
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 'use strict';
 
 var isMouseOut = require('../utils/isMouseOut');
@@ -519,6 +572,7 @@ var transitionEndEvent = require('../utils/transitionEndEvent');
 
 var PanelsNav = require('./components/PanelsNav');
 var ScrollEvents = require('../components/ScrollEvents');
+var TransitionWatcher = require('../components/TransitionWatcher');
 
 function Panels () {
 	this.el = document.getElementById('panels');
@@ -686,6 +740,7 @@ proto.getCurrentColor = function (url) {
 };
 
 proto.transitionToPost = function () {
+	var listenTo;
 	var panelWidth = this.panels[0].offsetWidth;
 	var panelExpandWidth = 25; // actually half the expand width - maybe make this dynamic?
 	var winWidth = window.innerWidth;
@@ -697,6 +752,9 @@ proto.transitionToPost = function () {
 	while (++i && i < this.totalPanels) {
 		if (this.panels[i].offsetLeft - scrollLeft < winWidth) {
 			this.panels[i].style.cssText = style;
+			if (listenTo === undefined) {
+				listenTo = this.panels[i];
+			}
 		}
 		else {
 			i = Infinity;
@@ -711,11 +769,22 @@ proto.transitionToPost = function () {
 	while (i--) {
 		if (this.panels[i].offsetLeft - scrollLeft) {
 			this.panels[i].style.cssText = style;
+			if (listenTo === undefined) {
+				listenTo = this.panels[i];
+			}
 		}
 		else {
 			i = -1;
 		}
 	}
+
+	var watcher = new TransitionWatcher();
+	var onTransitionEnded = function (evt) {
+		listenTo.removeEventListener(transitionEndEvent(), onTransitionEnded);
+		watcher.complete();
+	};
+	listenTo.addEventListener(transitionEndEvent(), onTransitionEnded, false);
+	return watcher;
 };
 
 proto.enable = function () {
@@ -736,7 +805,7 @@ proto.disable = function () {
 
 module.exports = Panels;
 
-},{"../components/ScrollEvents":3,"../components/loadPage":4,"../utils/isMouseOut":9,"../utils/transitionEndEvent":11,"./components/PanelsNav":15}],14:[function(require,module,exports){
+},{"../components/ScrollEvents":3,"../components/TransitionWatcher":4,"../components/loadPage":5,"../utils/isMouseOut":10,"../utils/transitionEndEvent":12,"./components/PanelsNav":16}],15:[function(require,module,exports){
 'use strict';
 
 var loadPage = require('../components/loadPage');
@@ -789,7 +858,7 @@ proto.disable = function () {
 
 module.exports = Posts;
 
-},{"../components/loadPage":4}],15:[function(require,module,exports){
+},{"../components/loadPage":5}],16:[function(require,module,exports){
 'use strict';
 
 function PanelsNav () {
@@ -835,4 +904,4 @@ proto.setPath = function (path) {
 
 module.exports = PanelsNav;
 
-},{}]},{},[7]);
+},{}]},{},[8]);

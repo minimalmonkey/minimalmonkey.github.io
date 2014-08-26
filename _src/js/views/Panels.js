@@ -6,6 +6,7 @@ var transitionEndEvent = require('../utils/transitionEndEvent');
 
 var PanelsNav = require('./components/PanelsNav');
 var ScrollEvents = require('../components/ScrollEvents');
+var TransitionWatcher = require('../components/TransitionWatcher');
 
 function Panels () {
 	this.el = document.getElementById('panels');
@@ -173,6 +174,7 @@ proto.getCurrentColor = function (url) {
 };
 
 proto.transitionToPost = function () {
+	var listenTo;
 	var panelWidth = this.panels[0].offsetWidth;
 	var panelExpandWidth = 25; // actually half the expand width - maybe make this dynamic?
 	var winWidth = window.innerWidth;
@@ -184,6 +186,9 @@ proto.transitionToPost = function () {
 	while (++i && i < this.totalPanels) {
 		if (this.panels[i].offsetLeft - scrollLeft < winWidth) {
 			this.panels[i].style.cssText = style;
+			if (listenTo === undefined) {
+				listenTo = this.panels[i];
+			}
 		}
 		else {
 			i = Infinity;
@@ -198,11 +203,22 @@ proto.transitionToPost = function () {
 	while (i--) {
 		if (this.panels[i].offsetLeft - scrollLeft) {
 			this.panels[i].style.cssText = style;
+			if (listenTo === undefined) {
+				listenTo = this.panels[i];
+			}
 		}
 		else {
 			i = -1;
 		}
 	}
+
+	var watcher = new TransitionWatcher();
+	var onTransitionEnded = function (evt) {
+		listenTo.removeEventListener(transitionEndEvent(), onTransitionEnded);
+		watcher.complete();
+	};
+	listenTo.addEventListener(transitionEndEvent(), onTransitionEnded, false);
+	return watcher;
 };
 
 proto.enable = function () {
