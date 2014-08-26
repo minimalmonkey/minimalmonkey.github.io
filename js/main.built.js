@@ -53,9 +53,11 @@ proto.showHome = function (match, params) {
 };
 
 proto.showPost = function (match, params) {
-	var color = this.panels.transitionToPost(params);
-	document.getElementById('pagecontent').classList.add('color-' + color);
-	document.body.classList.add('is-muted');
+	this.panels.disable();
+	var color = this.panels.getCurrentColor();
+	// document.getElementById('pagecontent').classList.add('color-' + color);
+	document.body.classList.add('is-muted', 'is-transition-topost', 'color-' + color);
+	this.panels.transitionToPost();
 };
 
 module.exports = App;
@@ -647,10 +649,42 @@ proto.onNavClicked = function (evt) {
 	}
 };
 
-proto.transitionToPost = function (url) {
-	console.log('transitionToPost:', url, this.panels[this.currentIndex].dataset.color);
-	this.disable();
+proto.getCurrentColor = function (url) {
+	// TODO: if currentIndex exists use that otherwise get panel from url
 	return this.panels[this.currentIndex].dataset.color;
+};
+
+proto.transitionToPost = function () {
+	var panelWidth = this.panels[0].offsetWidth;
+	var panelExpandWidth = 25; // actually half the expand width - maybe make this dynamic?
+	var winWidth = window.innerWidth;
+	var scrollLeft = window.pageXOffset;
+	var slideAmount = winWidth - ((this.panels[this.currentIndex].offsetLeft - scrollLeft) + panelWidth + panelExpandWidth);
+	var style = '-webkit-transform: translateX(' + slideAmount + 'px); transform: translateX(' + slideAmount + 'px)';
+	var i = this.currentIndex;
+
+	while (++i && i < this.totalPanels) {
+		if (this.panels[i].offsetLeft - scrollLeft < winWidth) {
+			this.panels[i].style.cssText = style;
+		}
+		else {
+			i = Infinity;
+		}
+	}
+
+	slideAmount = this.panels[this.currentIndex].offsetLeft - scrollLeft - panelExpandWidth;
+	style = '-webkit-transform: translateX(-' + slideAmount + 'px); transform: translateX(-' + slideAmount + 'px)';
+	scrollLeft -= panelWidth;
+	i = this.currentIndex;
+
+	while (i--) {
+		if (this.panels[i].offsetLeft - scrollLeft) {
+			this.panels[i].style.cssText = style;
+		}
+		else {
+			i = -1;
+		}
+	}
 };
 
 proto.enable = function () {
@@ -685,21 +719,31 @@ var proto = Posts.prototype;
 proto.loadSiblingPosts = function () {
 	var nextNav = document.querySelector('.post-nav-next');
 	if (nextNav && !nextNav.classList.contains('is-hidden')) {
-		loadPage(nextNav.href, function (pagecontent) {
-			this.onSiblingPostLoaded(pagecontent, nextNav);
-		}.bind(this), '.pagecontent');
+		loadPage(nextNav.href, function (post, next, previous) {
+			this.onSiblingPostLoaded({
+				post: post[0],
+				next: next[0],
+				previous: previous[0]
+			}, nextNav);
+		}.bind(this), '.post', '.post-nav-next', '.post-nav-previous');
 	}
 
 	var previousNav = document.querySelector('.post-nav-previous');
 	if (previousNav && !previousNav.classList.contains('is-hidden')) {
-		loadPage(previousNav.href, function (pagecontent) {
-			this.onSiblingPostLoaded(pagecontent, previousNav);
-		}.bind(this), '.pagecontent');
+		loadPage(previousNav.href, function (post, next, previous) {
+			this.onSiblingPostLoaded({
+				post: post[0],
+				next: next[0],
+				previous: previous[0]
+			}, previousNav);
+		}.bind(this), '.post', '.post-nav-next', '.post-nav-previous');
 	}
 };
 
-proto.onSiblingPostLoaded = function (pagecontent, nav) {
-	nav.classList.add('color-' + pagecontent[0].dataset.color);
+proto.onSiblingPostLoaded = function (elements, nav) {
+	if (elements.post && elements.post.dataset) {
+		nav.classList.add('color-' + elements.post.dataset.color);
+	}
 };
 
 proto.enable = function () {

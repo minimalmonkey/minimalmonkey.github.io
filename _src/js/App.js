@@ -50,9 +50,11 @@ proto.showHome = function (match, params) {
 };
 
 proto.showPost = function (match, params) {
-	var color = this.panels.transitionToPost(params);
-	document.getElementById('pagecontent').classList.add('color-' + color);
-	document.body.classList.add('is-muted');
+	this.panels.disable();
+	var color = this.panels.getCurrentColor();
+	// document.getElementById('pagecontent').classList.add('color-' + color);
+	document.body.classList.add('is-muted', 'is-transition-topost', 'color-' + color);
+	this.panels.transitionToPost();
 };
 
 module.exports = App;
