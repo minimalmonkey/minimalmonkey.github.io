@@ -74,6 +74,7 @@ proto.showPost = function (match, params) {
 	}
 	else if (this.state === 'post') {
 		console.log('we on posts!');
+		this.posts.show(location.pathname);
 	}
 	else if (this.state === 'header') {
 		this.header.close();
@@ -918,9 +919,9 @@ proto.onPostLoaded = function (post, next, previous, url) {
 
 	if (this.showNext) {
 		this.showNext = undefined;
-		this.el.innerHTML = currentPost.html;
 
 		if (this.el.classList.contains('is-hidden')) {
+			this.el.innerHTML = currentPost.html;
 			this.el.classList.remove('is-hidden');
 			var onTransitionEnded = function (evt) {
 				this.closeNav.classList.remove('is-hidden');
@@ -931,24 +932,45 @@ proto.onPostLoaded = function (post, next, previous, url) {
 		}
 		else {
 			// navigating to another post
+			console.log('go sibling post....');
 		}
 
-		if (currentPost.next) {
-			this.nextNav.href = currentPost.next;
-			this.nextNav.classList.remove('is-hidden');
-		}
-		if (currentPost.previous) {
-			this.previousNav.href = currentPost.previous;
-			this.previousNav.classList.remove('is-hidden');
-		}
-		this.loadSiblingPosts();
+		this.setNavHref(currentPost);
 	}
 	else if (url === this.nextNav.pathname) {
-		this.nextNav.classList.add('color-' + currentPost.color);
+		this.setNavColor(this.nextNav, currentPost.color);
 	}
 	else if (url === this.previousNav.pathname) {
-		this.previousNav.classList.add('color-' + currentPost.color);
+		this.setNavColor(this.previousNav, currentPost.color);
 	}
+};
+
+proto.setNavColor = function (nav, color) {
+	if (nav.dataset.color) {
+		nav.classList.remove('color-' + nav.dataset.color);
+	}
+	nav.dataset.color = color;
+	nav.classList.add('color-' + color);
+};
+
+proto.setNavHref = function (post) {
+	if (post.next) {
+		this.nextNav.href = post.next;
+		this.nextNav.classList.remove('is-hidden');
+	}
+	else {
+		this.nextNav.classList.add('is-hidden');
+	}
+
+	if (post.previous) {
+		this.previousNav.href = post.previous;
+		this.previousNav.classList.remove('is-hidden');
+	}
+	else {
+		this.previousNav.classList.add('is-hidden');
+	}
+
+	this.loadSiblingPosts();
 };
 
 proto.enable = function () {

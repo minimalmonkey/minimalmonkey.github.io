@@ -1211,8 +1211,8 @@ body {
   background: rgba(0, 0, 0, 0.23);
   -webkit-transform: translate3d(0, 0, 0);
           transform: translate3d(0, 0, 0);
-  -webkit-transition: -webkit-transform 0.5s ease-out 0.1s;
-          transition: transform 0.5s ease-out 0.1s; }
+  -webkit-transition: -webkit-transform 0.3s ease-out;
+          transition: transform 0.3s ease-out; }
   @media (min-width: 1060px) {
     .post-nav {
       display: block; } }
@@ -1226,8 +1226,8 @@ body {
     content: "";
     -webkit-transform: translate3d(0, 0, 0);
             transform: translate3d(0, 0, 0);
-    -webkit-transition: -webkit-transform 0.3s;
-            transition: transform 0.3s; }
+    -webkit-transition: background 0.3s, -webkit-transform 0.3s;
+            transition: background 0.3s, transform 0.3s; }
   .post-nav:after {
     position: absolute;
     top: 50%;

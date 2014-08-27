@@ -71,6 +71,7 @@ proto.showPost = function (match, params) {
 	}
 	else if (this.state === 'post') {
 		console.log('we on posts!');
+		this.posts.show(location.pathname);
 	}
 	else if (this.state === 'header') {
 		this.header.close();

@@ -6,7 +6,7 @@
 	top: 0;
 	background: rgba(0, 0, 0, 0.23);
 	transform: translate3d(0, 0, 0);
-	transition: transform 0.5s ease-out 0.1s;
+	transition: transform 0.3s ease-out;
 
 	@media (min-width: $bp-post-nav) {
 		display: block;
@@ -21,7 +21,7 @@
 		background: inherit;
 		content: "";
 		transform: translate3d(0, 0, 0);
-		transition: transform 0.3s;
+		transition: background 0.3s, transform 0.3s;
 	}
 
 	&:after {
