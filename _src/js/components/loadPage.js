@@ -22,7 +22,7 @@ module.exports = function loadPage (url, callback) {
 					elements[i] = fragment.querySelectorAll(selectors[i]);
 				}
 
-				callback.apply(this, elements.length ? elements : [this.responseText]);
+				callback.apply(this, elements.length ? elements.concat(url) : [this.responseText, url]);
 			}
 		}
 	};

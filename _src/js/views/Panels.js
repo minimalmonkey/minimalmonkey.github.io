@@ -2,7 +2,7 @@
 
 var isMouseOut = require('../utils/isMouseOut');
 var loadPage = require('../components/loadPage');
-var transitionEndEvent = require('../utils/transitionEndEvent');
+var transitionEndEvent = require('../utils/transitionEndEvent')();
 
 var PanelsNav = require('./components/PanelsNav');
 var ScrollEvents = require('../components/ScrollEvents');
@@ -26,7 +26,7 @@ function Panels () {
 
 	if (document.body.classList.contains('is-panels', 'is-intro')) {
 		this.onIntroEnded = this.onIntroEnded.bind(this);
-		this.panels[this.totalPanels - 1].addEventListener(transitionEndEvent(), this.onIntroEnded, false);
+		this.panels[this.totalPanels - 1].addEventListener(transitionEndEvent, this.onIntroEnded, false);
 	}
 	else {
 		this.enable();
@@ -81,7 +81,7 @@ proto.removeExpandClass = function () {
 };
 
 proto.onIntroEnded = function (evt) {
-	this.panels[this.totalPanels - 1].removeEventListener(transitionEndEvent(), this.onIntroEnded);
+	this.panels[this.totalPanels - 1].removeEventListener(transitionEndEvent, this.onIntroEnded);
 	this.enable();
 
 	var onMouseMove = function (evt) {
@@ -214,10 +214,10 @@ proto.transitionToPost = function () {
 
 	var watcher = new TransitionWatcher();
 	var onTransitionEnded = function (evt) {
-		listenTo.removeEventListener(transitionEndEvent(), onTransitionEnded);
+		listenTo.removeEventListener(transitionEndEvent, onTransitionEnded);
 		watcher.complete();
 	};
-	listenTo.addEventListener(transitionEndEvent(), onTransitionEnded, false);
+	listenTo.addEventListener(transitionEndEvent, onTransitionEnded, false);
 	return watcher;
 };
 
@@ -233,8 +233,14 @@ proto.enable = function () {
 };
 
 proto.disable = function () {
-	this.el.removeEventListener('mouseover', this.onMouseOver);
-	this.el.removeEventListener('mouseout', this.onMouseOut);
+	if (this.el) {
+		this.el.removeEventListener('mouseover', this.onMouseOver);
+		this.el.removeEventListener('mouseout', this.onMouseOut);
+	}
+};
+
+proto.hide = function () {
+	this.el.classList.add('is-hidden');
 };
 
 module.exports = Panels;

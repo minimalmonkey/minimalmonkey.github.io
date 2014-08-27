@@ -6,6 +6,16 @@
 	background: #fff;
 	transition: opacity 0.35s ease-in-out 0.1s, transform 0.35s ease-in-out 0.1s;
 
+	&.is-hidden {
+		display: none;
+
+		.is-transition-topost & {
+			display: block;
+			opacity: 0;
+			transform: translateY(200px);
+		}
+	}
+
 	&:before,
 	&:after {
 		display: block;

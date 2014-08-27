@@ -11,6 +11,7 @@ function App () {
 	this.showHome = this.showHome.bind(this);
 	this.showPost = this.showPost.bind(this);
 	this.onPanelToPostComplete = this.onPanelToPostComplete.bind(this);
+	this.onPostShowComplete = this.onPostShowComplete.bind(this);
 
 	this.initViews();
 	this.initRouter();
@@ -60,7 +61,14 @@ proto.showPost = function (match, params) {
 
 proto.onPanelToPostComplete = function () {
 	this.watcher.off('complete', this.onPanelToPostComplete);
+	this.panels.hide();
+	this.watcher = this.posts.show(location.pathname);
+	this.watcher.on('complete', this.onPostShowComplete);
+};
+
+proto.onPostShowComplete = function () {
 	this.watcher = undefined;
+	document.body.classList.remove('is-muted', 'is-transition-topost');
 };
 
 module.exports = App;

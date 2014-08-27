@@ -7,6 +7,10 @@
 	min-width: 100%;
 	min-height: 460px;
 
+	&.is-hidden {
+		display: none;
+	}
+
 	@media (min-width: $bp-stack-width) {
 		display: flex;
 		position: absolute;

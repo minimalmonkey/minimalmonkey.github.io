@@ -5,6 +5,7 @@ var namedParam    = /(\(\?)?:\w+/g;
 var splatParam    = /\*\w+/g;
 var escapeRegExp  = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 
+/* From Backbone.js */
 module.exports = function routeToRegExp (route) {
 
 	if (route.exec) {
