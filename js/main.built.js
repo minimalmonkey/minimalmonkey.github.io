@@ -42,24 +42,43 @@ proto.initRouter = function () {
 	}
 	this.router.add('/', this.showHome);
 	this.router.add('*post', this.showPost);
+
+	this.router.match(location.pathname);
 };
 
 proto.showHeader = function (match, params) {
-	this.header.open(match);
+	this.header.open(match, this.state !== 'header' ? this.router.lastURL : false);
+	this.state = 'header';
 };
 
 proto.showHome = function (match, params) {
-	if (this.header.isOpen) {
+	if (this.state === 'panels') {
+		console.log('already here...');
+	}
+	else if (this.state === 'post') {
+		console.log('from post transition');
+	}
+	else if (this.state === 'header') {
 		this.header.close();
 	}
+	this.state = 'panels';
 };
 
 proto.showPost = function (match, params) {
-	this.panels.disable();
-	var color = this.panels.getCurrentColor(params);
-	document.body.classList.add('is-muted', 'is-transition-topost', 'color-' + color);
-	this.watcher = this.panels.transitionToPost();
-	this.watcher.on('complete', this.onPanelToPostComplete);
+	if (this.state === 'panels') {
+		this.panels.disable();
+		var color = this.panels.getCurrentColor(params);
+		document.body.classList.add('is-muted', 'is-transition-topost', 'color-' + color);
+		this.watcher = this.panels.transitionToPost();
+		this.watcher.on('complete', this.onPanelToPostComplete);
+	}
+	else if (this.state === 'post') {
+		console.log('we on posts!');
+	}
+	else if (this.state === 'header') {
+		this.header.close();
+	}
+	this.state = 'post';
 };
 
 proto.onPanelToPostComplete = function () {
@@ -83,6 +102,8 @@ var addEventListenerList = require('../utils/addEventListenerList');
 var routeToRegExp = require('./routeToRegExp');
 
 function Router () {
+	this.lastURL = location.pathname;
+
 	this.onClicked = this.onClicked.bind(this);
 	addEventListenerList(document.querySelectorAll('[data-router]'), 'click', this.onClicked);
 
@@ -104,6 +125,7 @@ proto.navigate = function (route, silent) {
 	if (route === location.pathname) {
 		return;
 	}
+	this.lastURL = location.pathname;
 	if (!silent) {
 		history.pushState(null, null, route);
 	}
@@ -128,7 +150,7 @@ proto.remove = function (route, callback) {
 	//
 };
 
-proto.match = function (route, callback) {
+proto.match = function (route) {
 	var exec;
 	for (var key in this.routes) {
 		exec = this.routes[key][0].exec(route);
@@ -517,6 +539,8 @@ module.exports = function transitionEndEvent () {
 function Header () {
 	this.el = document.getElementById('siteheader');
 	this.pageContent = document.getElementById('pagecontent');
+	this.closeButton = document.getElementById('siteheader-close');
+
 	this.pages = {};
 	var pages = document.querySelectorAll('.siteheader-page');
 	var url;
@@ -532,17 +556,19 @@ function Header () {
 
 var proto = Header.prototype;
 
-proto.open = function (key) {
-	this.isOpen = true;
+proto.open = function (key, lastURL) {
 	this.el.classList.remove('is-collapsed');
 	this.pageContent.classList.add('is-disabled');
 	this.hideCurrent();
 	this.pages[key].nav.classList.add('is-selected');
 	this.pages[key].page.classList.add('is-visible');
+
+	if (lastURL) {
+		this.closeButton.href = lastURL;
+	}
 };
 
 proto.close = function () {
-	this.isOpen = false;
 	this.el.classList.add('is-collapsed');
 	this.pageContent.classList.remove('is-disabled');
 	this.hideCurrent();

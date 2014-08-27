@@ -3,6 +3,8 @@
 function Header () {
 	this.el = document.getElementById('siteheader');
 	this.pageContent = document.getElementById('pagecontent');
+	this.closeButton = document.getElementById('siteheader-close');
+
 	this.pages = {};
 	var pages = document.querySelectorAll('.siteheader-page');
 	var url;
@@ -18,17 +20,19 @@ function Header () {
 
 var proto = Header.prototype;
 
-proto.open = function (key) {
-	this.isOpen = true;
+proto.open = function (key, lastURL) {
 	this.el.classList.remove('is-collapsed');
 	this.pageContent.classList.add('is-disabled');
 	this.hideCurrent();
 	this.pages[key].nav.classList.add('is-selected');
 	this.pages[key].page.classList.add('is-visible');
+
+	if (lastURL) {
+		this.closeButton.href = lastURL;
+	}
 };
 
 proto.close = function () {
-	this.isOpen = false;
 	this.el.classList.add('is-collapsed');
 	this.pageContent.classList.remove('is-disabled');
 	this.hideCurrent();
