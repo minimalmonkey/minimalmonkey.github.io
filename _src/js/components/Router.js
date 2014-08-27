@@ -4,7 +4,7 @@ var addEventListenerList = require('../utils/addEventListenerList');
 var routeToRegExp = require('./routeToRegExp');
 
 function Router () {
-	this.lastURL = location.pathname;
+	this.lastURL = this.currentURL = location.pathname;
 
 	this.onClicked = this.onClicked.bind(this);
 	addEventListenerList(document.querySelectorAll('[data-router]'), 'click', this.onClicked);
@@ -24,13 +24,17 @@ proto.onClicked = function (evt) {
 };
 
 proto.navigate = function (route, silent) {
-	if (route === location.pathname) {
+	if (route === this.currentURL) {
 		return;
 	}
-	this.lastURL = location.pathname;
+
 	if (!silent) {
 		history.pushState(null, null, route);
 	}
+
+	this.lastURL = this.currentURL;
+	this.currentURL = route;
+
 	this.match(route);
 };
 
