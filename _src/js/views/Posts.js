@@ -3,6 +3,7 @@
 var loadPage = require('../components/loadPage');
 var setColor = require('../utils/setColor');
 var transitionEndEvent = require('../utils/transitionEndEvent')();
+var waitAnimationFrames = require('../utils/waitAnimationFrames');
 
 var TransitionWatcher = require('../components/TransitionWatcher');
 
@@ -13,6 +14,9 @@ function Posts (options) {
 	this.closeNav = document.querySelector('.post-nav-close');
 
 	this.onPostLoaded = this.onPostLoaded.bind(this);
+	this.onShowTransitionEnd = this.onShowTransitionEnd.bind(this);
+	this.onSlideOffTransitionEnd = this.onSlideOffTransitionEnd.bind(this);
+	this.onSlideOnTransitionEnd = this.onSlideOnTransitionEnd.bind(this);
 
 	this.posts = {};
 
@@ -59,47 +63,6 @@ proto.loadSiblingPosts = function () {
 	}
 };
 
-proto.onPostLoaded = function (post, next, previous, url) {
-
-	var currentPost = this.posts[url] = {
-		post: post[0],
-		html: post[0].innerHTML,
-		color: post[0].dataset.color,
-		next: next[0].classList.contains('is-hidden') ? false : next[0].pathname,
-		previous: previous[0].classList.contains('is-hidden') ? false : previous[0].pathname
-	};
-
-	if (this.showNext) {
-		this.showNext = undefined;
-
-		if (this.el.classList.contains('is-hidden')) {
-			this.el.innerHTML = currentPost.html;
-			this.el.classList.remove('is-hidden');
-			var onTransitionEnded = function (evt) {
-				this.closeNav.classList.remove('is-hidden');
-				this.el.removeEventListener(transitionEndEvent, onTransitionEnded);
-				this.watcher.complete();
-			}.bind(this);
-			this.el.addEventListener(transitionEndEvent, onTransitionEnded, false);
-		}
-		else {
-			// navigating to another post
-			setColor(document.body, currentPost.color);
-			console.log(url, this.nextNav.pathname);
-			var slideDirection = (!this.nextNav.classList.contains('is-hidden') && url === this.nextNav.pathname) ? 'right' : 'left';
-			document.body.classList.add('is-slideoff', 'is-slideoff-' + slideDirection, 'is-muted');
-		}
-
-		this.setNavHref(currentPost);
-	}
-	else if (url === this.nextNav.pathname) {
-		setColor(this.nextNav, currentPost.color);
-	}
-	else if (url === this.previousNav.pathname) {
-		setColor(this.previousNav, currentPost.color);
-	}
-};
-
 proto.setNavHref = function (post) {
 	if (post.next) {
 		this.nextNav.href = post.next;
@@ -118,6 +81,77 @@ proto.setNavHref = function (post) {
 	}
 
 	this.loadSiblingPosts();
+};
+
+proto.onPostLoaded = function (post, next, previous, url) {
+
+	var currentPost = this.posts[url] = {
+		post: post[0],
+		html: post[0].innerHTML,
+		color: post[0].dataset.color,
+		next: next[0].classList.contains('is-hidden') ? false : next[0].pathname,
+		previous: previous[0].classList.contains('is-hidden') ? false : previous[0].pathname
+	};
+
+	if (this.showNext) {
+		this.showNext = undefined;
+
+		if (this.el.classList.contains('is-hidden')) {
+			this.el.innerHTML = currentPost.html;
+			this.el.classList.remove('is-hidden');
+			this.el.addEventListener(transitionEndEvent, this.onShowTransitionEnd, false);
+		}
+		else {
+			// navigating to another post
+			setColor(document.body, currentPost.color);
+			this.closeNav.classList.add('is-hidden');
+			var slideDirection = (!this.nextNav.classList.contains('is-hidden') && url === this.nextNav.pathname) ? 'right' : 'left';
+			document.body.classList.add('is-slideoff', 'is-slideoff-' + slideDirection);
+			this.el.removeEventListener(transitionEndEvent, this.onSlideOnTransitionEnd);
+			this.el.addEventListener(transitionEndEvent, this.onSlideOffTransitionEnd, false);
+		}
+
+		this.setNavHref(currentPost);
+	}
+	else if (url === this.nextNav.pathname) {
+		setColor(this.nextNav, currentPost.color);
+	}
+	else if (url === this.previousNav.pathname) {
+		setColor(this.previousNav, currentPost.color);
+	}
+};
+
+proto.onShowTransitionEnd = function () {
+	this.el.removeEventListener(transitionEndEvent, this.onShowTransitionEnd);
+	this.closeNav.classList.remove('is-hidden');
+	this.watcher.complete();
+};
+
+proto.onSlideOffTransitionEnd = function () {
+	this.el.removeEventListener(transitionEndEvent, this.onSlideOffTransitionEnd);
+	this.el.innerHTML = this.posts[location.pathname].html;
+
+	var remove;
+	if (document.body.classList.contains('is-slideoff-right')) {
+		document.body.classList.remove('is-slideoff-right');
+		document.body.classList.add('is-slideoff-left', 'is-notransitions');
+		remove = 'is-slideoff-left';
+	}
+	else {
+		document.body.classList.remove('is-slideoff-left');
+		document.body.classList.add('is-slideoff-right', 'is-notransitions');
+		remove = 'is-slideoff-right';
+	}
+
+	waitAnimationFrames(function () {
+		document.body.classList.remove('is-slideoff', remove, 'is-notransitions');
+		this.el.addEventListener(transitionEndEvent, this.onSlideOnTransitionEnd, false);
+	}.bind(this), 2);
+};
+
+proto.onSlideOnTransitionEnd = function () {
+	this.el.removeEventListener(transitionEndEvent, this.onSlideOnTransitionEnd);
+	this.closeNav.classList.remove('is-hidden');
 };
 
 proto.enable = function () {

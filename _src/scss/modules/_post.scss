@@ -20,7 +20,12 @@
 
 	.is-slideoff & {
 		opacity: 0;
+		user-select: none;
 		transition: opacity 0.3s, transform 0.3s;
+	}
+
+	.is-slideoff.is-notransitions & {
+		transition: none;
 	}
 
 	.is-slideoff-left & {

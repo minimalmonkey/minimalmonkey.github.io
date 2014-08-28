@@ -1,6 +1,7 @@
 .post-nav {
 	display: none;
 	position: fixed;
+	z-index: 2;
 	width: 50px;
 	height: 100%;
 	top: 0;
@@ -27,7 +28,7 @@
 	&:after {
 		position: absolute;
 		top: 50%;
-		left: -5px;
+		left: -5px; // this needs to change
 		width: 50px;
 		height: 66px;
 		margin-top: -33px + ($site-nav-height / 2);
@@ -128,6 +129,7 @@
 	border-radius: 38px;
 	transform: rotate(0deg) translate3d(0, 0, 0);
 	transition: border 0.3s, color 0.3s, opacity 0.35s ease-in-out 0.1s, transform 0.35s ease-in-out 0.1s;
+	// TODO: add a .is-introtransition class
 
 	.js .is-intro & {
 		opacity: 0;
@@ -143,9 +145,16 @@
 	&.is-hidden {
 		display: none;
 
-		.is-transition-topost & {
+		.is-post & {
 			display: block;
 			opacity: 0;
+		}
+
+		.is-slideoff & {
+			transition: none;
+		}
+
+		.is-transition-topost & {
 			transform: rotate(-180deg) translate3d(0, 0, 0);
 		}
 	}
