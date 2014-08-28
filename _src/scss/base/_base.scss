@@ -39,4 +39,8 @@ body {
 			content: "";
 		}
 	}
+
+	&.is-post {
+		transition: background 0.3s;
+	}
 }

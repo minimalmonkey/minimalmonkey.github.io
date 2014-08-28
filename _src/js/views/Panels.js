@@ -43,11 +43,14 @@ proto.addPanels = function (index, append) {
 	}
 	// TODO: add `is-shrunk-right` to the first added element if append is `true` and we're hovering
 	var panel;
-	index = index || 0;
-	for (index; index < this.totalPanels; ++index) {
-		panel = this.panels[index];
-		panel.addEventListener('mouseover', callback(index).bind(this), false);
-		this.panelsUrlMap[panel.pathname] = panel;
+	var i = index || 0;
+	for (i; i < this.totalPanels; ++i) {
+		panel = this.panels[i];
+		panel.addEventListener('mouseover', callback(i).bind(this), false);
+		this.panelsUrlMap[panel.pathname] = {
+			index: i,
+			panel: panel
+		};
 		if (append) {
 			this.el.appendChild(panel);
 		}
@@ -169,7 +172,7 @@ proto.onNavClicked = function (evt) {
 };
 
 proto.getCurrentColor = function (url) {
-	var panel = this.currentIndex ? this.panels[this.currentIndex] : this.panelsUrlMap[url];
+	var panel = this.currentIndex ? this.panels[this.currentIndex] : this.panelsUrlMap[url].panel;
 	return panel.dataset.color;
 };
 

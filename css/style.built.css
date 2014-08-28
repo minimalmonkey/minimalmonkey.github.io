@@ -205,6 +205,9 @@ body {
       bottom: 0;
       left: 0;
       content: ""; }
+  body.is-post {
+    -webkit-transition: background 0.3s;
+            transition: background 0.3s; }
 
 .centered {
   display: block;
@@ -700,6 +703,11 @@ body {
   margin: 0 auto;
   color: #2d2d2d;
   background: #fff;
+  -webkit-transform: translate3d(0, 0, 0);
+          transform: translate3d(0, 0, 0);
+  -webkit-transform-origin: 50% 0;
+      -ms-transform-origin: 50% 0;
+          transform-origin: 50% 0;
   -webkit-transition: opacity 0.35s ease-in-out 0.1s, -webkit-transform 0.35s ease-in-out 0.1s;
           transition: opacity 0.35s ease-in-out 0.1s, transform 0.35s ease-in-out 0.1s; }
   .post.is-hidden {
@@ -707,9 +715,18 @@ body {
     .is-transition-topost .post.is-hidden {
       display: block;
       opacity: 0;
-      -webkit-transform: translateY(200px);
-          -ms-transform: translateY(200px);
-              transform: translateY(200px); }
+      -webkit-transform: translate3d(0, 200px, 0);
+              transform: translate3d(0, 200px, 0); }
+  .is-slideoff .post {
+    opacity: 0;
+    -webkit-transition: opacity 0.3s, -webkit-transform 0.3s;
+            transition: opacity 0.3s, transform 0.3s; }
+  .is-slideoff-left .post {
+    -webkit-transform: translate3d(-100%, 0, 0);
+            transform: translate3d(-100%, 0, 0); }
+  .is-slideoff-right .post {
+    -webkit-transform: translate3d(100%, 0, 0);
+            transform: translate3d(100%, 0, 0); }
   .post:before, .post:after {
     display: block;
     position: absolute;

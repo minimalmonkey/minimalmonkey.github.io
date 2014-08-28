@@ -3,6 +3,8 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
+var setColor = require('./utils/setColor');
+
 var Router = require('./components/Router');
 var Header = require('./views/Header');
 var Panels = require('./views/Panels');
@@ -68,13 +70,13 @@ proto.showPost = function (match, params) {
 	if (this.state === 'panels') {
 		this.panels.disable();
 		var color = this.panels.getCurrentColor(params);
-		document.body.classList.add('is-muted', 'is-transition-topost', 'color-' + color);
+		document.body.classList.add('is-muted', 'is-transition-topost');
+		setColor(document.body, color);
 		this.watcher = this.panels.transitionToPost();
 		this.watcher.on('complete', this.onPanelToPostComplete);
 	}
 	else if (this.state === 'post') {
-		console.log('we on posts!');
-		this.posts.show(location.pathname);
+		this.posts.slide(location.pathname);
 	}
 	else if (this.state === 'header') {
 		this.header.close();
@@ -96,7 +98,7 @@ proto.onPostShowComplete = function () {
 
 module.exports = App;
 
-},{"./components/Router":2,"./views/Header":13,"./views/Panels":14,"./views/Posts":15}],2:[function(require,module,exports){
+},{"./components/Router":2,"./utils/setColor":11,"./views/Header":14,"./views/Panels":15,"./views/Posts":16}],2:[function(require,module,exports){
 'use strict';
 
 var addEventListenerList = require('../utils/addEventListenerList');
@@ -278,7 +280,7 @@ proto.disable = function () {
 
 module.exports = ScrollEvents;
 
-},{"../utils/throttleEvent":11}],4:[function(require,module,exports){
+},{"../utils/throttleEvent":12}],4:[function(require,module,exports){
 'use strict';
 
 function TransitionWatcher () {
@@ -486,6 +488,17 @@ module.exports = function isMouseOut (evt) {
 },{}],11:[function(require,module,exports){
 'use strict';
 
+module.exports = function setColor (element, color) {
+	if (element.dataset.color) {
+		element.classList.remove('color-' + element.dataset.color);
+	}
+	element.dataset.color = color;
+	element.classList.add('color-' + color);
+};
+
+},{}],12:[function(require,module,exports){
+'use strict';
+
 /**
  * @name throttleEvent
  * Throttles an event.
@@ -509,7 +522,7 @@ module.exports = function throttleEvent (callback, delay) {
 	};
 };
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 'use strict';
 
 var transitionEnd;
@@ -538,7 +551,7 @@ module.exports = function transitionEndEvent () {
 	}
 };
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 'use strict';
 
 function Header () {
@@ -603,7 +616,7 @@ proto.getPageLinks = function () {
 
 module.exports = Header;
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 'use strict';
 
 var isMouseOut = require('../utils/isMouseOut');
@@ -649,11 +662,14 @@ proto.addPanels = function (index, append) {
 	}
 	// TODO: add `is-shrunk-right` to the first added element if append is `true` and we're hovering
 	var panel;
-	index = index || 0;
-	for (index; index < this.totalPanels; ++index) {
-		panel = this.panels[index];
-		panel.addEventListener('mouseover', callback(index).bind(this), false);
-		this.panelsUrlMap[panel.pathname] = panel;
+	var i = index || 0;
+	for (i; i < this.totalPanels; ++i) {
+		panel = this.panels[i];
+		panel.addEventListener('mouseover', callback(i).bind(this), false);
+		this.panelsUrlMap[panel.pathname] = {
+			index: i,
+			panel: panel
+		};
 		if (append) {
 			this.el.appendChild(panel);
 		}
@@ -775,7 +791,7 @@ proto.onNavClicked = function (evt) {
 };
 
 proto.getCurrentColor = function (url) {
-	var panel = this.currentIndex ? this.panels[this.currentIndex] : this.panelsUrlMap[url];
+	var panel = this.currentIndex ? this.panels[this.currentIndex] : this.panelsUrlMap[url].panel;
 	return panel.dataset.color;
 };
 
@@ -851,10 +867,11 @@ proto.hide = function () {
 
 module.exports = Panels;
 
-},{"../components/ScrollEvents":3,"../components/TransitionWatcher":4,"../components/loadPage":5,"../utils/isMouseOut":10,"../utils/transitionEndEvent":12,"./components/PanelsNav":16}],15:[function(require,module,exports){
+},{"../components/ScrollEvents":3,"../components/TransitionWatcher":4,"../components/loadPage":5,"../utils/isMouseOut":10,"../utils/transitionEndEvent":13,"./components/PanelsNav":17}],16:[function(require,module,exports){
 'use strict';
 
 var loadPage = require('../components/loadPage');
+var setColor = require('../utils/setColor');
 var transitionEndEvent = require('../utils/transitionEndEvent')();
 
 var TransitionWatcher = require('../components/TransitionWatcher');
@@ -891,6 +908,11 @@ proto.show = function(url) {
 	this.showNext = url;
 	this.loadPost(url);
 	return this.watcher;
+};
+
+proto.slide = function(url) {
+	this.showNext = url;
+	this.loadPost(url);
 };
 
 proto.loadPost = function (url) {
@@ -932,25 +954,20 @@ proto.onPostLoaded = function (post, next, previous, url) {
 		}
 		else {
 			// navigating to another post
-			console.log('go sibling post....');
+			setColor(document.body, currentPost.color);
+			console.log(url, this.nextNav.pathname);
+			var slideDirection = (!this.nextNav.classList.contains('is-hidden') && url === this.nextNav.pathname) ? 'right' : 'left';
+			document.body.classList.add('is-slideoff', 'is-slideoff-' + slideDirection, 'is-muted');
 		}
 
 		this.setNavHref(currentPost);
 	}
 	else if (url === this.nextNav.pathname) {
-		this.setNavColor(this.nextNav, currentPost.color);
+		setColor(this.nextNav, currentPost.color);
 	}
 	else if (url === this.previousNav.pathname) {
-		this.setNavColor(this.previousNav, currentPost.color);
+		setColor(this.previousNav, currentPost.color);
 	}
-};
-
-proto.setNavColor = function (nav, color) {
-	if (nav.dataset.color) {
-		nav.classList.remove('color-' + nav.dataset.color);
-	}
-	nav.dataset.color = color;
-	nav.classList.add('color-' + color);
 };
 
 proto.setNavHref = function (post) {
@@ -985,7 +1002,7 @@ proto.disable = function () {
 
 module.exports = Posts;
 
-},{"../components/TransitionWatcher":4,"../components/loadPage":5,"../utils/transitionEndEvent":12}],16:[function(require,module,exports){
+},{"../components/TransitionWatcher":4,"../components/loadPage":5,"../utils/setColor":11,"../utils/transitionEndEvent":13}],17:[function(require,module,exports){
 'use strict';
 
 function PanelsNav () {

@@ -1,5 +1,7 @@
 'use strict';
 
+var setColor = require('./utils/setColor');
+
 var Router = require('./components/Router');
 var Header = require('./views/Header');
 var Panels = require('./views/Panels');
@@ -65,13 +67,13 @@ proto.showPost = function (match, params) {
 	if (this.state === 'panels') {
 		this.panels.disable();
 		var color = this.panels.getCurrentColor(params);
-		document.body.classList.add('is-muted', 'is-transition-topost', 'color-' + color);
+		document.body.classList.add('is-muted', 'is-transition-topost');
+		setColor(document.body, color);
 		this.watcher = this.panels.transitionToPost();
 		this.watcher.on('complete', this.onPanelToPostComplete);
 	}
 	else if (this.state === 'post') {
-		console.log('we on posts!');
-		this.posts.show(location.pathname);
+		this.posts.slide(location.pathname);
 	}
 	else if (this.state === 'header') {
 		this.header.close();

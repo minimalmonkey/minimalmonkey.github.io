@@ -1,6 +1,7 @@
 'use strict';
 
 var loadPage = require('../components/loadPage');
+var setColor = require('../utils/setColor');
 var transitionEndEvent = require('../utils/transitionEndEvent')();
 
 var TransitionWatcher = require('../components/TransitionWatcher');
@@ -37,6 +38,11 @@ proto.show = function(url) {
 	this.showNext = url;
 	this.loadPost(url);
 	return this.watcher;
+};
+
+proto.slide = function(url) {
+	this.showNext = url;
+	this.loadPost(url);
 };
 
 proto.loadPost = function (url) {
@@ -78,25 +84,20 @@ proto.onPostLoaded = function (post, next, previous, url) {
 		}
 		else {
 			// navigating to another post
-			console.log('go sibling post....');
+			setColor(document.body, currentPost.color);
+			console.log(url, this.nextNav.pathname);
+			var slideDirection = (!this.nextNav.classList.contains('is-hidden') && url === this.nextNav.pathname) ? 'right' : 'left';
+			document.body.classList.add('is-slideoff', 'is-slideoff-' + slideDirection, 'is-muted');
 		}
 
 		this.setNavHref(currentPost);
 	}
 	else if (url === this.nextNav.pathname) {
-		this.setNavColor(this.nextNav, currentPost.color);
+		setColor(this.nextNav, currentPost.color);
 	}
 	else if (url === this.previousNav.pathname) {
-		this.setNavColor(this.previousNav, currentPost.color);
+		setColor(this.previousNav, currentPost.color);
 	}
-};
-
-proto.setNavColor = function (nav, color) {
-	if (nav.dataset.color) {
-		nav.classList.remove('color-' + nav.dataset.color);
-	}
-	nav.dataset.color = color;
-	nav.classList.add('color-' + color);
 };
 
 proto.setNavHref = function (post) {
