@@ -9,8 +9,8 @@
 	transform: translate3d(0, 0, 0);
 	transition: transform 0.3s ease-out;
 
-	@media (min-width: $bp-post-nav) {
-		display: block;
+	.is-introtransition & {
+		transition: transform 0.3s ease-out 0.2s;
 	}
 
 	&:before {
@@ -50,6 +50,10 @@
 
 	.is-disabled & {
 		transition: transform $header-open-duration;
+	}
+
+	@media (min-width: $bp-post-nav) {
+		display: block;
 	}
 }
 
@@ -128,12 +132,15 @@
 	border: 1px solid #ccc;
 	border-radius: 38px;
 	transform: rotate(0deg) translate3d(0, 0, 0);
-	transition: border 0.3s, color 0.3s, opacity 0.35s ease-in-out 0.1s, transform 0.35s ease-in-out 0.1s;
-	// TODO: add a .is-introtransition class
+	transition: border 0.3s, color 0.3s, opacity 0.35s, transform 0.3s;
 
 	.js .is-intro & {
 		opacity: 0;
 		transform: translateY(200px);
+	}
+
+	.is-introtransition & {
+		transition: opacity 0.35s ease-in-out 0.1s, transform 0.35s ease-in-out 0.1s;
 	}
 
 	&:hover {

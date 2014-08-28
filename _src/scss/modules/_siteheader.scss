@@ -11,12 +11,8 @@
 	transform: translate3d(0, 0, 0);
 	transition: height $header-open-duration;
 
-	.is-panels & {
-		transition: height $header-open-duration, transform 0.35s ease-in-out 0.3s;
-	}
-
-	.is-post & {
-		transition: height $header-open-duration, transform 0.35s ease-in-out 0.05s;
+	.is-introtransition & {
+		transition: transform 0.4s ease-in-out 0.1s;
 	}
 
 	&.is-collapsed {

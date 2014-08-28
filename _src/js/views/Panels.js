@@ -25,6 +25,7 @@ function Panels () {
 	this.onNavClicked = this.onNavClicked.bind(this);
 
 	if (document.body.classList.contains('is-panels', 'is-intro')) {
+		this.introWatcher = new TransitionWatcher();
 		this.onIntroEnded = this.onIntroEnded.bind(this);
 		this.panels[this.totalPanels - 1].addEventListener(transitionEndEvent, this.onIntroEnded, false);
 	}
@@ -86,6 +87,7 @@ proto.removeExpandClass = function () {
 proto.onIntroEnded = function (evt) {
 	this.panels[this.totalPanels - 1].removeEventListener(transitionEndEvent, this.onIntroEnded);
 	this.enable();
+	this.introWatcher.complete();
 
 	var onMouseMove = function (evt) {
 		document.removeEventListener('mousemove', onMouseMove);

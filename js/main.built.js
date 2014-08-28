@@ -22,6 +22,7 @@ function App () {
 	this.initRouter();
 
 	window.requestAnimationFrame(function () {
+		document.body.classList.add('is-introtransition');
 		document.body.classList.remove('is-intro');
 	});
 }
@@ -46,10 +47,19 @@ proto.initRouter = function () {
 	this.router.add('*post', this.showPost);
 
 	this.router.match(location.pathname);
+
+	if (this.view && this.view.introWatcher) {
+		this.onIntroComplete = this.onIntroComplete.bind(this);
+		this.view.introWatcher.on('complete', this.onIntroComplete);
+	}
+	else {
+		this.onIntroComplete();
+	}
 };
 
 proto.showHeader = function (match, params) {
 	this.header.open(match, this.state !== 'header' ? this.router.lastURL : false);
+	this.view = this.header;
 	this.state = 'header';
 };
 
@@ -63,6 +73,7 @@ proto.showHome = function (match, params) {
 	else if (this.state === 'header') {
 		this.header.close();
 	}
+	this.view = this.panels;
 	this.state = 'panels';
 };
 
@@ -81,6 +92,7 @@ proto.showPost = function (match, params) {
 	else if (this.state === 'header') {
 		this.header.close();
 	}
+	this.view = this.posts;
 	this.state = 'post';
 };
 
@@ -94,6 +106,11 @@ proto.onPanelToPostComplete = function () {
 proto.onPostShowComplete = function () {
 	this.watcher = undefined;
 	document.body.classList.remove('is-muted', 'is-transition-topost');
+};
+
+proto.onIntroComplete = function () {
+	this.view.introWatcher.clear();
+	document.body.classList.remove('is-introtransition');
 };
 
 module.exports = App;
@@ -665,6 +682,7 @@ function Panels () {
 	this.onNavClicked = this.onNavClicked.bind(this);
 
 	if (document.body.classList.contains('is-panels', 'is-intro')) {
+		this.introWatcher = new TransitionWatcher();
 		this.onIntroEnded = this.onIntroEnded.bind(this);
 		this.panels[this.totalPanels - 1].addEventListener(transitionEndEvent, this.onIntroEnded, false);
 	}
@@ -726,6 +744,7 @@ proto.removeExpandClass = function () {
 proto.onIntroEnded = function (evt) {
 	this.panels[this.totalPanels - 1].removeEventListener(transitionEndEvent, this.onIntroEnded);
 	this.enable();
+	this.introWatcher.complete();
 
 	var onMouseMove = function (evt) {
 		document.removeEventListener('mousemove', onMouseMove);
@@ -912,6 +931,12 @@ function Posts (options) {
 	this.posts = {};
 
 	this.loadSiblingPosts();
+
+	if (document.body.classList.contains('is-post', 'is-intro')) {
+		this.introWatcher = new TransitionWatcher();
+		this.onIntroEnded = this.onIntroEnded.bind(this);
+		this.el.addEventListener(transitionEndEvent, this.onIntroEnded, false);
+	}
 }
 
 var proto = Posts.prototype;
@@ -1043,6 +1068,11 @@ proto.onSlideOffTransitionEnd = function () {
 proto.onSlideOnTransitionEnd = function () {
 	this.el.removeEventListener(transitionEndEvent, this.onSlideOnTransitionEnd);
 	this.closeNav.classList.remove('is-hidden');
+};
+
+proto.onIntroEnded = function (evt) {
+	this.el.removeEventListener(transitionEndEvent, this.onIntroEnded);
+	this.introWatcher.complete();
 };
 
 proto.enable = function () {

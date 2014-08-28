@@ -21,6 +21,12 @@ function Posts (options) {
 	this.posts = {};
 
 	this.loadSiblingPosts();
+
+	if (document.body.classList.contains('is-post', 'is-intro')) {
+		this.introWatcher = new TransitionWatcher();
+		this.onIntroEnded = this.onIntroEnded.bind(this);
+		this.el.addEventListener(transitionEndEvent, this.onIntroEnded, false);
+	}
 }
 
 var proto = Posts.prototype;
@@ -152,6 +158,11 @@ proto.onSlideOffTransitionEnd = function () {
 proto.onSlideOnTransitionEnd = function () {
 	this.el.removeEventListener(transitionEndEvent, this.onSlideOnTransitionEnd);
 	this.closeNav.classList.remove('is-hidden');
+};
+
+proto.onIntroEnded = function (evt) {
+	this.el.removeEventListener(transitionEndEvent, this.onIntroEnded);
+	this.introWatcher.complete();
 };
 
 proto.enable = function () {

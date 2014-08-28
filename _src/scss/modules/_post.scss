@@ -6,7 +6,11 @@
 	background: #fff;
 	transform: translate3d(0, 0, 0);
 	transform-origin: 50% 0;
-	transition: opacity 0.35s ease-in-out 0.1s, transform 0.35s ease-in-out 0.1s;
+	transition: opacity 0.4s, transform 0.4s;
+
+	.is-introtransition & {
+		transition: opacity 0.35s ease-in-out 0.1s, transform 0.35s ease-in-out 0.1s;
+	}
 
 	&.is-hidden {
 		display: none;
@@ -21,7 +25,6 @@
 	.is-slideoff & {
 		opacity: 0;
 		user-select: none;
-		transition: opacity 0.3s, transform 0.3s;
 	}
 
 	.is-slideoff.is-notransitions & {
