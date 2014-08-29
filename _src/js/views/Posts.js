@@ -15,6 +15,7 @@ function Posts (options) {
 
 	this.onPostLoaded = this.onPostLoaded.bind(this);
 	this.onShowTransitionEnd = this.onShowTransitionEnd.bind(this);
+	this.onHideTransitionEnd = this.onHideTransitionEnd.bind(this);
 	this.onSlideOffTransitionEnd = this.onSlideOffTransitionEnd.bind(this);
 	this.onSlideOnTransitionEnd = this.onSlideOnTransitionEnd.bind(this);
 
@@ -47,6 +48,16 @@ proto.show = function(url) {
 	this.watcher = new TransitionWatcher();
 	this.showNext = url;
 	this.loadPost(url);
+	return this.watcher;
+};
+
+proto.hide = function(url) {
+	this.watcher = new TransitionWatcher();
+	this.el.addEventListener(transitionEndEvent, this.onHideTransitionEnd, false);
+	this.el.classList.add('is-hidden');
+	this.nextNav.classList.add('is-hidden');
+	this.previousNav.classList.add('is-hidden');
+	this.closeNav.classList.add('is-hidden');
 	return this.watcher;
 };
 
@@ -130,6 +141,11 @@ proto.onPostLoaded = function (post, next, previous, url) {
 proto.onShowTransitionEnd = function () {
 	this.el.removeEventListener(transitionEndEvent, this.onShowTransitionEnd);
 	this.closeNav.classList.remove('is-hidden');
+	this.watcher.complete();
+};
+
+proto.onHideTransitionEnd = function () {
+	this.el.removeEventListener(transitionEndEvent, this.onHideTransitionEnd);
 	this.watcher.complete();
 };
 

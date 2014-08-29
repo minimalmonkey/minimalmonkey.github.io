@@ -10,10 +10,12 @@ var Posts = require('./views/Posts');
 function App () {
 
 	this.showHeader = this.showHeader.bind(this);
-	this.showHome = this.showHome.bind(this);
+	this.showPanels = this.showPanels.bind(this);
 	this.showPost = this.showPost.bind(this);
-	this.onPanelToPostComplete = this.onPanelToPostComplete.bind(this);
+	this.onPanelShowComplete = this.onPanelShowComplete.bind(this);
+	this.onPanelHideComplete = this.onPanelHideComplete.bind(this);
 	this.onPostShowComplete = this.onPostShowComplete.bind(this);
+	this.onPostHideComplete = this.onPostHideComplete.bind(this);
 
 	this.initViews();
 	this.initRouter();
@@ -40,7 +42,7 @@ proto.initRouter = function () {
 	while (i--) {
 		this.router.add(headerLinks[i], this.showHeader);
 	}
-	this.router.add('/', this.showHome);
+	this.router.add('/', this.showPanels);
 	this.router.add('*post', this.showPost);
 
 	this.router.match(location.pathname);
@@ -60,12 +62,14 @@ proto.showHeader = function (match, params) {
 	this.state = 'header';
 };
 
-proto.showHome = function (match, params) {
+proto.showPanels = function (match, params) {
 	if (this.state === 'panels') {
 		console.log('already here...');
 	}
 	else if (this.state === 'post') {
-		console.log('from post transition');
+		document.body.classList.add('is-muted', 'is-transition-topanels');
+		this.watcher = this.posts.hide();
+		this.watcher.on('complete', this.onPostHideComplete);
 	}
 	else if (this.state === 'header') {
 		this.header.close();
@@ -81,7 +85,7 @@ proto.showPost = function (match, params) {
 		document.body.classList.add('is-muted', 'is-transition-topost');
 		setColor(document.body, color);
 		this.watcher = this.panels.transitionToPost();
-		this.watcher.on('complete', this.onPanelToPostComplete);
+		this.watcher.on('complete', this.onPanelHideComplete);
 	}
 	else if (this.state === 'post') {
 		this.posts.slide(location.pathname);
@@ -93,21 +97,39 @@ proto.showPost = function (match, params) {
 	this.state = 'post';
 };
 
-proto.onPanelToPostComplete = function () {
-	this.watcher.off('complete', this.onPanelToPostComplete);
-	this.panels.hide();
-	this.watcher = this.posts.show(location.pathname);
-	this.watcher.on('complete', this.onPostShowComplete);
-};
-
-proto.onPostShowComplete = function () {
-	this.watcher = undefined;
-	document.body.classList.remove('is-muted', 'is-transition-topost');
-};
-
 proto.onIntroComplete = function () {
 	this.view.introWatcher.clear();
 	document.body.classList.remove('is-introtransition');
+};
+
+proto.onPanelShowComplete = function () {
+	console.log('onPanelShowComplete');
+	this.watcher.off('complete', this.onPanelShowComplete);
+	document.body.classList.remove('is-muted', 'is-transition-topanels');
+};
+
+proto.onPanelHideComplete = function () {
+	this.watcher.off('complete', this.onPanelHideComplete);
+	this.panels.hide();
+
+	if (this.state === 'post') {
+		this.watcher = this.posts.show(location.pathname);
+		this.watcher.on('complete', this.onPostShowComplete);
+	}
+};
+
+proto.onPostShowComplete = function () {
+	this.watcher.off('complete', this.onPostShowComplete);
+	document.body.classList.remove('is-muted', 'is-transition-topost');
+};
+
+proto.onPostHideComplete = function () {
+	this.watcher.off('complete', this.onPostHideComplete);
+
+	if (this.state === 'panels') {
+		this.watcher = this.panels.show(this.router.lastURL);
+		this.watcher.on('complete', this.onPanelShowComplete);
+	}
 };
 
 module.exports = App;

@@ -36,6 +36,16 @@ function Panels () {
 
 var proto = Panels.prototype;
 
+proto.show = function (url) {
+	console.log('Panels.show', url);
+	this.watcher = new TransitionWatcher();
+	return this.watcher;
+};
+
+proto.hide = function () {
+	this.el.classList.add('is-hidden');
+};
+
 proto.addPanels = function (index, append) {
 	function callback (index) {
 		return function () {
@@ -242,10 +252,6 @@ proto.disable = function () {
 		this.el.removeEventListener('mouseover', this.onMouseOver);
 		this.el.removeEventListener('mouseout', this.onMouseOut);
 	}
-};
-
-proto.hide = function () {
-	this.el.classList.add('is-hidden');
 };
 
 module.exports = Panels;

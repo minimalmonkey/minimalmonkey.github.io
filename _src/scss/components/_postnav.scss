@@ -152,9 +152,15 @@
 	&.is-hidden {
 		display: none;
 
-		.is-post & {
+		.is-post &,
+		.is-transition-topost &,
+		.is-transition-topanels & {
 			display: block;
 			opacity: 0;
+		}
+
+		.is-transition-topanels & {
+			transform: translateY(200px);
 		}
 
 		.is-slideoff & {
