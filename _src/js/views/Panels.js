@@ -3,6 +3,7 @@
 var isMouseOut = require('../utils/isMouseOut');
 var loadPage = require('../components/loadPage');
 var transitionEndEvent = require('../utils/transitionEndEvent')();
+var waitAnimationFrames = require('../utils/waitAnimationFrames');
 
 var PanelsNav = require('./components/PanelsNav');
 var ScrollEvents = require('../components/ScrollEvents');
@@ -37,8 +38,8 @@ function Panels () {
 var proto = Panels.prototype;
 
 proto.show = function (url) {
-	console.log('Panels.show', url);
-	this.watcher = new TransitionWatcher();
+	this.el.classList.remove('is-hidden');
+	this.watcher = this.transitionFromPost(url);
 	return this.watcher;
 };
 
@@ -125,7 +126,7 @@ proto.onMouseOver = function (evt) {
 };
 
 proto.onMouseOut = function (evt) {
-	if (isMouseOut(evt)) {
+	if (evt === undefined || isMouseOut(evt)) {
 		this.el.removeEventListener('mouseout', this.onMouseOut);
 		this.el.addEventListener('mouseover', this.onMouseOver, false);
 		this.el.classList.remove('is-hovered');
@@ -197,9 +198,11 @@ proto.transitionToPost = function () {
 	var slideAmount = winWidth - ((this.panels[this.currentIndex].offsetLeft - scrollLeft) + panelWidth + panelExpandWidth);
 	var style = '-webkit-transform: translateX(' + slideAmount + 'px); transform: translateX(' + slideAmount + 'px)';
 	var i = this.currentIndex;
+	this.transformed = [];
 
 	while (++i && i < this.totalPanels) {
 		if (this.panels[i].offsetLeft - scrollLeft < winWidth) {
+			this.transformed.push(this.panels[i]);
 			this.panels[i].style.cssText = style;
 			if (listenTo === undefined) {
 				listenTo = this.panels[i];
@@ -217,6 +220,7 @@ proto.transitionToPost = function () {
 
 	while (i--) {
 		if (this.panels[i].offsetLeft - scrollLeft) {
+			this.transformed.push(this.panels[i]);
 			this.panels[i].style.cssText = style;
 			if (listenTo === undefined) {
 				listenTo = this.panels[i];
@@ -234,6 +238,89 @@ proto.transitionToPost = function () {
 	};
 	listenTo.addEventListener(transitionEndEvent, onTransitionEnded, false);
 	return watcher;
+};
+
+proto.transitionFromPost = function (url) {
+	var panelObj = this.panelsUrlMap[url];
+
+	if (panelObj === undefined) {
+		// panel not loaded - do fade instead
+		// also check if any panels, if not, load
+		// them or wait until they have loaded
+		return;
+	}
+
+	var listenTo;
+	var panelWidth = this.panels[0].offsetWidth;
+	var winWidth = window.innerWidth;
+	var panelOffsetLeft = panelObj.panel.offsetLeft;
+	var midPoint = winWidth * 0.5;
+	var left = panelOffsetLeft + (panelWidth * 0.5);
+	var scrollLeft = Math.round(left - midPoint);
+
+	window.scrollTo(scrollLeft, 0);
+
+	var slideAmount = winWidth - ((panelOffsetLeft - scrollLeft) + panelWidth);
+	var style = '-webkit-transform: translateX(' + slideAmount + 'px); transform: translateX(' + slideAmount + 'px)';
+	var i = panelObj.index;
+	this.transformed = [];
+
+	while (++i && i < this.totalPanels) {
+		if (this.panels[i].offsetLeft - scrollLeft < winWidth) {
+			this.transformed.push(this.panels[i]);
+			this.panels[i].style.cssText = style;
+			if (listenTo === undefined) {
+				listenTo = this.panels[i];
+			}
+		}
+		else {
+			i = Infinity;
+		}
+	}
+
+	slideAmount = panelOffsetLeft - scrollLeft;
+	style = '-webkit-transform: translateX(-' + slideAmount + 'px); transform: translateX(-' + slideAmount + 'px)';
+	scrollLeft -= panelWidth;
+	i = panelObj.index;
+
+	while (i--) {
+		if (this.panels[i].offsetLeft - scrollLeft) {
+			this.transformed.push(this.panels[i]);
+			this.panels[i].style.cssText = style;
+			if (listenTo === undefined) {
+				listenTo = this.panels[i];
+			}
+		}
+		else {
+			i = -1;
+		}
+	}
+
+	panelObj.panel.classList.add('is-transition-panel');
+	var watcher = new TransitionWatcher();
+
+	waitAnimationFrames(function () {
+		document.body.classList.remove('is-transition-topanelsfrompost');
+		panelObj.panel.classList.remove('is-transition-panel');
+		this.resetTransition();
+
+		var onTransitionEnded = function (evt) {
+			listenTo.removeEventListener(transitionEndEvent, onTransitionEnded);
+			watcher.complete();
+		};
+		listenTo.addEventListener(transitionEndEvent, onTransitionEnded, false);
+	}.bind(this), 2);
+
+	return watcher;
+};
+
+proto.resetTransition = function () {
+	var i = this.transformed.length;
+	while (i--) {
+		this.transformed[i].style.cssText = '';
+	}
+	this.transformed = undefined;
+	this.onMouseOut();
 };
 
 proto.enable = function () {

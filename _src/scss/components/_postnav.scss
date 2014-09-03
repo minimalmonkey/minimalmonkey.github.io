@@ -153,13 +153,13 @@
 		display: none;
 
 		.is-post &,
-		.is-transition-topost &,
-		.is-transition-topanels & {
+		.is-transition-topostfrompanels &,
+		.is-transition-topanelsfrompost & {
 			display: block;
 			opacity: 0;
 		}
 
-		.is-transition-topanels & {
+		.is-transition-topanelsfrompost & {
 			transform: translateY(200px);
 		}
 
@@ -167,7 +167,7 @@
 			transition: none;
 		}
 
-		.is-transition-topost & {
+		.is-transition-topostfrompanels & {
 			transform: rotate(-180deg) translate3d(0, 0, 0);
 		}
 	}

@@ -15,8 +15,8 @@
 	&.is-hidden {
 		display: none;
 
-		.is-transition-topost &,
-		.is-transition-topanels & {
+		.is-transition-topostfrompanels &,
+		.is-transition-topanelsfrompost & {
 			display: block;
 			opacity: 0;
 			transform: translate3d(0, 200px, 0);

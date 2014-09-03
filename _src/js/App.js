@@ -67,7 +67,7 @@ proto.showPanels = function (match, params) {
 		console.log('already here...');
 	}
 	else if (this.state === 'post') {
-		document.body.classList.add('is-muted', 'is-transition-topanels');
+		document.body.classList.add('is-muted', 'is-transition-topanelsfrompost');
 		this.watcher = this.posts.hide();
 		this.watcher.on('complete', this.onPostHideComplete);
 	}
@@ -82,7 +82,7 @@ proto.showPost = function (match, params) {
 	if (this.state === 'panels') {
 		this.panels.disable();
 		var color = this.panels.getCurrentColor(params);
-		document.body.classList.add('is-muted', 'is-transition-topost');
+		document.body.classList.add('is-muted', 'is-transition-topostfrompanels');
 		setColor(document.body, color);
 		this.watcher = this.panels.transitionToPost();
 		this.watcher.on('complete', this.onPanelHideComplete);
@@ -103,14 +103,14 @@ proto.onIntroComplete = function () {
 };
 
 proto.onPanelShowComplete = function () {
-	console.log('onPanelShowComplete');
 	this.watcher.off('complete', this.onPanelShowComplete);
-	document.body.classList.remove('is-muted', 'is-transition-topanels');
+	document.body.classList.remove('is-muted', 'is-transition-topanelsfrompost');
 };
 
 proto.onPanelHideComplete = function () {
 	this.watcher.off('complete', this.onPanelHideComplete);
 	this.panels.hide();
+	this.panels.resetTransition();
 
 	if (this.state === 'post') {
 		this.watcher = this.posts.show(location.pathname);
@@ -120,7 +120,7 @@ proto.onPanelHideComplete = function () {
 
 proto.onPostShowComplete = function () {
 	this.watcher.off('complete', this.onPostShowComplete);
-	document.body.classList.remove('is-muted', 'is-transition-topost');
+	document.body.classList.remove('is-muted', 'is-transition-topostfrompanels');
 };
 
 proto.onPostHideComplete = function () {

@@ -45,9 +45,9 @@ proto.preload = function(url) {
 };
 
 proto.show = function(url) {
-	this.watcher = new TransitionWatcher();
 	this.showNext = url;
 	this.loadPost(url);
+	this.watcher = new TransitionWatcher();
 	return this.watcher;
 };
 
