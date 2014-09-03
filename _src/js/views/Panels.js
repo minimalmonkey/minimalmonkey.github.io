@@ -190,53 +190,10 @@ proto.getCurrentColor = function (url) {
 };
 
 proto.transitionToPost = function () {
-	var listenTo;
-	var panelWidth = this.panels[0].offsetWidth;
-	var panelExpandWidth = 25; // actually half the expand width - maybe make this dynamic?
-	var winWidth = window.innerWidth;
-	var scrollLeft = window.pageXOffset;
-	var slideAmount = winWidth - ((this.panels[this.currentIndex].offsetLeft - scrollLeft) + panelWidth + panelExpandWidth);
-	var style = '-webkit-transform: translateX(' + slideAmount + 'px); transform: translateX(' + slideAmount + 'px)';
-	var i = this.currentIndex;
-	this.transformed = [];
-
-	while (++i && i < this.totalPanels) {
-		if (this.panels[i].offsetLeft - scrollLeft < winWidth) {
-			this.transformed.push(this.panels[i]);
-			this.panels[i].style.cssText = style;
-			if (listenTo === undefined) {
-				listenTo = this.panels[i];
-			}
-		}
-		else {
-			i = Infinity;
-		}
-	}
-
-	slideAmount = this.panels[this.currentIndex].offsetLeft - scrollLeft - panelExpandWidth;
-	style = '-webkit-transform: translateX(-' + slideAmount + 'px); transform: translateX(-' + slideAmount + 'px)';
-	scrollLeft -= panelWidth;
-	i = this.currentIndex;
-
-	while (i--) {
-		if (this.panels[i].offsetLeft - scrollLeft) {
-			this.transformed.push(this.panels[i]);
-			this.panels[i].style.cssText = style;
-			if (listenTo === undefined) {
-				listenTo = this.panels[i];
-			}
-		}
-		else {
-			i = -1;
-		}
-	}
-
+	this.transformed = this.nudgeSiblingPanels(this.currentIndex, 25); // 25 is half the expand width - maybe make this dynamic?
+	var listenTo = this.transformed[0];
 	var watcher = new TransitionWatcher();
-	var onTransitionEnded = function (evt) {
-		listenTo.removeEventListener(transitionEndEvent, onTransitionEnded);
-		watcher.complete();
-	};
-	listenTo.addEventListener(transitionEndEvent, onTransitionEnded, false);
+	this.listenToTransitionEnd(listenTo, watcher);
 	return watcher;
 };
 
@@ -250,7 +207,6 @@ proto.transitionFromPost = function (url) {
 		return;
 	}
 
-	var listenTo;
 	var panelWidth = this.panels[0].offsetWidth;
 	var winWidth = window.innerWidth;
 	var panelOffsetLeft = panelObj.panel.offsetLeft;
@@ -260,41 +216,8 @@ proto.transitionFromPost = function (url) {
 
 	window.scrollTo(scrollLeft, 0);
 
-	var slideAmount = winWidth - ((panelOffsetLeft - scrollLeft) + panelWidth);
-	var style = '-webkit-transform: translateX(' + slideAmount + 'px); transform: translateX(' + slideAmount + 'px)';
-	var i = panelObj.index;
-	this.transformed = [];
-
-	while (++i && i < this.totalPanels) {
-		if (this.panels[i].offsetLeft - scrollLeft < winWidth) {
-			this.transformed.push(this.panels[i]);
-			this.panels[i].style.cssText = style;
-			if (listenTo === undefined) {
-				listenTo = this.panels[i];
-			}
-		}
-		else {
-			i = Infinity;
-		}
-	}
-
-	slideAmount = panelOffsetLeft - scrollLeft;
-	style = '-webkit-transform: translateX(-' + slideAmount + 'px); transform: translateX(-' + slideAmount + 'px)';
-	scrollLeft -= panelWidth;
-	i = panelObj.index;
-
-	while (i--) {
-		if (this.panels[i].offsetLeft - scrollLeft) {
-			this.transformed.push(this.panels[i]);
-			this.panels[i].style.cssText = style;
-			if (listenTo === undefined) {
-				listenTo = this.panels[i];
-			}
-		}
-		else {
-			i = -1;
-		}
-	}
+	this.transformed = this.nudgeSiblingPanels(panelObj.index);
+	var listenTo = this.transformed[0];
 
 	panelObj.panel.classList.add('is-transition-panel');
 	var watcher = new TransitionWatcher();
@@ -303,15 +226,56 @@ proto.transitionFromPost = function (url) {
 		document.body.classList.remove('is-transition-topanelsfrompost');
 		panelObj.panel.classList.remove('is-transition-panel');
 		this.resetTransition();
-
-		var onTransitionEnded = function (evt) {
-			listenTo.removeEventListener(transitionEndEvent, onTransitionEnded);
-			watcher.complete();
-		};
-		listenTo.addEventListener(transitionEndEvent, onTransitionEnded, false);
+		this.listenToTransitionEnd(listenTo, watcher);
 	}.bind(this), 2);
 
 	return watcher;
+};
+
+proto.nudgeSiblingPanels = function (index, expandWidth) {
+	expandWidth = expandWidth || 0;
+	var nudgedPanels = [];
+	var panelWidth = this.panels[0].offsetWidth;
+	var winWidth = window.innerWidth;
+	var scrollLeft = window.pageXOffset;
+	var slideAmount = winWidth - ((this.panels[index].offsetLeft - scrollLeft) + panelWidth + expandWidth);
+	var style = '-webkit-transform: translateX(' + slideAmount + 'px); transform: translateX(' + slideAmount + 'px)';
+	var i = index;
+
+	while (++i && i < this.totalPanels) {
+		if (this.panels[i].offsetLeft - scrollLeft < winWidth) {
+			nudgedPanels.push(this.panels[i]);
+			this.panels[i].style.cssText = style;
+		}
+		else {
+			i = Infinity;
+		}
+	}
+
+	slideAmount = this.panels[index].offsetLeft - scrollLeft - expandWidth;
+	style = '-webkit-transform: translateX(-' + slideAmount + 'px); transform: translateX(-' + slideAmount + 'px)';
+	scrollLeft -= panelWidth;
+	i = index;
+
+	while (i--) {
+		if (this.panels[i].offsetLeft - scrollLeft) {
+			nudgedPanels.push(this.panels[i]);
+			this.panels[i].style.cssText = style;
+		}
+		else {
+			i = -1;
+		}
+	}
+
+	return nudgedPanels;
+};
+
+proto.listenToTransitionEnd = function (el, watcher) {
+	var onTransitionEnded = function (evt) {
+		el.removeEventListener(transitionEndEvent, onTransitionEnded);
+		watcher.complete();
+	};
+	el.addEventListener(transitionEndEvent, onTransitionEnded, false);
 };
 
 proto.resetTransition = function () {
