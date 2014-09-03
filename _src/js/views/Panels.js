@@ -1,5 +1,6 @@
 'use strict';
 
+var createPageItem = require('../utils/createPageItem');
 var isMouseOut = require('../utils/isMouseOut');
 var loadPage = require('../components/loadPage');
 var transitionEndEvent = require('../utils/transitionEndEvent')();
@@ -10,7 +11,7 @@ var ScrollEvents = require('../components/ScrollEvents');
 var TransitionWatcher = require('../components/TransitionWatcher');
 
 function Panels () {
-	this.el = document.getElementById('panels');
+	this.el = document.getElementById('panels') || createPageItem('panels');
 	this.nav = new PanelsNav();
 	this.panels = document.querySelectorAll('#panels .panel');
 	this.panels = Array.prototype.slice.call(this.panels);
@@ -198,13 +199,14 @@ proto.transitionToPost = function () {
 };
 
 proto.transitionFromPost = function (url) {
+	var watcher = new TransitionWatcher();
 	var panelObj = this.panelsUrlMap[url];
 
 	if (panelObj === undefined) {
 		// panel not loaded - do fade instead
 		// also check if any panels, if not, load
 		// them or wait until they have loaded
-		return;
+		return watcher;
 	}
 
 	var panelWidth = this.panels[0].offsetWidth;
@@ -220,7 +222,6 @@ proto.transitionFromPost = function (url) {
 	var listenTo = this.transformed[0];
 
 	panelObj.panel.classList.add('is-transition-panel');
-	var watcher = new TransitionWatcher();
 
 	waitAnimationFrames(function () {
 		document.body.classList.remove('is-transition-topanelsfrompost');

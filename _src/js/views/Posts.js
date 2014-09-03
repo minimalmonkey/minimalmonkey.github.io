@@ -1,5 +1,6 @@
 'use strict';
 
+var createPageItem = require('../utils/createPageItem');
 var loadPage = require('../components/loadPage');
 var setColor = require('../utils/setColor');
 var transitionEndEvent = require('../utils/transitionEndEvent')();
@@ -8,7 +9,7 @@ var waitAnimationFrames = require('../utils/waitAnimationFrames');
 var TransitionWatcher = require('../components/TransitionWatcher');
 
 function Posts (options) {
-	this.el = document.getElementById('post') || this.create();
+	this.el = document.getElementById('post') || createPageItem('post');
 	this.nextNav = document.querySelector('.post-nav-next');
 	this.previousNav = document.querySelector('.post-nav-previous');
 	this.closeNav = document.querySelector('.post-nav-close');
@@ -31,14 +32,6 @@ function Posts (options) {
 }
 
 var proto = Posts.prototype;
-
-proto.create = function() {
-	var el = document.createElement('div');
-	el.id = 'post';
-	el.classList.add('post', 'pagecontent-item', 'is-hidden');
-	document.getElementById('pagecontent').appendChild(el);
-	return el;
-};
 
 proto.preload = function(url) {
 	//
@@ -152,6 +145,8 @@ proto.onHideTransitionEnd = function () {
 proto.onSlideOffTransitionEnd = function () {
 	this.el.removeEventListener(transitionEndEvent, this.onSlideOffTransitionEnd);
 	this.el.innerHTML = this.posts[location.pathname].html;
+
+	window.scrollTo(0, 0);
 
 	var remove;
 	if (document.body.classList.contains('is-slideoff-right')) {

@@ -137,7 +137,7 @@ proto.onPostHideComplete = function () {
 
 module.exports = App;
 
-},{"./components/Router":2,"./utils/setColor":11,"./views/Header":15,"./views/Panels":16,"./views/Posts":17}],2:[function(require,module,exports){
+},{"./components/Router":2,"./utils/setColor":12,"./views/Header":16,"./views/Panels":17,"./views/Posts":18}],2:[function(require,module,exports){
 'use strict';
 
 var addEventListenerList = require('../utils/addEventListenerList');
@@ -319,7 +319,7 @@ proto.disable = function () {
 
 module.exports = ScrollEvents;
 
-},{"../utils/throttleEvent":12}],4:[function(require,module,exports){
+},{"../utils/throttleEvent":13}],4:[function(require,module,exports){
 'use strict';
 
 function TransitionWatcher () {
@@ -495,6 +495,17 @@ module.exports = function addEventListenerList (list, type, listener, useCapture
 },{}],10:[function(require,module,exports){
 'use strict';
 
+module.exports = function createPageItem (id) {
+	var el = document.createElement('div');
+	el.id = id;
+	el.classList.add(id, 'pagecontent-item', 'is-hidden');
+	document.getElementById('pagecontent').appendChild(el);
+	return el;
+};
+
+},{}],11:[function(require,module,exports){
+'use strict';
+
 /**
  * @name isMouseOut
  * Loops through event target parent elements to see if mouse
@@ -524,7 +535,7 @@ module.exports = function isMouseOut (evt) {
 	return true;
 };
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 'use strict';
 
 module.exports = function setColor (element, color) {
@@ -535,7 +546,7 @@ module.exports = function setColor (element, color) {
 	element.classList.add('color-' + color);
 };
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 'use strict';
 
 /**
@@ -561,7 +572,7 @@ module.exports = function throttleEvent (callback, delay) {
 	};
 };
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 'use strict';
 
 var transitionEnd;
@@ -590,7 +601,7 @@ module.exports = function transitionEndEvent () {
 	}
 };
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 'use strict';
 
 module.exports = function waitAnimationFrames (callback, howMany) {
@@ -611,7 +622,7 @@ module.exports = function waitAnimationFrames (callback, howMany) {
 	waitForNext();
 };
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 'use strict';
 
 function Header () {
@@ -676,9 +687,10 @@ proto.getPageLinks = function () {
 
 module.exports = Header;
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 'use strict';
 
+var createPageItem = require('../utils/createPageItem');
 var isMouseOut = require('../utils/isMouseOut');
 var loadPage = require('../components/loadPage');
 var transitionEndEvent = require('../utils/transitionEndEvent')();
@@ -689,7 +701,7 @@ var ScrollEvents = require('../components/ScrollEvents');
 var TransitionWatcher = require('../components/TransitionWatcher');
 
 function Panels () {
-	this.el = document.getElementById('panels');
+	this.el = document.getElementById('panels') || createPageItem('panels');
 	this.nav = new PanelsNav();
 	this.panels = document.querySelectorAll('#panels .panel');
 	this.panels = Array.prototype.slice.call(this.panels);
@@ -877,13 +889,14 @@ proto.transitionToPost = function () {
 };
 
 proto.transitionFromPost = function (url) {
+	var watcher = new TransitionWatcher();
 	var panelObj = this.panelsUrlMap[url];
 
 	if (panelObj === undefined) {
 		// panel not loaded - do fade instead
 		// also check if any panels, if not, load
 		// them or wait until they have loaded
-		return;
+		return watcher;
 	}
 
 	var panelWidth = this.panels[0].offsetWidth;
@@ -899,7 +912,6 @@ proto.transitionFromPost = function (url) {
 	var listenTo = this.transformed[0];
 
 	panelObj.panel.classList.add('is-transition-panel');
-	var watcher = new TransitionWatcher();
 
 	waitAnimationFrames(function () {
 		document.body.classList.remove('is-transition-topanelsfrompost');
@@ -986,9 +998,10 @@ proto.disable = function () {
 
 module.exports = Panels;
 
-},{"../components/ScrollEvents":3,"../components/TransitionWatcher":4,"../components/loadPage":5,"../utils/isMouseOut":10,"../utils/transitionEndEvent":13,"../utils/waitAnimationFrames":14,"./components/PanelsNav":18}],17:[function(require,module,exports){
+},{"../components/ScrollEvents":3,"../components/TransitionWatcher":4,"../components/loadPage":5,"../utils/createPageItem":10,"../utils/isMouseOut":11,"../utils/transitionEndEvent":14,"../utils/waitAnimationFrames":15,"./components/PanelsNav":19}],18:[function(require,module,exports){
 'use strict';
 
+var createPageItem = require('../utils/createPageItem');
 var loadPage = require('../components/loadPage');
 var setColor = require('../utils/setColor');
 var transitionEndEvent = require('../utils/transitionEndEvent')();
@@ -997,7 +1010,7 @@ var waitAnimationFrames = require('../utils/waitAnimationFrames');
 var TransitionWatcher = require('../components/TransitionWatcher');
 
 function Posts (options) {
-	this.el = document.getElementById('post') || this.create();
+	this.el = document.getElementById('post') || createPageItem('post');
 	this.nextNav = document.querySelector('.post-nav-next');
 	this.previousNav = document.querySelector('.post-nav-previous');
 	this.closeNav = document.querySelector('.post-nav-close');
@@ -1020,14 +1033,6 @@ function Posts (options) {
 }
 
 var proto = Posts.prototype;
-
-proto.create = function() {
-	var el = document.createElement('div');
-	el.id = 'post';
-	el.classList.add('post', 'pagecontent-item', 'is-hidden');
-	document.getElementById('pagecontent').appendChild(el);
-	return el;
-};
 
 proto.preload = function(url) {
 	//
@@ -1142,6 +1147,8 @@ proto.onSlideOffTransitionEnd = function () {
 	this.el.removeEventListener(transitionEndEvent, this.onSlideOffTransitionEnd);
 	this.el.innerHTML = this.posts[location.pathname].html;
 
+	window.scrollTo(0, 0);
+
 	var remove;
 	if (document.body.classList.contains('is-slideoff-right')) {
 		document.body.classList.remove('is-slideoff-right');
@@ -1182,7 +1189,7 @@ proto.disable = function () {
 
 module.exports = Posts;
 
-},{"../components/TransitionWatcher":4,"../components/loadPage":5,"../utils/setColor":11,"../utils/transitionEndEvent":13,"../utils/waitAnimationFrames":14}],18:[function(require,module,exports){
+},{"../components/TransitionWatcher":4,"../components/loadPage":5,"../utils/createPageItem":10,"../utils/setColor":12,"../utils/transitionEndEvent":14,"../utils/waitAnimationFrames":15}],19:[function(require,module,exports){
 'use strict';
 
 function PanelsNav () {
