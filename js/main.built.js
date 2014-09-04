@@ -38,7 +38,9 @@ proto.initViews = function () {
 };
 
 proto.initRouter = function () {
-	this.router = new Router();
+	this.router = new Router([
+		this.panels.el
+	]);
 
 	var headerLinks = this.header.getPageLinks();
 	var i = headerLinks.length;
@@ -62,7 +64,7 @@ proto.initRouter = function () {
 proto.showHeader = function (match, params) {
 	this.header.open(match, this.state !== 'header' ? this.router.lastURL : false);
 	this.view = this.header;
-	this.state = 'header';
+	this.setState('header');
 };
 
 proto.showPanels = function (match, params) {
@@ -79,7 +81,7 @@ proto.showPanels = function (match, params) {
 		this.header.close();
 	}
 	this.view = this.panels;
-	this.state = 'panels';
+	this.setState('panels');
 };
 
 proto.showPost = function (match, params) {
@@ -98,7 +100,15 @@ proto.showPost = function (match, params) {
 		this.header.close();
 	}
 	this.view = this.posts;
-	this.state = 'post';
+	this.setState('post');
+};
+
+proto.setState = function (state) {
+	if (this.state) {
+		document.body.classList.remove('is-' + this.state);
+	}
+	this.state = state;
+	document.body.classList.add('is-' + this.state);
 };
 
 proto.onIntroComplete = function () {
@@ -144,11 +154,24 @@ module.exports = App;
 var addEventListenerList = require('../utils/addEventListenerList');
 var routeToRegExp = require('./routeToRegExp');
 
-function Router () {
+function Router (observeList) {
 	this.lastURL = this.currentURL = location.pathname;
 
 	this.onClicked = this.onClicked.bind(this);
 	addEventListenerList(document.querySelectorAll('[data-router]'), 'click', this.onClicked);
+
+	if (observeList && observeList.length) {
+		this.observer = new MutationObserver(this.onAddedElements.bind(this));
+		var config = {
+			attributes: false,
+			characterData: false,
+			childList: true
+		};
+		var i = observeList.length;
+		while (i--) {
+			this.observer.observe(observeList[i], config);
+		}
+	}
 
 	window.addEventListener('popstate', function(evt) {
 		this.navigate(location.pathname, true);
@@ -158,6 +181,20 @@ function Router () {
 }
 
 var proto = Router.prototype;
+
+proto.onAddedElements = function (mutations) {
+	mutations.forEach(function (mutation) {
+		var i = mutation.addedNodes.length;
+		while (i--) {
+			if (mutation.addedNodes[i].dataset.router !== undefined) {
+				mutation.addedNodes[i].addEventListener('click', this.onClicked);
+			}
+			else {
+				// TODO: get any children nodes with data-router
+			}
+		}
+	}.bind(this));
+};
 
 proto.onClicked = function (evt) {
 	evt.preventDefault();
@@ -474,7 +511,7 @@ module.exports = function loadScript (id, src, delay, dest) {
 'use strict';
 
 // app
-if (document.documentElement.classList) {
+if (document.documentElement.classList) { // TODO: maybe change to see if MutationObserver exists & screw IE10?
 	var App = require('./App');
 	new App();
 }
@@ -743,6 +780,7 @@ proto.show = function (url) {
 proto.hide = function () {
 	this.disable();
 	this.el.classList.add('is-hidden');
+	this.onScrolledToPoint();
 };
 
 proto.addPanels = function (index, append) {

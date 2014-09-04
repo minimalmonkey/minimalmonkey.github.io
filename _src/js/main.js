@@ -1,7 +1,7 @@
 'use strict';
 
 // app
-if (document.documentElement.classList) {
+if (document.documentElement.classList) { // TODO: maybe change to see if MutationObserver exists & screw IE10?
 	var App = require('./App');
 	new App();
 }

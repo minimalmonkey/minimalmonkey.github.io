@@ -52,6 +52,7 @@ proto.show = function (url) {
 proto.hide = function () {
 	this.disable();
 	this.el.classList.add('is-hidden');
+	this.onScrolledToPoint();
 };
 
 proto.addPanels = function (index, append) {

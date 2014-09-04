@@ -35,7 +35,9 @@ proto.initViews = function () {
 };
 
 proto.initRouter = function () {
-	this.router = new Router();
+	this.router = new Router([
+		this.panels.el
+	]);
 
 	var headerLinks = this.header.getPageLinks();
 	var i = headerLinks.length;
@@ -59,7 +61,7 @@ proto.initRouter = function () {
 proto.showHeader = function (match, params) {
 	this.header.open(match, this.state !== 'header' ? this.router.lastURL : false);
 	this.view = this.header;
-	this.state = 'header';
+	this.setState('header');
 };
 
 proto.showPanels = function (match, params) {
@@ -76,7 +78,7 @@ proto.showPanels = function (match, params) {
 		this.header.close();
 	}
 	this.view = this.panels;
-	this.state = 'panels';
+	this.setState('panels');
 };
 
 proto.showPost = function (match, params) {
@@ -95,7 +97,15 @@ proto.showPost = function (match, params) {
 		this.header.close();
 	}
 	this.view = this.posts;
-	this.state = 'post';
+	this.setState('post');
+};
+
+proto.setState = function (state) {
+	if (this.state) {
+		document.body.classList.remove('is-' + this.state);
+	}
+	this.state = state;
+	document.body.classList.add('is-' + this.state);
 };
 
 proto.onIntroComplete = function () {
