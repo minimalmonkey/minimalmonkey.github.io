@@ -9,7 +9,7 @@ var waitAnimationFrames = require('../utils/waitAnimationFrames');
 var TransitionWatcher = require('../components/TransitionWatcher');
 
 function Posts (options) {
-	this.el = document.getElementById('post') || createPageItem('post');
+	this.el = document.getElementById('post') || createPageItem('post', 'div', 'pagecontent-item', 'is-hidden');
 	this.nextNav = document.querySelector('.post-nav-next');
 	this.previousNav = document.querySelector('.post-nav-previous');
 	this.closeNav = document.querySelector('.post-nav-close');

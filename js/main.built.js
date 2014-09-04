@@ -67,9 +67,10 @@ proto.showHeader = function (match, params) {
 
 proto.showPanels = function (match, params) {
 	if (this.state === 'panels') {
-		console.log('already here...');
+		// already panels
 	}
 	else if (this.state === 'post') {
+		this.panels.preload();
 		document.body.classList.add('is-muted', 'is-transition-topanelsfrompost');
 		this.watcher = this.posts.hide();
 		this.watcher.on('complete', this.onPostHideComplete);
@@ -83,7 +84,7 @@ proto.showPanels = function (match, params) {
 
 proto.showPost = function (match, params) {
 	if (this.state === 'panels') {
-		this.panels.disable();
+		// preload post while animating
 		var color = this.panels.getCurrentColor(params);
 		document.body.classList.add('is-muted', 'is-transition-topostfrompanels');
 		setColor(document.body, color);
@@ -495,10 +496,10 @@ module.exports = function addEventListenerList (list, type, listener, useCapture
 },{}],10:[function(require,module,exports){
 'use strict';
 
-module.exports = function createPageItem (id) {
-	var el = document.createElement('div');
+module.exports = function createPageItem (id, type) {
+	var el = document.createElement(type || 'div');
 	el.id = id;
-	el.classList.add(id, 'pagecontent-item', 'is-hidden');
+	el.className = Array.prototype.slice.call(arguments).splice(2).concat(id).join(' ');
 	document.getElementById('pagecontent').appendChild(el);
 	return el;
 };
@@ -701,7 +702,7 @@ var ScrollEvents = require('../components/ScrollEvents');
 var TransitionWatcher = require('../components/TransitionWatcher');
 
 function Panels () {
-	this.el = document.getElementById('panels') || createPageItem('panels');
+	this.el = document.getElementById('panels') || createPageItem('panels', 'div', 'pagecontent-item', 'is-hidden');
 	this.nav = new PanelsNav();
 	this.panels = document.querySelectorAll('#panels .panel');
 	this.panels = Array.prototype.slice.call(this.panels);
@@ -721,20 +722,26 @@ function Panels () {
 		this.onIntroEnded = this.onIntroEnded.bind(this);
 		this.panels[this.totalPanels - 1].addEventListener(transitionEndEvent, this.onIntroEnded, false);
 	}
-	else {
-		this.enable();
-	}
 }
 
 var proto = Panels.prototype;
 
+proto.preload = function () {
+	if (this.panels.length <= 0) {
+		loadPage('/', this.onPanelsLoaded, '#panels .panel', '#panels-nav');
+	}
+};
+
 proto.show = function (url) {
+	this.enable();
 	this.el.classList.remove('is-hidden');
+	this.scrollEvents.update(this.el);
 	this.watcher = this.transitionFromPost(url);
 	return this.watcher;
 };
 
 proto.hide = function () {
+	this.disable();
 	this.el.classList.add('is-hidden');
 };
 
@@ -837,6 +844,14 @@ proto.onPanelsLoaded = function (panels, nav) {
 	this.totalPanels = this.panels.length;
 	this.addPanels(index, true);
 
+	if (this.scrollEvents === undefined) {
+		// not enabled yet
+		if (nav[0]) {
+			this.nav.setPath(nav[0].href);
+		}
+		return;
+	}
+
 	this.scrollEvents.addPoint(this.scrollEvents.widthMinusWindow + this.panels[0].offsetWidth);
 	this.el.addEventListener('reachedpoint', this.onScrolledToPoint, false);
 	this.nav.el.addEventListener('click', this.onNavClicked, false);
@@ -899,13 +914,9 @@ proto.transitionFromPost = function (url) {
 		return watcher;
 	}
 
-	var panelWidth = this.panels[0].offsetWidth;
-	var winWidth = window.innerWidth;
-	var panelOffsetLeft = panelObj.panel.offsetLeft;
-	var midPoint = winWidth * 0.5;
-	var left = panelOffsetLeft + (panelWidth * 0.5);
+	var midPoint = window.innerWidth * 0.5;
+	var left = panelObj.panel.offsetLeft + (this.panels[0].offsetWidth * 0.5);
 	var scrollLeft = Math.round(left - midPoint);
-
 	window.scrollTo(scrollLeft, 0);
 
 	this.transformed = this.nudgeSiblingPanels(panelObj.index);
@@ -979,21 +990,17 @@ proto.resetTransition = function () {
 };
 
 proto.enable = function () {
-	if (this.el) {
-		this.el.addEventListener('mouseover', this.onMouseOver, false);
-		this.el.addEventListener('reachedend', this.onScrolledToEnd, false);
-		this.addPanels();
-		if (this.nav.hasEl() && this.scrollEvents === undefined) {
-			this.scrollEvents = new ScrollEvents(this.el);
-		}
+	this.el.addEventListener('mouseover', this.onMouseOver, false);
+	this.el.addEventListener('reachedend', this.onScrolledToEnd, false);
+	this.addPanels();
+	if (this.scrollEvents === undefined) {
+		this.scrollEvents = new ScrollEvents(this.el);
 	}
 };
 
 proto.disable = function () {
-	if (this.el) {
-		this.el.removeEventListener('mouseover', this.onMouseOver);
-		this.el.removeEventListener('mouseout', this.onMouseOut);
-	}
+	this.el.removeEventListener('mouseover', this.onMouseOver);
+	this.el.removeEventListener('mouseout', this.onMouseOut);
 };
 
 module.exports = Panels;
@@ -1010,7 +1017,7 @@ var waitAnimationFrames = require('../utils/waitAnimationFrames');
 var TransitionWatcher = require('../components/TransitionWatcher');
 
 function Posts (options) {
-	this.el = document.getElementById('post') || createPageItem('post');
+	this.el = document.getElementById('post') || createPageItem('post', 'div', 'pagecontent-item', 'is-hidden');
 	this.nextNav = document.querySelector('.post-nav-next');
 	this.previousNav = document.querySelector('.post-nav-previous');
 	this.closeNav = document.querySelector('.post-nav-close');
@@ -1192,8 +1199,10 @@ module.exports = Posts;
 },{"../components/TransitionWatcher":4,"../components/loadPage":5,"../utils/createPageItem":10,"../utils/setColor":12,"../utils/transitionEndEvent":14,"../utils/waitAnimationFrames":15}],19:[function(require,module,exports){
 'use strict';
 
+var createPageItem = require('../../utils/createPageItem');
+
 function PanelsNav () {
-	this.el = document.getElementById('panels-nav');
+	this.el = document.getElementById('panels-nav') || createPageItem('panels-nav', 'a', 'is-hidden');
 }
 
 var proto = PanelsNav.prototype;
@@ -1235,4 +1244,4 @@ proto.setPath = function (path) {
 
 module.exports = PanelsNav;
 
-},{}]},{},[8]);
+},{"../../utils/createPageItem":10}]},{},[8]);

@@ -64,9 +64,10 @@ proto.showHeader = function (match, params) {
 
 proto.showPanels = function (match, params) {
 	if (this.state === 'panels') {
-		console.log('already here...');
+		// already panels
 	}
 	else if (this.state === 'post') {
+		this.panels.preload();
 		document.body.classList.add('is-muted', 'is-transition-topanelsfrompost');
 		this.watcher = this.posts.hide();
 		this.watcher.on('complete', this.onPostHideComplete);
@@ -80,7 +81,7 @@ proto.showPanels = function (match, params) {
 
 proto.showPost = function (match, params) {
 	if (this.state === 'panels') {
-		this.panels.disable();
+		// preload post while animating
 		var color = this.panels.getCurrentColor(params);
 		document.body.classList.add('is-muted', 'is-transition-topostfrompanels');
 		setColor(document.body, color);

@@ -1,7 +1,9 @@
 'use strict';
 
+var createPageItem = require('../../utils/createPageItem');
+
 function PanelsNav () {
-	this.el = document.getElementById('panels-nav');
+	this.el = document.getElementById('panels-nav') || createPageItem('panels-nav', 'a', 'is-hidden');
 }
 
 var proto = PanelsNav.prototype;
