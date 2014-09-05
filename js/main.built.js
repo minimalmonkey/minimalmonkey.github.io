@@ -10,7 +10,7 @@ var Header = require('./views/Header');
 var Panels = require('./views/Panels');
 var Posts = require('./views/Posts');
 
-function App () {
+function App (analytics) {
 
 	this.showHeader = this.showHeader.bind(this);
 	this.showPanels = this.showPanels.bind(this);
@@ -21,7 +21,7 @@ function App () {
 	this.onPostHideComplete = this.onPostHideComplete.bind(this);
 
 	this.initViews();
-	this.initRouter();
+	this.initRouter(analytics);
 
 	window.requestAnimationFrame(function () {
 		document.body.classList.add('is-introtransition');
@@ -37,8 +37,8 @@ proto.initViews = function () {
 	this.posts = new Posts();
 };
 
-proto.initRouter = function () {
-	this.router = new Router([
+proto.initRouter = function (analytics) {
+	this.router = new Router(analytics, [
 		this.panels.el
 	]);
 
@@ -148,13 +148,62 @@ proto.onPostHideComplete = function () {
 
 module.exports = App;
 
-},{"./components/Router":2,"./utils/setColor":12,"./views/Header":16,"./views/Panels":17,"./views/Posts":18}],2:[function(require,module,exports){
+},{"./components/Router":3,"./utils/setColor":13,"./views/Header":17,"./views/Panels":18,"./views/Posts":19}],2:[function(require,module,exports){
+'use strict';
+
+function Analytics (id, domain, delay) {
+	if (id && domain) {
+		window._gaq = window._gaq || [];
+		window._gaq.push(
+			['_setAccount', id],
+			['_setDomainName', domain],
+			['_setAllowLinker', true],
+			['_trackPageview']
+		);
+		this.load(delay);
+	}
+}
+
+var proto = Analytics.prototype;
+
+proto.load = function (delay) {
+	if (window._gaq) {
+		setTimeout(function() {
+			try {
+				var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+				ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+				var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+			}
+			catch(error) {
+				console.warn('Error loading Google Analytics script.');
+			}
+		}, delay || 0);
+	}
+};
+
+proto.update = function (url) {
+	if (url.length && url.substr(0, 1) === '/') {
+		url = url.substr(1);
+	}
+	try {
+		if (window._gaq) {
+			window._gaq.push(['_trackPageview', url]);
+		}
+	} catch(error) {
+		console.warn('Error sending Google Analytics script.');
+	}
+};
+
+module.exports = Analytics;
+
+},{}],3:[function(require,module,exports){
 'use strict';
 
 var addEventListenerList = require('../utils/addEventListenerList');
 var routeToRegExp = require('./routeToRegExp');
 
-function Router (observeList) {
+function Router (analytics, observeList) {
+	this.analytics = analytics;
 	this.lastURL = this.currentURL = location.pathname;
 
 	this.onClicked = this.onClicked.bind(this);
@@ -214,6 +263,8 @@ proto.navigate = function (route, silent) {
 	this.currentURL = route;
 
 	this.match(route);
+
+	this.analytics.update(route);
 };
 
 proto.add = function (route, callback) {
@@ -258,7 +309,7 @@ proto.disable = function () {
 
 module.exports = Router;
 
-},{"../utils/addEventListenerList":9,"./routeToRegExp":6}],3:[function(require,module,exports){
+},{"../utils/addEventListenerList":10,"./routeToRegExp":7}],4:[function(require,module,exports){
 'use strict';
 
 var throttleEvent = require('../utils/throttleEvent');
@@ -357,7 +408,7 @@ proto.disable = function () {
 
 module.exports = ScrollEvents;
 
-},{"../utils/throttleEvent":13}],4:[function(require,module,exports){
+},{"../utils/throttleEvent":14}],5:[function(require,module,exports){
 'use strict';
 
 function TransitionWatcher () {
@@ -403,7 +454,7 @@ proto.clear = function () {
 
 module.exports = TransitionWatcher;
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 'use strict';
 
 module.exports = function loadPage (url, callback) {
@@ -437,7 +488,7 @@ module.exports = function loadPage (url, callback) {
 	req.send();
 };
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 'use strict';
 
 var optionalParam = /\((.*?)\)/g;
@@ -462,7 +513,7 @@ module.exports = function routeToRegExp (route) {
 	return new RegExp('^' + route + '(?:\\?([\\s\\S]*))?$');
 };
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict';
 
 /**
@@ -507,20 +558,24 @@ module.exports = function loadScript (id, src, delay, dest) {
 	}, delay);
 };
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
+
+// analytics
+var Analytics = require('./components/Analytics');
+var analytics = new Analytics('UA-54501731-1', 'minimalmonkey.github.io', 200);
 
 // app
 if (document.documentElement.classList) { // TODO: maybe change to see if MutationObserver exists & screw IE10?
 	var App = require('./App');
-	new App();
+	var app = new App(analytics);
 }
 
 // external
 var loadScript = require('./external/loadScript');
-// loadScript('twitter-wjs', '//platform.twitter.com/widgets.js', 2000);
+loadScript('twitter-wjs', '//platform.twitter.com/widgets.js', 1200);
 
-},{"./App":1,"./external/loadScript":7}],9:[function(require,module,exports){
+},{"./App":1,"./components/Analytics":2,"./external/loadScript":8}],10:[function(require,module,exports){
 'use strict';
 
 module.exports = function addEventListenerList (list, type, listener, useCapture) {
@@ -530,7 +585,7 @@ module.exports = function addEventListenerList (list, type, listener, useCapture
 	}
 };
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 'use strict';
 
 module.exports = function createPageItem (id, type) {
@@ -541,7 +596,7 @@ module.exports = function createPageItem (id, type) {
 	return el;
 };
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 'use strict';
 
 /**
@@ -573,7 +628,7 @@ module.exports = function isMouseOut (evt) {
 	return true;
 };
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 'use strict';
 
 module.exports = function setColor (element, color) {
@@ -584,7 +639,7 @@ module.exports = function setColor (element, color) {
 	element.classList.add('color-' + color);
 };
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 'use strict';
 
 /**
@@ -610,7 +665,7 @@ module.exports = function throttleEvent (callback, delay) {
 	};
 };
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 'use strict';
 
 var transitionEnd;
@@ -639,7 +694,7 @@ module.exports = function transitionEndEvent () {
 	}
 };
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 'use strict';
 
 module.exports = function waitAnimationFrames (callback, howMany) {
@@ -660,7 +715,7 @@ module.exports = function waitAnimationFrames (callback, howMany) {
 	waitForNext();
 };
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 'use strict';
 
 function Header () {
@@ -725,7 +780,7 @@ proto.getPageLinks = function () {
 
 module.exports = Header;
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 'use strict';
 
 var createPageItem = require('../utils/createPageItem');
@@ -1043,7 +1098,7 @@ proto.disable = function () {
 
 module.exports = Panels;
 
-},{"../components/ScrollEvents":3,"../components/TransitionWatcher":4,"../components/loadPage":5,"../utils/createPageItem":10,"../utils/isMouseOut":11,"../utils/transitionEndEvent":14,"../utils/waitAnimationFrames":15,"./components/PanelsNav":19}],18:[function(require,module,exports){
+},{"../components/ScrollEvents":4,"../components/TransitionWatcher":5,"../components/loadPage":6,"../utils/createPageItem":11,"../utils/isMouseOut":12,"../utils/transitionEndEvent":15,"../utils/waitAnimationFrames":16,"./components/PanelsNav":20}],19:[function(require,module,exports){
 'use strict';
 
 var createPageItem = require('../utils/createPageItem');
@@ -1234,7 +1289,7 @@ proto.disable = function () {
 
 module.exports = Posts;
 
-},{"../components/TransitionWatcher":4,"../components/loadPage":5,"../utils/createPageItem":10,"../utils/setColor":12,"../utils/transitionEndEvent":14,"../utils/waitAnimationFrames":15}],19:[function(require,module,exports){
+},{"../components/TransitionWatcher":5,"../components/loadPage":6,"../utils/createPageItem":11,"../utils/setColor":13,"../utils/transitionEndEvent":15,"../utils/waitAnimationFrames":16}],20:[function(require,module,exports){
 'use strict';
 
 var createPageItem = require('../../utils/createPageItem');
@@ -1282,4 +1337,4 @@ proto.setPath = function (path) {
 
 module.exports = PanelsNav;
 
-},{"../../utils/createPageItem":10}]},{},[8]);
+},{"../../utils/createPageItem":11}]},{},[9]);

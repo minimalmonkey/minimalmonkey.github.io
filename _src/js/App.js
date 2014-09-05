@@ -7,7 +7,7 @@ var Header = require('./views/Header');
 var Panels = require('./views/Panels');
 var Posts = require('./views/Posts');
 
-function App () {
+function App (analytics) {
 
 	this.showHeader = this.showHeader.bind(this);
 	this.showPanels = this.showPanels.bind(this);
@@ -18,7 +18,7 @@ function App () {
 	this.onPostHideComplete = this.onPostHideComplete.bind(this);
 
 	this.initViews();
-	this.initRouter();
+	this.initRouter(analytics);
 
 	window.requestAnimationFrame(function () {
 		document.body.classList.add('is-introtransition');
@@ -34,8 +34,8 @@ proto.initViews = function () {
 	this.posts = new Posts();
 };
 
-proto.initRouter = function () {
-	this.router = new Router([
+proto.initRouter = function (analytics) {
+	this.router = new Router(analytics, [
 		this.panels.el
 	]);
 

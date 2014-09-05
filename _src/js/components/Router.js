@@ -3,7 +3,8 @@
 var addEventListenerList = require('../utils/addEventListenerList');
 var routeToRegExp = require('./routeToRegExp');
 
-function Router (observeList) {
+function Router (analytics, observeList) {
+	this.analytics = analytics;
 	this.lastURL = this.currentURL = location.pathname;
 
 	this.onClicked = this.onClicked.bind(this);
@@ -63,6 +64,8 @@ proto.navigate = function (route, silent) {
 	this.currentURL = route;
 
 	this.match(route);
+
+	this.analytics.update(route);
 };
 
 proto.add = function (route, callback) {
