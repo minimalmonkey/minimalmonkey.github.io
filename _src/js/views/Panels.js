@@ -129,7 +129,7 @@ proto.onPanelMouseOver = function (index) {
 
 proto.onMouseOver = function (evt) {
 	this.el.removeEventListener('mouseover', this.onMouseOver);
-	this.el.addEventListener('mouseout', this.onMouseOut, false);
+	this.el.addEventListener('mouseout', this.onMouseOut, true);
 	this.el.classList.add('is-hovered');
 };
 

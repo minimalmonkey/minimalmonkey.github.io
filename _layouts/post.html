@@ -12,4 +12,11 @@ layout: default
 		{{ content }}
 	</article>
 
+	<footer class="postfooter">
+		<span class="postfooter-date">Published {{ page.date | date: "%-d %b %Y" }}</span>
+		<div class="floatright">
+			{% include share.html %}
+		</div>
+	</footer>
+
 </div>

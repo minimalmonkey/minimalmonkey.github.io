@@ -573,7 +573,7 @@ if (document.documentElement.classList) { // TODO: maybe change to see if Mutati
 
 // external
 var loadScript = require('./external/loadScript');
-loadScript('twitter-wjs', '//platform.twitter.com/widgets.js', 1200);
+// loadScript('twitter-wjs', '//platform.twitter.com/widgets.js', 1200);
 
 },{"./App":1,"./components/Analytics":2,"./external/loadScript":8}],10:[function(require,module,exports){
 'use strict';
@@ -912,7 +912,7 @@ proto.onPanelMouseOver = function (index) {
 
 proto.onMouseOver = function (evt) {
 	this.el.removeEventListener('mouseover', this.onMouseOver);
-	this.el.addEventListener('mouseout', this.onMouseOut, false);
+	this.el.addEventListener('mouseout', this.onMouseOut, true);
 	this.el.classList.add('is-hovered');
 };
 

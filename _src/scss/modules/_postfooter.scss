@@ -1,0 +1,14 @@
+.postfooter {
+	max-width: 640px;
+	padding: 9px 3% 35px;
+	margin: 0 auto;
+
+	@media (min-width: $bp-post-content-padding) {
+		padding: 0 0 55px;
+	}
+}
+
+.postfooter-date {
+	font-weight: 600;
+	line-height: 30px;
+}

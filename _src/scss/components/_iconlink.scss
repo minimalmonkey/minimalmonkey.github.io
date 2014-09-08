@@ -1,0 +1,54 @@
+.iconlink {
+	display: inline-block;
+	position: relative;
+	width: 2em;
+	height: 2em;
+	padding: 0.5em;
+	border-radius: 2em;
+	color: #fff;
+	font-family: 'icons';
+	line-height: 1em;
+	text-align: center;
+	text-decoration: none;
+	background: #888;
+	transform: translate3d(0, 0, 0);
+
+	&:before,
+	&:after {
+		position: absolute;
+	}
+
+	&:before {
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		border-radius: 2em;
+		background: #fff;
+		content: "";
+		transform: scale(0) translate3d(0, 0, 0);
+		transform-origin: 50%;
+		transition: transform 0.5s;
+	}
+
+	&:after {
+		right: 0;
+		left: 0;
+		font-size: 1.2em;
+		content: attr(data-label);
+		transition: color 0.5s;
+	}
+
+	&:hover {
+		background: #fff;
+		transition: background 0s linear 0.5s;
+
+		&:after {
+			color: #888;
+		}
+
+		&:before {
+			transform: scale(1) translate3d(0, 0, 0);
+		}
+	}
+}
