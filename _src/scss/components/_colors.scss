@@ -5,5 +5,11 @@
 		@include selection {
 			background: #{$hex};
 		}
+
+		#disqus_thread {
+			a {
+				color: #{$hex};
+			}
+		}
 	}
 }
