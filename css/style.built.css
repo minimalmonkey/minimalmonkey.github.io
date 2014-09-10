@@ -1257,6 +1257,15 @@ body {
   width: 52px;
   height: 52px; }
 
+.sharelinks {
+  display: block;
+  margin-top: 20px; }
+  @media (min-width: 570px) {
+    .sharelinks {
+      float: right;
+      width: auto;
+      margin-top: 0; } }
+
 .sharelink {
   display: inline-block;
   position: relative;

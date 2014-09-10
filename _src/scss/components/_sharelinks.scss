@@ -1,0 +1,10 @@
+.sharelinks {
+	display: block;
+	margin-top: 20px;
+
+	@media (min-width: $bp-stack-width) {
+		float: right;
+		width: auto;
+		margin-top: 0;
+	}
+}
