@@ -6,6 +6,7 @@ var setColor = require('../utils/setColor');
 var transitionEndEvent = require('../utils/transitionEndEvent')();
 var waitAnimationFrames = require('../utils/waitAnimationFrames');
 
+var Comments = require('./Comments');
 var TransitionWatcher = require('../components/TransitionWatcher');
 
 function Posts (options) {
@@ -21,6 +22,7 @@ function Posts (options) {
 	this.onSlideOnTransitionEnd = this.onSlideOnTransitionEnd.bind(this);
 
 	this.posts = {};
+	this.comments = new Comments();
 
 	this.loadSiblingPosts();
 
@@ -163,6 +165,7 @@ proto.onSlideOffTransitionEnd = function () {
 	waitAnimationFrames(function () {
 		document.body.classList.remove('is-slideoff', remove, 'is-notransitions');
 		this.el.addEventListener(transitionEndEvent, this.onSlideOnTransitionEnd, false);
+		this.comments.refresh();
 	}.bind(this), 2);
 };
 
@@ -174,6 +177,7 @@ proto.onSlideOnTransitionEnd = function () {
 proto.onIntroEnded = function (evt) {
 	this.el.removeEventListener(transitionEndEvent, this.onIntroEnded);
 	this.introWatcher.complete();
+	this.comments.refresh();
 };
 
 proto.enable = function () {

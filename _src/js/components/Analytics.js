@@ -1,5 +1,7 @@
 'use strict';
 
+var loadScript = require('../utils/loadScript');
+
 function Analytics (id, domain, delay) {
 	if (id && domain) {
 		window._gaq = window._gaq || [];
@@ -9,26 +11,12 @@ function Analytics (id, domain, delay) {
 			['_setAllowLinker', true],
 			['_trackPageview']
 		);
-		this.load(delay);
+		var url = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		loadScript('analytics-wjs', url, delay);
 	}
 }
 
 var proto = Analytics.prototype;
-
-proto.load = function (delay) {
-	if (window._gaq) {
-		setTimeout(function() {
-			try {
-				var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-				ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-				var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-			}
-			catch(error) {
-				console.warn('Error loading Google Analytics script.');
-			}
-		}, delay || 0);
-	}
-};
 
 proto.update = function (url) {
 	if (url.length && url.substr(0, 1) === '/') {

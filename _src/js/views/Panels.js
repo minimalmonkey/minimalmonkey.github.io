@@ -6,7 +6,7 @@ var loadPage = require('../components/loadPage');
 var transitionEndEvent = require('../utils/transitionEndEvent')();
 var waitAnimationFrames = require('../utils/waitAnimationFrames');
 
-var PanelsNav = require('./components/PanelsNav');
+var PanelsNav = require('./PanelsNav');
 var ScrollEvents = require('../components/ScrollEvents');
 var TransitionWatcher = require('../components/TransitionWatcher');
 

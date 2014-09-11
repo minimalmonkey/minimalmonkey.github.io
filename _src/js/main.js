@@ -11,6 +11,5 @@ if (document.documentElement.classList) { // TODO: maybe change to see if Mutati
 }
 
 // external
-var loadScript = require('./external/loadScript');
+var loadScript = require('./utils/loadScript');
 // loadScript('twitter-wjs', '//platform.twitter.com/widgets.js', 1200);
-loadScript('disqus-wjs', '//minimalmonkey.disqus.com/embed.js', 300);

@@ -148,8 +148,10 @@ proto.onPostHideComplete = function () {
 
 module.exports = App;
 
-},{"./components/Router":3,"./utils/setColor":13,"./views/Header":17,"./views/Panels":18,"./views/Posts":19}],2:[function(require,module,exports){
+},{"./components/Router":3,"./utils/setColor":13,"./views/Header":18,"./views/Panels":19,"./views/Posts":21}],2:[function(require,module,exports){
 'use strict';
+
+var loadScript = require('../utils/loadScript');
 
 function Analytics (id, domain, delay) {
 	if (id && domain) {
@@ -160,26 +162,12 @@ function Analytics (id, domain, delay) {
 			['_setAllowLinker', true],
 			['_trackPageview']
 		);
-		this.load(delay);
+		var url = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		loadScript('analytics-wjs', url, delay);
 	}
 }
 
 var proto = Analytics.prototype;
-
-proto.load = function (delay) {
-	if (window._gaq) {
-		setTimeout(function() {
-			try {
-				var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-				ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-				var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-			}
-			catch(error) {
-				console.warn('Error loading Google Analytics script.');
-			}
-		}, delay || 0);
-	}
-};
 
 proto.update = function (url) {
 	if (url.length && url.substr(0, 1) === '/') {
@@ -196,7 +184,7 @@ proto.update = function (url) {
 
 module.exports = Analytics;
 
-},{}],3:[function(require,module,exports){
+},{"../utils/loadScript":12}],3:[function(require,module,exports){
 'use strict';
 
 var addEventListenerList = require('../utils/addEventListenerList');
@@ -309,7 +297,7 @@ proto.disable = function () {
 
 module.exports = Router;
 
-},{"../utils/addEventListenerList":10,"./routeToRegExp":7}],4:[function(require,module,exports){
+},{"../utils/addEventListenerList":9,"./routeToRegExp":7}],4:[function(require,module,exports){
 'use strict';
 
 var throttleEvent = require('../utils/throttleEvent');
@@ -516,6 +504,76 @@ module.exports = function routeToRegExp (route) {
 },{}],8:[function(require,module,exports){
 'use strict';
 
+// analytics
+var Analytics = require('./components/Analytics');
+var analytics = new Analytics('UA-54501731-1', 'minimalmonkey.github.io', 200);
+
+// app
+if (document.documentElement.classList) { // TODO: maybe change to see if MutationObserver exists & screw IE10?
+	var App = require('./App');
+	var app = new App(analytics);
+}
+
+// external
+var loadScript = require('./utils/loadScript');
+// loadScript('twitter-wjs', '//platform.twitter.com/widgets.js', 1200);
+
+},{"./App":1,"./components/Analytics":2,"./utils/loadScript":12}],9:[function(require,module,exports){
+'use strict';
+
+module.exports = function addEventListenerList (list, type, listener, useCapture) {
+	var i = list.length;
+	while (i--) {
+		list[i].addEventListener(type, listener, useCapture);
+	}
+};
+
+},{}],10:[function(require,module,exports){
+'use strict';
+
+module.exports = function createPageItem (id, type) {
+	var el = document.createElement(type || 'div');
+	el.id = id;
+	el.className = Array.prototype.slice.call(arguments).splice(2).concat(id).join(' ');
+	document.getElementById('pagecontent').appendChild(el);
+	return el;
+};
+
+},{}],11:[function(require,module,exports){
+'use strict';
+
+/**
+ * @name isMouseOut
+ * Loops through event target parent elements to see if mouse
+ * has left or just event bubbling from child element.
+ *
+ * @kind function
+ *
+ * @param {MouseEvent} evt
+ *        The DOM MouseEvent trigged by `mouseout`.
+ *
+ * @returns {Boolean} Returns true if mouse has left parent.
+ */
+module.exports = function isMouseOut (evt) {
+
+	var target = evt.currentTarget ? evt.currentTarget: evt.srcElement;
+	var child = evt.relatedTarget ? evt.relatedTarget : evt.toElement;
+
+	if (child) {
+		while (child.parentElement) {
+			if (target === child) {
+				return false;
+			}
+			child = child.parentElement;
+		}
+	}
+
+	return true;
+};
+
+},{}],12:[function(require,module,exports){
+'use strict';
+
 /**
  * @name loadScript
  * Loads an external scripts onto the page.
@@ -556,77 +614,6 @@ module.exports = function loadScript (id, src, delay, dest) {
 			// error
 		}
 	}, delay);
-};
-
-},{}],9:[function(require,module,exports){
-'use strict';
-
-// analytics
-var Analytics = require('./components/Analytics');
-var analytics = new Analytics('UA-54501731-1', 'minimalmonkey.github.io', 200);
-
-// app
-if (document.documentElement.classList) { // TODO: maybe change to see if MutationObserver exists & screw IE10?
-	var App = require('./App');
-	var app = new App(analytics);
-}
-
-// external
-var loadScript = require('./external/loadScript');
-// loadScript('twitter-wjs', '//platform.twitter.com/widgets.js', 1200);
-loadScript('disqus-wjs', '//minimalmonkey.disqus.com/embed.js', 300);
-
-},{"./App":1,"./components/Analytics":2,"./external/loadScript":8}],10:[function(require,module,exports){
-'use strict';
-
-module.exports = function addEventListenerList (list, type, listener, useCapture) {
-	var i = list.length;
-	while (i--) {
-		list[i].addEventListener(type, listener, useCapture);
-	}
-};
-
-},{}],11:[function(require,module,exports){
-'use strict';
-
-module.exports = function createPageItem (id, type) {
-	var el = document.createElement(type || 'div');
-	el.id = id;
-	el.className = Array.prototype.slice.call(arguments).splice(2).concat(id).join(' ');
-	document.getElementById('pagecontent').appendChild(el);
-	return el;
-};
-
-},{}],12:[function(require,module,exports){
-'use strict';
-
-/**
- * @name isMouseOut
- * Loops through event target parent elements to see if mouse
- * has left or just event bubbling from child element.
- *
- * @kind function
- *
- * @param {MouseEvent} evt
- *        The DOM MouseEvent trigged by `mouseout`.
- *
- * @returns {Boolean} Returns true if mouse has left parent.
- */
-module.exports = function isMouseOut (evt) {
-
-	var target = evt.currentTarget ? evt.currentTarget: evt.srcElement;
-	var child = evt.relatedTarget ? evt.relatedTarget : evt.toElement;
-
-	if (child) {
-		while (child.parentElement) {
-			if (target === child) {
-				return false;
-			}
-			child = child.parentElement;
-		}
-	}
-
-	return true;
 };
 
 },{}],13:[function(require,module,exports){
@@ -719,6 +706,54 @@ module.exports = function waitAnimationFrames (callback, howMany) {
 },{}],17:[function(require,module,exports){
 'use strict';
 
+var loadScript = require('../utils/loadScript');
+
+function Comments () {
+	this.onClicked = this.onClicked.bind(this);
+}
+
+var proto = Comments.prototype;
+
+proto.refresh = function () {
+	if (this.el) {
+		this.el.removeEventListener('click', this.onClicked);
+	}
+	this.el = document.getElementById('postcommentslink');
+	this.el.addEventListener('click', this.onClicked, false);
+};
+
+proto.load = function () {
+	this.el.removeEventListener('click', this.onClicked);
+	this.el.classList.add('is-hidden');
+	var parent = this.el.parentNode;
+	var container = document.createElement('div');
+	container.id = 'disqus_thread';
+	container.classList.add('postcomments');
+	parent.appendChild(container);
+
+	if (this.scriptLoaded) {
+		window.DISQUS.reset({
+			reload: true,
+			config: function () {
+				this.page.url = document.URL;
+			}
+		});
+	}
+	else {
+		this.scriptLoaded = true;
+		loadScript('disqus-wjs', '//minimalmonkey.disqus.com/embed.js');
+	}
+};
+
+proto.onClicked = function () {
+	this.load();
+};
+
+module.exports = Comments;
+
+},{"../utils/loadScript":12}],18:[function(require,module,exports){
+'use strict';
+
 function Header () {
 	this.el = document.getElementById('siteheader');
 	this.pageContent = document.getElementById('pagecontent');
@@ -781,7 +816,7 @@ proto.getPageLinks = function () {
 
 module.exports = Header;
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 'use strict';
 
 var createPageItem = require('../utils/createPageItem');
@@ -790,7 +825,7 @@ var loadPage = require('../components/loadPage');
 var transitionEndEvent = require('../utils/transitionEndEvent')();
 var waitAnimationFrames = require('../utils/waitAnimationFrames');
 
-var PanelsNav = require('./components/PanelsNav');
+var PanelsNav = require('./PanelsNav');
 var ScrollEvents = require('../components/ScrollEvents');
 var TransitionWatcher = require('../components/TransitionWatcher');
 
@@ -1099,7 +1134,51 @@ proto.disable = function () {
 
 module.exports = Panels;
 
-},{"../components/ScrollEvents":4,"../components/TransitionWatcher":5,"../components/loadPage":6,"../utils/createPageItem":11,"../utils/isMouseOut":12,"../utils/transitionEndEvent":15,"../utils/waitAnimationFrames":16,"./components/PanelsNav":20}],19:[function(require,module,exports){
+},{"../components/ScrollEvents":4,"../components/TransitionWatcher":5,"../components/loadPage":6,"../utils/createPageItem":10,"../utils/isMouseOut":11,"../utils/transitionEndEvent":15,"../utils/waitAnimationFrames":16,"./PanelsNav":20}],20:[function(require,module,exports){
+'use strict';
+
+var createPageItem = require('../utils/createPageItem');
+
+function PanelsNav () {
+	this.el = document.getElementById('panels-nav') || createPageItem('panels-nav', 'a', 'is-hidden');
+}
+
+var proto = PanelsNav.prototype;
+
+proto.getLoading = function () {
+	return this.loading;
+};
+
+proto.setLoading = function (loading) {
+	this.loading = loading;
+	if (this.loading) {
+		this.el.classList.add('is-loading');
+		this.show();
+	}
+	else {
+		this.el.classList.remove('is-loading');
+	}
+};
+
+proto.show = function () {
+	this.el.classList.remove('is-hidden');
+};
+
+proto.hide = function () {
+	this.el.classList.add('is-hidden');
+};
+
+proto.getPath = function () {
+	return this.el.href;
+};
+
+proto.setPath = function (path) {
+	this.el.href = path;
+};
+
+module.exports = PanelsNav;
+
+},{"../utils/createPageItem":10}],21:[function(require,module,exports){
 'use strict';
 
 var createPageItem = require('../utils/createPageItem');
@@ -1108,6 +1187,7 @@ var setColor = require('../utils/setColor');
 var transitionEndEvent = require('../utils/transitionEndEvent')();
 var waitAnimationFrames = require('../utils/waitAnimationFrames');
 
+var Comments = require('./Comments');
 var TransitionWatcher = require('../components/TransitionWatcher');
 
 function Posts (options) {
@@ -1123,6 +1203,7 @@ function Posts (options) {
 	this.onSlideOnTransitionEnd = this.onSlideOnTransitionEnd.bind(this);
 
 	this.posts = {};
+	this.comments = new Comments();
 
 	this.loadSiblingPosts();
 
@@ -1265,6 +1346,7 @@ proto.onSlideOffTransitionEnd = function () {
 	waitAnimationFrames(function () {
 		document.body.classList.remove('is-slideoff', remove, 'is-notransitions');
 		this.el.addEventListener(transitionEndEvent, this.onSlideOnTransitionEnd, false);
+		this.comments.refresh();
 	}.bind(this), 2);
 };
 
@@ -1276,6 +1358,7 @@ proto.onSlideOnTransitionEnd = function () {
 proto.onIntroEnded = function (evt) {
 	this.el.removeEventListener(transitionEndEvent, this.onIntroEnded);
 	this.introWatcher.complete();
+	this.comments.refresh();
 };
 
 proto.enable = function () {
@@ -1290,52 +1373,4 @@ proto.disable = function () {
 
 module.exports = Posts;
 
-},{"../components/TransitionWatcher":5,"../components/loadPage":6,"../utils/createPageItem":11,"../utils/setColor":13,"../utils/transitionEndEvent":15,"../utils/waitAnimationFrames":16}],20:[function(require,module,exports){
-'use strict';
-
-var createPageItem = require('../../utils/createPageItem');
-
-function PanelsNav () {
-	this.el = document.getElementById('panels-nav') || createPageItem('panels-nav', 'a', 'is-hidden');
-}
-
-var proto = PanelsNav.prototype;
-
-proto.hasEl = function () {
-	return this.el !== null;
-};
-
-proto.getLoading = function () {
-	return this.loading;
-};
-
-proto.setLoading = function (loading) {
-	this.loading = loading;
-	if (this.loading) {
-		this.el.classList.add('is-loading');
-		this.show();
-	}
-	else {
-		this.el.classList.remove('is-loading');
-	}
-};
-
-proto.show = function () {
-	this.el.classList.remove('is-hidden');
-};
-
-proto.hide = function () {
-	this.el.classList.add('is-hidden');
-};
-
-proto.getPath = function () {
-	return this.el.href;
-};
-
-proto.setPath = function (path) {
-	this.el.href = path;
-};
-
-module.exports = PanelsNav;
-
-},{"../../utils/createPageItem":11}]},{},[9]);
+},{"../components/TransitionWatcher":5,"../components/loadPage":6,"../utils/createPageItem":10,"../utils/setColor":13,"../utils/transitionEndEvent":15,"../utils/waitAnimationFrames":16,"./Comments":17}]},{},[8]);

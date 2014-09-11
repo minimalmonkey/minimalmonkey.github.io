@@ -1,0 +1,59 @@
+.postcommentslink {
+	display: block;
+	position: relative;
+	height: 60px;
+	margin-top: 50px;
+	color: #fff;
+	font-size: 20px;
+	font-weight: 600;
+	line-height: 52px;
+	text-align: center;
+	cursor: pointer;
+	transition: height 0s linear 0.3s, margin-top 0s linear 0.3s, opacity 0.3s;
+
+	&:before,
+	&:after {
+		position: absolute;
+		content: "";
+	}
+
+	&:before {
+		bottom: 0;
+		left: 0;
+		width: 100%;
+		height: 2px;
+		background: rgba(0, 0, 0, 0.2);
+	}
+
+	&:after {
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		opacity: 0;
+		background: #000;
+		transition: opacity 0.3s;
+	}
+
+	&:hover {
+		&:after {
+			opacity: 0.1;
+		}
+	}
+
+	&.is-hidden {
+		height: 0;
+		margin-top: 0;
+		opacity: 0;
+	}
+
+	.no-js & {
+		display: none;
+	}
+}
+
+.postcommentslink-label {
+	position: relative;
+	z-index: 10;
+	user-select: none;
+}

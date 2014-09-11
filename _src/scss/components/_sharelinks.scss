@@ -2,6 +2,10 @@
 	display: block;
 	margin-top: 20px;
 
+	.no-js & {
+		display: none;
+	}
+
 	@media (min-width: $bp-stack-width) {
 		float: right;
 		width: auto;
