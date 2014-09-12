@@ -234,6 +234,7 @@ proto.getLastShownPanel = function () {
 };
 
 proto.transitionBelow = function () {
+	// TODO: if there's no panels then load them!
 	var listenTo = this.getLastShownPanel();
 	var watcher = new TransitionWatcher();
 	this.listenToTransitionEnd(listenTo, watcher);

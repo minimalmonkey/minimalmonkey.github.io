@@ -52,7 +52,7 @@ proto.initRouter = function (analytics) {
 		this.router.add(headerLinks[i], this.showHeader);
 	}
 	this.router.add('/', this.showPanels);
-	this.router.add('/lab', this.showLab);
+	this.router.add('/lab/', this.showLab);
 	this.router.add('*post', this.showPost);
 
 	this.router.match(location.pathname);
@@ -138,7 +138,9 @@ proto.setState = function (state) {
 };
 
 proto.onIntroComplete = function () {
-	this.view.introWatcher.clear();
+	if (this.view.introWatcher) {
+		this.view.introWatcher.clear();
+	}
 	document.body.classList.remove('is-introtransition');
 };
 
@@ -1097,6 +1099,7 @@ proto.getLastShownPanel = function () {
 };
 
 proto.transitionBelow = function () {
+	// TODO: if there's no panels then load them!
 	var listenTo = this.getLastShownPanel();
 	var watcher = new TransitionWatcher();
 	this.listenToTransitionEnd(listenTo, watcher);
