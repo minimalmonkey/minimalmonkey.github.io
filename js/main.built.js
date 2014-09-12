@@ -57,12 +57,13 @@ proto.initRouter = function (analytics) {
 
 	this.router.match(location.pathname);
 
+	this.onIntroComplete = this.onIntroComplete.bind(this);
+
 	if (this.view && this.view.introWatcher) {
-		this.onIntroComplete = this.onIntroComplete.bind(this);
 		this.view.introWatcher.on('complete', this.onIntroComplete);
 	}
 	else {
-		this.onIntroComplete();
+		this.header.introWatcher.on('complete', this.onIntroComplete);
 	}
 };
 
@@ -83,7 +84,7 @@ proto.showPanels = function (match, params) {
 		this.watcher.on('complete', this.onPostHideComplete);
 	}
 	else if (this.state === 'lab') {
-		console.log('show panels from lab!');
+		this.panels.preload();
 		document.body.classList.add('is-muted', 'is-transition-panelsbelow');
 		document.body.classList.remove('is-darktheme');
 		this.watcher = this.panels.transitionFromBelow();
@@ -98,7 +99,7 @@ proto.showPanels = function (match, params) {
 
 proto.showPost = function (match, params) {
 	if (this.state === 'panels') {
-		// preload post while animating
+		// TODO: preload post while animating
 		var color = this.panels.getCurrentColor(params);
 		document.body.classList.add('is-muted', 'is-transition-topostfrompanels');
 		setColor(document.body, color);
@@ -140,6 +141,9 @@ proto.setState = function (state) {
 proto.onIntroComplete = function () {
 	if (this.view.introWatcher) {
 		this.view.introWatcher.clear();
+	}
+	else {
+		this.header.introWatcher.clear();
 	}
 	document.body.classList.remove('is-introtransition');
 };
@@ -785,6 +789,10 @@ module.exports = Comments;
 },{"../utils/loadScript":12}],18:[function(require,module,exports){
 'use strict';
 
+var transitionEndEvent = require('../utils/transitionEndEvent')();
+
+var TransitionWatcher = require('../components/TransitionWatcher');
+
 function Header () {
 	this.el = document.getElementById('siteheader');
 	this.pageContent = document.getElementById('pagecontent');
@@ -801,6 +809,10 @@ function Header () {
 			page: pages[i]
 		};
 	}
+
+	this.introWatcher = new TransitionWatcher();
+	this.onIntroEnded = this.onIntroEnded.bind(this);
+	this.el.addEventListener(transitionEndEvent, this.onIntroEnded, false);
 }
 
 var proto = Header.prototype;
@@ -845,9 +857,14 @@ proto.getPageLinks = function () {
 	return pathnames;
 };
 
+proto.onIntroEnded = function (evt) {
+	this.el.removeEventListener(transitionEndEvent, this.onIntroEnded);
+	this.introWatcher.complete();
+};
+
 module.exports = Header;
 
-},{}],19:[function(require,module,exports){
+},{"../components/TransitionWatcher":5,"../utils/transitionEndEvent":15}],19:[function(require,module,exports){
 'use strict';
 
 function Labs () {
@@ -895,6 +912,9 @@ function Panels () {
 		this.introWatcher = new TransitionWatcher();
 		this.onIntroEnded = this.onIntroEnded.bind(this);
 		this.panels[this.totalPanels - 1].addEventListener(transitionEndEvent, this.onIntroEnded, false);
+	}
+	else if (document.body.classList.contains('is-lab')) {
+		this.hideBelow();
 	}
 }
 
@@ -1099,9 +1119,17 @@ proto.getLastShownPanel = function () {
 };
 
 proto.transitionBelow = function () {
-	// TODO: if there's no panels then load them!
-	var listenTo = this.getLastShownPanel();
 	var watcher = new TransitionWatcher();
+	var listenTo = this.getLastShownPanel();
+
+	if (listenTo === undefined) {
+		console.log('wait for panels to load first....');
+		// panel not loaded - do fade instead
+		// also check if any panels, if not, load
+		// them or wait until they have loaded
+		return watcher;
+	}
+
 	this.listenToTransitionEnd(listenTo, watcher);
 	return watcher;
 };

@@ -54,12 +54,13 @@ proto.initRouter = function (analytics) {
 
 	this.router.match(location.pathname);
 
+	this.onIntroComplete = this.onIntroComplete.bind(this);
+
 	if (this.view && this.view.introWatcher) {
-		this.onIntroComplete = this.onIntroComplete.bind(this);
 		this.view.introWatcher.on('complete', this.onIntroComplete);
 	}
 	else {
-		this.onIntroComplete();
+		this.header.introWatcher.on('complete', this.onIntroComplete);
 	}
 };
 
@@ -80,7 +81,7 @@ proto.showPanels = function (match, params) {
 		this.watcher.on('complete', this.onPostHideComplete);
 	}
 	else if (this.state === 'lab') {
-		console.log('show panels from lab!');
+		this.panels.preload();
 		document.body.classList.add('is-muted', 'is-transition-panelsbelow');
 		document.body.classList.remove('is-darktheme');
 		this.watcher = this.panels.transitionFromBelow();
@@ -95,7 +96,7 @@ proto.showPanels = function (match, params) {
 
 proto.showPost = function (match, params) {
 	if (this.state === 'panels') {
-		// preload post while animating
+		// TODO: preload post while animating
 		var color = this.panels.getCurrentColor(params);
 		document.body.classList.add('is-muted', 'is-transition-topostfrompanels');
 		setColor(document.body, color);
@@ -137,6 +138,9 @@ proto.setState = function (state) {
 proto.onIntroComplete = function () {
 	if (this.view.introWatcher) {
 		this.view.introWatcher.clear();
+	}
+	else {
+		this.header.introWatcher.clear();
 	}
 	document.body.classList.remove('is-introtransition');
 };

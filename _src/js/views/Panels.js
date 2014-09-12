@@ -31,6 +31,9 @@ function Panels () {
 		this.onIntroEnded = this.onIntroEnded.bind(this);
 		this.panels[this.totalPanels - 1].addEventListener(transitionEndEvent, this.onIntroEnded, false);
 	}
+	else if (document.body.classList.contains('is-lab')) {
+		this.hideBelow();
+	}
 }
 
 var proto = Panels.prototype;
@@ -234,9 +237,17 @@ proto.getLastShownPanel = function () {
 };
 
 proto.transitionBelow = function () {
-	// TODO: if there's no panels then load them!
-	var listenTo = this.getLastShownPanel();
 	var watcher = new TransitionWatcher();
+	var listenTo = this.getLastShownPanel();
+
+	if (listenTo === undefined) {
+		console.log('wait for panels to load first....');
+		// panel not loaded - do fade instead
+		// also check if any panels, if not, load
+		// them or wait until they have loaded
+		return watcher;
+	}
+
 	this.listenToTransitionEnd(listenTo, watcher);
 	return watcher;
 };

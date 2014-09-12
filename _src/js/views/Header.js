@@ -1,5 +1,9 @@
 'use strict';
 
+var transitionEndEvent = require('../utils/transitionEndEvent')();
+
+var TransitionWatcher = require('../components/TransitionWatcher');
+
 function Header () {
 	this.el = document.getElementById('siteheader');
 	this.pageContent = document.getElementById('pagecontent');
@@ -16,6 +20,10 @@ function Header () {
 			page: pages[i]
 		};
 	}
+
+	this.introWatcher = new TransitionWatcher();
+	this.onIntroEnded = this.onIntroEnded.bind(this);
+	this.el.addEventListener(transitionEndEvent, this.onIntroEnded, false);
 }
 
 var proto = Header.prototype;
@@ -58,6 +66,11 @@ proto.getPageLinks = function () {
 		pathnames[i] = links[i].pathname;
 	}
 	return pathnames;
+};
+
+proto.onIntroEnded = function (evt) {
+	this.el.removeEventListener(transitionEndEvent, this.onIntroEnded);
+	this.introWatcher.complete();
 };
 
 module.exports = Header;
