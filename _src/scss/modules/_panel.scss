@@ -80,7 +80,8 @@ $panel-expand-scale: 50 / 320;
 	@media (min-width: $bp-stack-width) {
 		width: $panel-width;
 
-		.is-introtransition & {
+		.is-introtransition &,
+		.is-transition-panelsbelow & {
 			transition: transform 0.5s ease-in-out 0.1s;
 
 			@for $i from 2 through 10 {
@@ -90,7 +91,8 @@ $panel-expand-scale: 50 / 320;
 			}
 		}
 
-		.js .is-intro.is-panels & {
+		.js .is-intro.is-panels &,
+		.is-hidebelow & {
 			transform: translateY(100%);
 		}
 

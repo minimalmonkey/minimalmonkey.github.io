@@ -9,12 +9,15 @@ var Router = require('./components/Router');
 var Header = require('./views/Header');
 var Panels = require('./views/Panels');
 var Posts = require('./views/Posts');
+var Lab = require('./views/Lab');
 
 function App (analytics) {
 
 	this.showHeader = this.showHeader.bind(this);
 	this.showPanels = this.showPanels.bind(this);
 	this.showPost = this.showPost.bind(this);
+	this.showLab = this.showLab.bind(this);
+
 	this.onPanelShowComplete = this.onPanelShowComplete.bind(this);
 	this.onPanelHideComplete = this.onPanelHideComplete.bind(this);
 	this.onPostShowComplete = this.onPostShowComplete.bind(this);
@@ -35,6 +38,7 @@ proto.initViews = function () {
 	this.header = new Header();
 	this.panels = new Panels();
 	this.posts = new Posts();
+	this.lab = new Lab();
 };
 
 proto.initRouter = function (analytics) {
@@ -48,6 +52,7 @@ proto.initRouter = function (analytics) {
 		this.router.add(headerLinks[i], this.showHeader);
 	}
 	this.router.add('/', this.showPanels);
+	this.router.add('/lab', this.showLab);
 	this.router.add('*post', this.showPost);
 
 	this.router.match(location.pathname);
@@ -77,6 +82,13 @@ proto.showPanels = function (match, params) {
 		this.watcher = this.posts.hide();
 		this.watcher.on('complete', this.onPostHideComplete);
 	}
+	else if (this.state === 'lab') {
+		console.log('show panels from lab!');
+		document.body.classList.add('is-muted', 'is-transition-panelsbelow');
+		document.body.classList.remove('is-darktheme');
+		this.watcher = this.panels.transitionFromBelow();
+		this.watcher.on('complete', this.onPanelShowComplete);
+	}
 	else if (this.state === 'header') {
 		this.header.close();
 	}
@@ -103,6 +115,20 @@ proto.showPost = function (match, params) {
 	this.setState('post');
 };
 
+proto.showLab = function (match, params) {
+	if (this.state === 'panels') {
+		document.body.classList.add('is-muted', 'is-transition-panelsbelow', 'is-darktheme');
+		this.panels.hideBelow();
+		this.watcher = this.panels.transitionBelow();
+		this.watcher.on('complete', this.onPanelHideComplete);
+	}
+	else if (this.state === 'header') {
+		this.header.close();
+	}
+	this.view = this.lab;
+	this.setState('lab');
+};
+
 proto.setState = function (state) {
 	if (this.state) {
 		document.body.classList.remove('is-' + this.state);
@@ -118,17 +144,20 @@ proto.onIntroComplete = function () {
 
 proto.onPanelShowComplete = function () {
 	this.watcher.off('complete', this.onPanelShowComplete);
-	document.body.classList.remove('is-muted', 'is-transition-topanelsfrompost');
+	document.body.classList.remove('is-muted', 'is-transition-topanelsfrompost', 'is-transition-panelsbelow'); // TODO: be more specific
 };
 
 proto.onPanelHideComplete = function () {
 	this.watcher.off('complete', this.onPanelHideComplete);
 	this.panels.hide();
-	this.panels.resetTransition();
 
 	if (this.state === 'post') {
+		this.panels.resetTransition();
 		this.watcher = this.posts.show(location.pathname);
 		this.watcher.on('complete', this.onPostShowComplete);
+	}
+	else if (this.state === 'lab') {
+		document.body.classList.remove('is-muted', 'is-transition-panelsbelow');
 	}
 };
 
@@ -141,14 +170,14 @@ proto.onPostHideComplete = function () {
 	this.watcher.off('complete', this.onPostHideComplete);
 
 	if (this.state === 'panels') {
-		this.watcher = this.panels.show(this.router.lastURL);
+		this.watcher = this.panels.transitionFromPost(this.router.lastURL);
 		this.watcher.on('complete', this.onPanelShowComplete);
 	}
 };
 
 module.exports = App;
 
-},{"./components/Router":3,"./utils/setColor":13,"./views/Header":18,"./views/Panels":19,"./views/Posts":21}],2:[function(require,module,exports){
+},{"./components/Router":3,"./utils/setColor":13,"./views/Header":18,"./views/Lab":19,"./views/Panels":20,"./views/Posts":22}],2:[function(require,module,exports){
 'use strict';
 
 var loadScript = require('../utils/loadScript');
@@ -819,6 +848,21 @@ module.exports = Header;
 },{}],19:[function(require,module,exports){
 'use strict';
 
+function Labs () {
+	//
+}
+
+var proto = Labs.prototype;
+
+proto.show = function () {
+	//
+};
+
+module.exports = Labs;
+
+},{}],20:[function(require,module,exports){
+'use strict';
+
 var createPageItem = require('../utils/createPageItem');
 var isMouseOut = require('../utils/isMouseOut');
 var loadPage = require('../components/loadPage');
@@ -860,12 +904,27 @@ proto.preload = function () {
 	}
 };
 
-proto.show = function (url) {
+proto.transitionFromPost = function (url) {
 	this.enable();
 	this.el.classList.remove('is-hidden');
 	this.scrollEvents.update(this.el);
 	this.watcher = this.transitionFromPost(url);
 	return this.watcher;
+};
+
+proto.transitionFromBelow = function () {
+	this.enable();
+	this.el.classList.remove('is-hidden');
+
+	waitAnimationFrames(function () {
+		this.el.classList.remove('is-hidebelow');
+	}.bind(this), 2);
+
+	return this.transitionBelow();
+};
+
+proto.hideBelow = function () {
+	this.el.classList.add('is-hidebelow');
 };
 
 proto.hide = function () {
@@ -1024,6 +1083,26 @@ proto.getCurrentColor = function (url) {
 	return panel.dataset.color;
 };
 
+proto.getLastShownPanel = function () {
+	var panel = this.panels[0];
+	var winWidth = window.innerWidth;
+	var scrollLeft = window.pageXOffset;
+	for (var i = 0; i < this.totalPanels; i++) {
+		if (this.panels[i].offsetLeft - scrollLeft > winWidth && i > 0) {
+			panel = this.panels[i - 1];
+			i = this.totalPanels;
+		}
+	}
+	return panel;
+};
+
+proto.transitionBelow = function () {
+	var listenTo = this.getLastShownPanel();
+	var watcher = new TransitionWatcher();
+	this.listenToTransitionEnd(listenTo, watcher);
+	return watcher;
+};
+
 proto.transitionToPost = function () {
 	this.transformed = this.nudgeSiblingPanels(this.currentIndex, 25); // 25 is half the expand width - maybe make this dynamic?
 	var listenTo = this.transformed[0];
@@ -1134,7 +1213,7 @@ proto.disable = function () {
 
 module.exports = Panels;
 
-},{"../components/ScrollEvents":4,"../components/TransitionWatcher":5,"../components/loadPage":6,"../utils/createPageItem":10,"../utils/isMouseOut":11,"../utils/transitionEndEvent":15,"../utils/waitAnimationFrames":16,"./PanelsNav":20}],20:[function(require,module,exports){
+},{"../components/ScrollEvents":4,"../components/TransitionWatcher":5,"../components/loadPage":6,"../utils/createPageItem":10,"../utils/isMouseOut":11,"../utils/transitionEndEvent":15,"../utils/waitAnimationFrames":16,"./PanelsNav":21}],21:[function(require,module,exports){
 'use strict';
 
 var createPageItem = require('../utils/createPageItem');
@@ -1178,7 +1257,7 @@ proto.setPath = function (path) {
 
 module.exports = PanelsNav;
 
-},{"../utils/createPageItem":10}],21:[function(require,module,exports){
+},{"../utils/createPageItem":10}],22:[function(require,module,exports){
 'use strict';
 
 var createPageItem = require('../utils/createPageItem');

@@ -43,4 +43,8 @@ body {
 	&.is-post {
 		transition: background 0.3s;
 	}
+
+	&.is-darktheme {
+		background-color: #222;
+	}
 }

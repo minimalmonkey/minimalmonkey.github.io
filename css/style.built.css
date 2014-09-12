@@ -208,6 +208,8 @@ body {
   body.is-post {
     -webkit-transition: background 0.3s;
             transition: background 0.3s; }
+  body.is-darktheme {
+    background-color: #222; }
 
 .centered {
   display: block;
@@ -587,14 +589,18 @@ body {
   background-color: #fcfcfc;
   -webkit-transform: translate3d(0, 0, 0);
           transform: translate3d(0, 0, 0);
-  -webkit-transition: height 0.4s;
-          transition: height 0.4s; }
+  -webkit-transition: background-color 0.4s, height 0.4s;
+          transition: background-color 0.4s, height 0.4s; }
   .is-introtransition .siteheader {
     -webkit-transition: -webkit-transform 0.4s ease-in-out 0.1s;
             transition: transform 0.4s ease-in-out 0.1s; }
+  .is-darktheme .siteheader {
+    background-color: #000; }
   .siteheader.is-collapsed {
     height: 52px;
     background-color: #f3f3f3; }
+    .is-darktheme .siteheader.is-collapsed {
+      background-color: #111; }
   @media (min-width: 570px) {
     .siteheader {
       font-size: 10px; }
@@ -628,6 +634,8 @@ body {
     opacity: 1;
     -webkit-transition: width 0 linear 0, opacity 0.3s;
             transition: width 0 linear 0, opacity 0.3s; }
+  .is-darktheme .siteheader-page {
+    color: #cfcfcf; }
   @media (min-width: 700px) {
     .siteheader-page {
       left: 50%;
@@ -883,37 +891,37 @@ body {
   @media (min-width: 570px) {
     .panel {
       width: 320px; }
-      .is-introtransition .panel {
+      .is-introtransition .panel, .is-transition-panelsbelow .panel {
         -webkit-transition: -webkit-transform 0.5s ease-in-out 0.1s;
                 transition: transform 0.5s ease-in-out 0.1s; }
-        .is-introtransition .panel:nth-child(2) {
+        .is-introtransition .panel:nth-child(2), .is-transition-panelsbelow .panel:nth-child(2) {
           -webkit-transition-delay: 0.2s;
                   transition-delay: 0.2s; }
-        .is-introtransition .panel:nth-child(3) {
+        .is-introtransition .panel:nth-child(3), .is-transition-panelsbelow .panel:nth-child(3) {
           -webkit-transition-delay: 0.25s;
                   transition-delay: 0.25s; }
-        .is-introtransition .panel:nth-child(4) {
+        .is-introtransition .panel:nth-child(4), .is-transition-panelsbelow .panel:nth-child(4) {
           -webkit-transition-delay: 0.3s;
                   transition-delay: 0.3s; }
-        .is-introtransition .panel:nth-child(5) {
+        .is-introtransition .panel:nth-child(5), .is-transition-panelsbelow .panel:nth-child(5) {
           -webkit-transition-delay: 0.35s;
                   transition-delay: 0.35s; }
-        .is-introtransition .panel:nth-child(6) {
+        .is-introtransition .panel:nth-child(6), .is-transition-panelsbelow .panel:nth-child(6) {
           -webkit-transition-delay: 0.4s;
                   transition-delay: 0.4s; }
-        .is-introtransition .panel:nth-child(7) {
+        .is-introtransition .panel:nth-child(7), .is-transition-panelsbelow .panel:nth-child(7) {
           -webkit-transition-delay: 0.45s;
                   transition-delay: 0.45s; }
-        .is-introtransition .panel:nth-child(8) {
+        .is-introtransition .panel:nth-child(8), .is-transition-panelsbelow .panel:nth-child(8) {
           -webkit-transition-delay: 0.5s;
                   transition-delay: 0.5s; }
-        .is-introtransition .panel:nth-child(9) {
+        .is-introtransition .panel:nth-child(9), .is-transition-panelsbelow .panel:nth-child(9) {
           -webkit-transition-delay: 0.55s;
                   transition-delay: 0.55s; }
-        .is-introtransition .panel:nth-child(10) {
+        .is-introtransition .panel:nth-child(10), .is-transition-panelsbelow .panel:nth-child(10) {
           -webkit-transition-delay: 0.6s;
                   transition-delay: 0.6s; }
-      .js .is-intro.is-panels .panel {
+      .js .is-intro.is-panels .panel, .is-hidebelow .panel {
         -webkit-transform: translateY(100%);
             -ms-transform: translateY(100%);
                 transform: translateY(100%); }
@@ -1319,9 +1327,13 @@ body {
     border-bottom: 1px solid #16528e;
     -webkit-transition: border-bottom 0.3s;
             transition: border-bottom 0.3s; }
+    .is-darktheme .sitenavlink.is-selected {
+      border-bottom: 1px solid white; }
 
 .sitenavlink-label:after {
   color: #16528e; }
+  .is-darktheme .sitenavlink-label:after {
+    color: white; }
 
 .sitenavlink-logo {
   display: inline-block;
@@ -1332,13 +1344,17 @@ body {
   width: 24px;
   height: 24px;
   margin: 13px 0 0 -12px;
-  color: black;
+  color: #000;
   font-family: 'icons';
   font-size: 25px;
   text-decoration: none;
   -webkit-transform-origin: 50% 100%;
       -ms-transform-origin: 50% 100%;
-          transform-origin: 50% 100%; }
+          transform-origin: 50% 100%;
+  -webkit-transition: background-color 0.4s;
+          transition: background-color 0.4s; }
+  .is-darktheme .sitenavlink-logo {
+    color: #fff; }
   .sitenavlink-logo:hover, .sitenavlink-logo.bounce-animation {
     -webkit-animation: bounce-animation 0.5s 1;
             animation: bounce-animation 0.5s 1;

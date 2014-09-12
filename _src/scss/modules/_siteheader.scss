@@ -9,15 +9,23 @@
 	text-align: center;
 	background-color: #fcfcfc;
 	transform: translate3d(0, 0, 0);
-	transition: height $header-open-duration;
+	transition: background-color $header-open-duration, height $header-open-duration;
 
 	.is-introtransition & {
 		transition: transform 0.4s ease-in-out 0.1s;
 	}
 
+	.is-darktheme & {
+		background-color: #000;
+	}
+
 	&.is-collapsed {
 		height: $site-nav-height;
 		background-color: #f3f3f3;
+
+		.is-darktheme & {
+			background-color: #111;
+		}
 	}
 
 	@media (min-width: $bp-stack-width) {
@@ -57,6 +65,10 @@
 		width: 100%;
 		opacity: 1;
 		transition: width 0 linear 0, opacity 0.3s;
+	}
+
+	.is-darktheme & {
+		color: #cfcfcf;
 	}
 
 	@media (min-width: 700px) {

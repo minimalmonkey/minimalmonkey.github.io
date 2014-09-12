@@ -8,12 +8,20 @@
 	&.is-selected {
 		border-bottom: 1px solid getcolor(navy);
 		transition: border-bottom 0.3s;
+
+		.is-darktheme & {
+			border-bottom: 1px solid white;
+		}
 	}
 }
 
 .sitenavlink-label {
 	&:after {
 		color: getcolor(navy);
+
+		.is-darktheme & {
+			color: white;
+		}
 	}
 }
 
@@ -26,11 +34,16 @@
 	width: 24px;
 	height: 24px;
 	margin: 13px 0 0 -12px;
-	color: black;
+	color: #000;
 	font-family: 'icons';
 	font-size: 25px;
 	text-decoration: none;
 	transform-origin: 50% 100%;
+	transition: background-color $header-open-duration;
+
+	.is-darktheme & {
+		color: #fff;
+	}
 
 	&:hover,
 	&.bounce-animation {

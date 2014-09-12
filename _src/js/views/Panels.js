@@ -41,12 +41,27 @@ proto.preload = function () {
 	}
 };
 
-proto.show = function (url) {
+proto.transitionFromPost = function (url) {
 	this.enable();
 	this.el.classList.remove('is-hidden');
 	this.scrollEvents.update(this.el);
 	this.watcher = this.transitionFromPost(url);
 	return this.watcher;
+};
+
+proto.transitionFromBelow = function () {
+	this.enable();
+	this.el.classList.remove('is-hidden');
+
+	waitAnimationFrames(function () {
+		this.el.classList.remove('is-hidebelow');
+	}.bind(this), 2);
+
+	return this.transitionBelow();
+};
+
+proto.hideBelow = function () {
+	this.el.classList.add('is-hidebelow');
 };
 
 proto.hide = function () {
@@ -203,6 +218,26 @@ proto.onNavClicked = function (evt) {
 proto.getCurrentColor = function (url) {
 	var panel = this.currentIndex ? this.panels[this.currentIndex] : this.panelsUrlMap[url].panel;
 	return panel.dataset.color;
+};
+
+proto.getLastShownPanel = function () {
+	var panel = this.panels[0];
+	var winWidth = window.innerWidth;
+	var scrollLeft = window.pageXOffset;
+	for (var i = 0; i < this.totalPanels; i++) {
+		if (this.panels[i].offsetLeft - scrollLeft > winWidth && i > 0) {
+			panel = this.panels[i - 1];
+			i = this.totalPanels;
+		}
+	}
+	return panel;
+};
+
+proto.transitionBelow = function () {
+	var listenTo = this.getLastShownPanel();
+	var watcher = new TransitionWatcher();
+	this.listenToTransitionEnd(listenTo, watcher);
+	return watcher;
 };
 
 proto.transitionToPost = function () {

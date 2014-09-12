@@ -6,12 +6,15 @@ var Router = require('./components/Router');
 var Header = require('./views/Header');
 var Panels = require('./views/Panels');
 var Posts = require('./views/Posts');
+var Lab = require('./views/Lab');
 
 function App (analytics) {
 
 	this.showHeader = this.showHeader.bind(this);
 	this.showPanels = this.showPanels.bind(this);
 	this.showPost = this.showPost.bind(this);
+	this.showLab = this.showLab.bind(this);
+
 	this.onPanelShowComplete = this.onPanelShowComplete.bind(this);
 	this.onPanelHideComplete = this.onPanelHideComplete.bind(this);
 	this.onPostShowComplete = this.onPostShowComplete.bind(this);
@@ -32,6 +35,7 @@ proto.initViews = function () {
 	this.header = new Header();
 	this.panels = new Panels();
 	this.posts = new Posts();
+	this.lab = new Lab();
 };
 
 proto.initRouter = function (analytics) {
@@ -45,6 +49,7 @@ proto.initRouter = function (analytics) {
 		this.router.add(headerLinks[i], this.showHeader);
 	}
 	this.router.add('/', this.showPanels);
+	this.router.add('/lab', this.showLab);
 	this.router.add('*post', this.showPost);
 
 	this.router.match(location.pathname);
@@ -74,6 +79,13 @@ proto.showPanels = function (match, params) {
 		this.watcher = this.posts.hide();
 		this.watcher.on('complete', this.onPostHideComplete);
 	}
+	else if (this.state === 'lab') {
+		console.log('show panels from lab!');
+		document.body.classList.add('is-muted', 'is-transition-panelsbelow');
+		document.body.classList.remove('is-darktheme');
+		this.watcher = this.panels.transitionFromBelow();
+		this.watcher.on('complete', this.onPanelShowComplete);
+	}
 	else if (this.state === 'header') {
 		this.header.close();
 	}
@@ -100,6 +112,20 @@ proto.showPost = function (match, params) {
 	this.setState('post');
 };
 
+proto.showLab = function (match, params) {
+	if (this.state === 'panels') {
+		document.body.classList.add('is-muted', 'is-transition-panelsbelow', 'is-darktheme');
+		this.panels.hideBelow();
+		this.watcher = this.panels.transitionBelow();
+		this.watcher.on('complete', this.onPanelHideComplete);
+	}
+	else if (this.state === 'header') {
+		this.header.close();
+	}
+	this.view = this.lab;
+	this.setState('lab');
+};
+
 proto.setState = function (state) {
 	if (this.state) {
 		document.body.classList.remove('is-' + this.state);
@@ -115,17 +141,20 @@ proto.onIntroComplete = function () {
 
 proto.onPanelShowComplete = function () {
 	this.watcher.off('complete', this.onPanelShowComplete);
-	document.body.classList.remove('is-muted', 'is-transition-topanelsfrompost');
+	document.body.classList.remove('is-muted', 'is-transition-topanelsfrompost', 'is-transition-panelsbelow'); // TODO: be more specific
 };
 
 proto.onPanelHideComplete = function () {
 	this.watcher.off('complete', this.onPanelHideComplete);
 	this.panels.hide();
-	this.panels.resetTransition();
 
 	if (this.state === 'post') {
+		this.panels.resetTransition();
 		this.watcher = this.posts.show(location.pathname);
 		this.watcher.on('complete', this.onPostShowComplete);
+	}
+	else if (this.state === 'lab') {
+		document.body.classList.remove('is-muted', 'is-transition-panelsbelow');
 	}
 };
 
@@ -138,7 +167,7 @@ proto.onPostHideComplete = function () {
 	this.watcher.off('complete', this.onPostHideComplete);
 
 	if (this.state === 'panels') {
-		this.watcher = this.panels.show(this.router.lastURL);
+		this.watcher = this.panels.transitionFromPost(this.router.lastURL);
 		this.watcher.on('complete', this.onPanelShowComplete);
 	}
 };
