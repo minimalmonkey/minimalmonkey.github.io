@@ -6,6 +6,7 @@ var setColor = require('../utils/setColor');
 var transitionEndEvent = require('../utils/transitionEndEvent')();
 var waitAnimationFrames = require('../utils/waitAnimationFrames');
 
+var BaseView = require('./BaseView');
 var Comments = require('./Comments');
 var TransitionWatcher = require('../components/TransitionWatcher');
 
@@ -33,7 +34,7 @@ function Posts (options) {
 	}
 }
 
-var proto = Posts.prototype;
+var proto = Posts.prototype = new BaseView();
 
 proto.preload = function(url) {
 	//

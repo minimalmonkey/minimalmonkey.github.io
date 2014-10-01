@@ -6,6 +6,7 @@ var loadPage = require('../components/loadPage');
 var transitionEndEvent = require('../utils/transitionEndEvent')();
 var waitAnimationFrames = require('../utils/waitAnimationFrames');
 
+var BaseView = require('./BaseView');
 var PanelsNav = require('./PanelsNav');
 var ScrollEvents = require('../components/ScrollEvents');
 var TransitionWatcher = require('../components/TransitionWatcher');
@@ -36,7 +37,7 @@ function Panels () {
 	}
 }
 
-var proto = Panels.prototype;
+var proto = Panels.prototype = new BaseView();
 
 proto.preload = function () {
 	if (this.panels.length <= 0) {
@@ -44,7 +45,7 @@ proto.preload = function () {
 	}
 };
 
-proto.transitionFromPost = function (url) {
+proto.showFromPost = function (url) {
 	this.enable();
 	this.el.classList.remove('is-hidden');
 	this.scrollEvents.update(this.el);

@@ -173,9 +173,13 @@ proto.onPostHideComplete = function () {
 	this.watcher.off('complete', this.onPostHideComplete);
 
 	if (this.state === 'panels') {
-		this.watcher = this.panels.transitionFromPost(this.router.lastURL);
+		this.watcher = this.panels.showFromPost(this.router.lastURL);
 		this.watcher.on('complete', this.onPanelShowComplete);
 	}
+};
+
+proto.onViewLoaded = function () {
+	console.log('onViewLoaded');
 };
 
 module.exports = App;

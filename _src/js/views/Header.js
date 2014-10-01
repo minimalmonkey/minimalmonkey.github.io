@@ -2,6 +2,7 @@
 
 var transitionEndEvent = require('../utils/transitionEndEvent')();
 
+var BaseView = require('./BaseView');
 var TransitionWatcher = require('../components/TransitionWatcher');
 
 function Header () {
@@ -26,7 +27,7 @@ function Header () {
 	this.el.addEventListener(transitionEndEvent, this.onIntroEnded, false);
 }
 
-var proto = Header.prototype;
+var proto = Header.prototype = new BaseView();
 
 proto.open = function (key, lastURL) {
 	this.el.classList.remove('is-collapsed');

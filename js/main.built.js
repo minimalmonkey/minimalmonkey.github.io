@@ -176,14 +176,18 @@ proto.onPostHideComplete = function () {
 	this.watcher.off('complete', this.onPostHideComplete);
 
 	if (this.state === 'panels') {
-		this.watcher = this.panels.transitionFromPost(this.router.lastURL);
+		this.watcher = this.panels.showFromPost(this.router.lastURL);
 		this.watcher.on('complete', this.onPanelShowComplete);
 	}
 };
 
+proto.onViewLoaded = function () {
+	console.log('onViewLoaded');
+};
+
 module.exports = App;
 
-},{"./components/Router":3,"./utils/setColor":13,"./views/Header":18,"./views/Lab":19,"./views/Panels":20,"./views/Posts":22}],2:[function(require,module,exports){
+},{"./components/Router":4,"./utils/setColor":14,"./views/Header":20,"./views/Lab":21,"./views/Panels":22,"./views/Posts":24}],2:[function(require,module,exports){
 'use strict';
 
 var loadScript = require('../utils/loadScript');
@@ -219,7 +223,49 @@ proto.update = function (url) {
 
 module.exports = Analytics;
 
-},{"../utils/loadScript":12}],3:[function(require,module,exports){
+},{"../utils/loadScript":13}],3:[function(require,module,exports){
+'use strict';
+
+function EventEmitter() {}
+
+var proto = EventEmitter.prototype;
+
+proto._getEvents = function () {
+	return this._events || (this._events = {});
+};
+
+proto._getListeners = function (evt) {
+	var events = this._getEvents();
+	return events[evt] || (events[evt] = []);
+};
+
+proto.on = function (evt, listener) {
+	var listeners = this._getListeners(evt);
+	var index = listeners.indexOf(listener);
+	if (index < 0) {
+		listeners.push(listener);
+	}
+};
+
+proto.off = function (evt, listener) {
+	var listeners = this._getListeners(evt);
+	var index = listeners.indexOf(listener);
+	if (index > -1) {
+		listeners.splice(index, 1);
+	}
+};
+
+proto.trigger = function (evt) {
+	var listeners = this._getListeners(evt);
+	var i = listeners.length;
+	while (i--) {
+		listeners[i].call();
+	}
+};
+
+module.exports = EventEmitter;
+
+},{}],4:[function(require,module,exports){
 'use strict';
 
 var addEventListenerList = require('../utils/addEventListenerList');
@@ -332,7 +378,7 @@ proto.disable = function () {
 
 module.exports = Router;
 
-},{"../utils/addEventListenerList":9,"./routeToRegExp":7}],4:[function(require,module,exports){
+},{"../utils/addEventListenerList":10,"./routeToRegExp":8}],5:[function(require,module,exports){
 'use strict';
 
 var throttleEvent = require('../utils/throttleEvent');
@@ -431,7 +477,7 @@ proto.disable = function () {
 
 module.exports = ScrollEvents;
 
-},{"../utils/throttleEvent":14}],5:[function(require,module,exports){
+},{"../utils/throttleEvent":15}],6:[function(require,module,exports){
 'use strict';
 
 function TransitionWatcher () {
@@ -477,7 +523,7 @@ proto.clear = function () {
 
 module.exports = TransitionWatcher;
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 'use strict';
 
 module.exports = function loadPage (url, callback) {
@@ -511,7 +557,7 @@ module.exports = function loadPage (url, callback) {
 	req.send();
 };
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict';
 
 var optionalParam = /\((.*?)\)/g;
@@ -536,7 +582,7 @@ module.exports = function routeToRegExp (route) {
 	return new RegExp('^' + route + '(?:\\?([\\s\\S]*))?$');
 };
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 
 // analytics
@@ -553,7 +599,7 @@ if (document.documentElement.classList) { // TODO: maybe change to see if Mutati
 var loadScript = require('./utils/loadScript');
 // loadScript('twitter-wjs', '//platform.twitter.com/widgets.js', 1200);
 
-},{"./App":1,"./components/Analytics":2,"./utils/loadScript":12}],9:[function(require,module,exports){
+},{"./App":1,"./components/Analytics":2,"./utils/loadScript":13}],10:[function(require,module,exports){
 'use strict';
 
 module.exports = function addEventListenerList (list, type, listener, useCapture) {
@@ -563,7 +609,7 @@ module.exports = function addEventListenerList (list, type, listener, useCapture
 	}
 };
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 'use strict';
 
 module.exports = function createPageItem (id, type) {
@@ -574,7 +620,7 @@ module.exports = function createPageItem (id, type) {
 	return el;
 };
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 'use strict';
 
 /**
@@ -606,7 +652,7 @@ module.exports = function isMouseOut (evt) {
 	return true;
 };
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 'use strict';
 
 /**
@@ -651,7 +697,7 @@ module.exports = function loadScript (id, src, delay, dest) {
 	}, delay);
 };
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 'use strict';
 
 module.exports = function setColor (element, color) {
@@ -662,7 +708,7 @@ module.exports = function setColor (element, color) {
 	element.classList.add('color-' + color);
 };
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 'use strict';
 
 /**
@@ -688,7 +734,7 @@ module.exports = function throttleEvent (callback, delay) {
 	};
 };
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 'use strict';
 
 var transitionEnd;
@@ -717,7 +763,7 @@ module.exports = function transitionEndEvent () {
 	}
 };
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 'use strict';
 
 module.exports = function waitAnimationFrames (callback, howMany) {
@@ -738,7 +784,42 @@ module.exports = function waitAnimationFrames (callback, howMany) {
 	waitForNext();
 };
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
+'use strict';
+
+var EventEmitter = require('../components/EventEmitter');
+
+function BaseView() {}
+
+var proto = BaseView.prototype = new EventEmitter();
+
+proto.show = function (fromState) {
+	//
+};
+
+proto.hide = function (nextState) {
+	//
+};
+
+proto.load = function () {
+	//
+};
+
+proto.onShowed = function () {
+	this.trigger('onshowed');
+};
+
+proto.onHidden = function () {
+	this.trigger('onhidden');
+};
+
+proto.onLoaded = function () {
+	this.trigger('onloaded');
+};
+
+module.exports = BaseView;
+
+},{"../components/EventEmitter":3}],19:[function(require,module,exports){
 'use strict';
 
 var loadScript = require('../utils/loadScript');
@@ -786,11 +867,12 @@ proto.onClicked = function () {
 
 module.exports = Comments;
 
-},{"../utils/loadScript":12}],18:[function(require,module,exports){
+},{"../utils/loadScript":13}],20:[function(require,module,exports){
 'use strict';
 
 var transitionEndEvent = require('../utils/transitionEndEvent')();
 
+var BaseView = require('./BaseView');
 var TransitionWatcher = require('../components/TransitionWatcher');
 
 function Header () {
@@ -815,7 +897,7 @@ function Header () {
 	this.el.addEventListener(transitionEndEvent, this.onIntroEnded, false);
 }
 
-var proto = Header.prototype;
+var proto = Header.prototype = new BaseView();
 
 proto.open = function (key, lastURL) {
 	this.el.classList.remove('is-collapsed');
@@ -864,14 +946,16 @@ proto.onIntroEnded = function (evt) {
 
 module.exports = Header;
 
-},{"../components/TransitionWatcher":5,"../utils/transitionEndEvent":15}],19:[function(require,module,exports){
+},{"../components/TransitionWatcher":6,"../utils/transitionEndEvent":16,"./BaseView":18}],21:[function(require,module,exports){
 'use strict';
+
+var BaseView = require('./BaseView');
 
 function Labs () {
 	//
 }
 
-var proto = Labs.prototype;
+var proto = Labs.prototype = new BaseView();
 
 proto.show = function () {
 	//
@@ -879,7 +963,7 @@ proto.show = function () {
 
 module.exports = Labs;
 
-},{}],20:[function(require,module,exports){
+},{"./BaseView":18}],22:[function(require,module,exports){
 'use strict';
 
 var createPageItem = require('../utils/createPageItem');
@@ -888,6 +972,7 @@ var loadPage = require('../components/loadPage');
 var transitionEndEvent = require('../utils/transitionEndEvent')();
 var waitAnimationFrames = require('../utils/waitAnimationFrames');
 
+var BaseView = require('./BaseView');
 var PanelsNav = require('./PanelsNav');
 var ScrollEvents = require('../components/ScrollEvents');
 var TransitionWatcher = require('../components/TransitionWatcher');
@@ -918,7 +1003,7 @@ function Panels () {
 	}
 }
 
-var proto = Panels.prototype;
+var proto = Panels.prototype = new BaseView();
 
 proto.preload = function () {
 	if (this.panels.length <= 0) {
@@ -926,7 +1011,7 @@ proto.preload = function () {
 	}
 };
 
-proto.transitionFromPost = function (url) {
+proto.showFromPost = function (url) {
 	this.enable();
 	this.el.classList.remove('is-hidden');
 	this.scrollEvents.update(this.el);
@@ -1244,7 +1329,7 @@ proto.disable = function () {
 
 module.exports = Panels;
 
-},{"../components/ScrollEvents":4,"../components/TransitionWatcher":5,"../components/loadPage":6,"../utils/createPageItem":10,"../utils/isMouseOut":11,"../utils/transitionEndEvent":15,"../utils/waitAnimationFrames":16,"./PanelsNav":21}],21:[function(require,module,exports){
+},{"../components/ScrollEvents":5,"../components/TransitionWatcher":6,"../components/loadPage":7,"../utils/createPageItem":11,"../utils/isMouseOut":12,"../utils/transitionEndEvent":16,"../utils/waitAnimationFrames":17,"./BaseView":18,"./PanelsNav":23}],23:[function(require,module,exports){
 'use strict';
 
 var createPageItem = require('../utils/createPageItem');
@@ -1288,7 +1373,7 @@ proto.setPath = function (path) {
 
 module.exports = PanelsNav;
 
-},{"../utils/createPageItem":10}],22:[function(require,module,exports){
+},{"../utils/createPageItem":11}],24:[function(require,module,exports){
 'use strict';
 
 var createPageItem = require('../utils/createPageItem');
@@ -1297,6 +1382,7 @@ var setColor = require('../utils/setColor');
 var transitionEndEvent = require('../utils/transitionEndEvent')();
 var waitAnimationFrames = require('../utils/waitAnimationFrames');
 
+var BaseView = require('./BaseView');
 var Comments = require('./Comments');
 var TransitionWatcher = require('../components/TransitionWatcher');
 
@@ -1324,7 +1410,7 @@ function Posts (options) {
 	}
 }
 
-var proto = Posts.prototype;
+var proto = Posts.prototype = new BaseView();
 
 proto.preload = function(url) {
 	//
@@ -1483,4 +1569,4 @@ proto.disable = function () {
 
 module.exports = Posts;
 
-},{"../components/TransitionWatcher":5,"../components/loadPage":6,"../utils/createPageItem":10,"../utils/setColor":13,"../utils/transitionEndEvent":15,"../utils/waitAnimationFrames":16,"./Comments":17}]},{},[8]);
+},{"../components/TransitionWatcher":6,"../components/loadPage":7,"../utils/createPageItem":11,"../utils/setColor":14,"../utils/transitionEndEvent":16,"../utils/waitAnimationFrames":17,"./BaseView":18,"./Comments":19}]},{},[9]);
