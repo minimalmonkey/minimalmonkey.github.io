@@ -12,6 +12,7 @@ var ScrollEvents = require('../components/ScrollEvents');
 var TransitionWatcher = require('../components/TransitionWatcher');
 
 function Panels () {
+	// this.stateName = 'panels';
 	this.el = document.getElementById('panels') || createPageItem('panels', 'div', 'pagecontent-item', 'is-hidden');
 	this.nav = new PanelsNav();
 	this.panels = document.querySelectorAll('#panels .panel');
@@ -26,6 +27,7 @@ function Panels () {
 	this.onScrolledToPoint = this.onScrolledToPoint.bind(this);
 	this.onPanelsLoaded = this.onPanelsLoaded.bind(this);
 	this.onNavClicked = this.onNavClicked.bind(this);
+	this.onHiddenToPost = this.onHiddenToPost.bind(this);
 
 	if (document.body.classList.contains('is-panels', 'is-intro')) {
 		this.introWatcher = new TransitionWatcher();
@@ -68,10 +70,24 @@ proto.hideBelow = function () {
 	this.el.classList.add('is-hidebelow');
 };
 
-proto.hide = function () {
-	this.disable();
-	this.el.classList.add('is-hidden');
-	this.onScrolledToPoint();
+proto.hide = function (nextState) {
+	switch (nextState) {
+		case 'post' :
+			this.transitionToPost();
+			this.on('onhidden', this.onHiddenToPost);
+			break;
+
+		default :
+			this.disable();
+			this.el.classList.add('is-hidden');
+			this.onScrolledToPoint();
+	}
+};
+
+proto.onHiddenToPost = function (evt) {
+	this.off('onhidden', this.onHiddenToPost);
+	this.hide();
+	this.resetTransition();
 };
 
 proto.addPanels = function (index, append) {
@@ -256,9 +272,9 @@ proto.transitionBelow = function () {
 proto.transitionToPost = function () {
 	this.transformed = this.nudgeSiblingPanels(this.currentIndex, 25); // 25 is half the expand width - maybe make this dynamic?
 	var listenTo = this.transformed[0];
-	var watcher = new TransitionWatcher();
-	this.listenToTransitionEnd(listenTo, watcher);
-	return watcher;
+	// var watcher = new TransitionWatcher();
+	this.listenToTransitionEnd(listenTo, this.onHidden);
+	// return watcher;
 };
 
 proto.transitionFromPost = function (url) {
@@ -330,13 +346,14 @@ proto.nudgeSiblingPanels = function (index, expandWidth) {
 	return nudgedPanels;
 };
 
-proto.listenToTransitionEnd = function (el, watcher) {
-	var onTransitionEnded = function (evt) {
-		el.removeEventListener(transitionEndEvent, onTransitionEnded);
-		watcher.complete();
-	};
-	el.addEventListener(transitionEndEvent, onTransitionEnded, false);
-};
+// proto.listenToTransitionEnd = function (el, callback) {
+// 	var context = this;
+// 	var onTransitionEnded = function (evt) {
+// 		el.removeEventListener(transitionEndEvent, onTransitionEnded);
+// 		callback.call(context);
+// 	};
+// 	el.addEventListener(transitionEndEvent, onTransitionEnded, false);
+// };
 
 proto.resetTransition = function () {
 	var i = this.transformed.length;

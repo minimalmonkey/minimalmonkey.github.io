@@ -19,9 +19,12 @@ function App (analytics) {
 	this.showLab = this.showLab.bind(this);
 
 	this.onPanelShowComplete = this.onPanelShowComplete.bind(this);
-	this.onPanelHideComplete = this.onPanelHideComplete.bind(this);
+	// this.onPanelHideComplete = this.onPanelHideComplete.bind(this);
 	this.onPostShowComplete = this.onPostShowComplete.bind(this);
 	this.onPostHideComplete = this.onPostHideComplete.bind(this);
+
+	this.onViewHidden = this.onViewHidden.bind(this);
+	this.onViewLoaded = this.onViewLoaded.bind(this);
 
 	this.initViews();
 	this.initRouter(analytics);
@@ -78,7 +81,7 @@ proto.showPanels = function (match, params) {
 		// already panels
 	}
 	else if (this.state === 'post') {
-		this.panels.preload();
+		// this.panels.preload();
 		document.body.classList.add('is-muted', 'is-transition-topanelsfrompost');
 		this.watcher = this.posts.hide();
 		this.watcher.on('complete', this.onPostHideComplete);
@@ -103,8 +106,12 @@ proto.showPost = function (match, params) {
 		var color = this.panels.getCurrentColor(params);
 		document.body.classList.add('is-muted', 'is-transition-topostfrompanels');
 		setColor(document.body, color);
-		this.watcher = this.panels.transitionToPost();
-		this.watcher.on('complete', this.onPanelHideComplete);
+		// this.watcher = this.panels.transitionToPost();
+		// this.watcher.on('complete', this.onPanelHideComplete);
+
+		this.posts.load(params);
+		this.view.on('onhidden', this.onViewHidden);
+		this.view.hide('post');
 	}
 	else if (this.state === 'post') {
 		this.posts.slide(location.pathname);
@@ -120,8 +127,8 @@ proto.showLab = function (match, params) {
 	if (this.state === 'panels') {
 		document.body.classList.add('is-muted', 'is-transition-panelsbelow', 'is-darktheme');
 		this.panels.hideBelow();
-		this.watcher = this.panels.transitionBelow();
-		this.watcher.on('complete', this.onPanelHideComplete);
+		// this.watcher = this.panels.transitionBelow();
+		// this.watcher.on('complete', this.onPanelHideComplete);
 	}
 	else if (this.state === 'header') {
 		this.header.close();
@@ -132,6 +139,7 @@ proto.showLab = function (match, params) {
 
 proto.setState = function (state) {
 	if (this.state) {
+		this.lastState = this.state;
 		document.body.classList.remove('is-' + this.state);
 	}
 	this.state = state;
@@ -153,19 +161,19 @@ proto.onPanelShowComplete = function () {
 	document.body.classList.remove('is-muted', 'is-transition-topanelsfrompost', 'is-transition-panelsbelow'); // TODO: be more specific
 };
 
-proto.onPanelHideComplete = function () {
-	this.watcher.off('complete', this.onPanelHideComplete);
-	this.panels.hide();
+/*proto.onPanelHideComplete = function () {
+	// this.watcher.off('complete', this.onPanelHideComplete);
+	// this.panels.hide();
 
 	if (this.state === 'post') {
-		this.panels.resetTransition();
+		// this.panels.resetTransition();
 		this.watcher = this.posts.show(location.pathname);
 		this.watcher.on('complete', this.onPostShowComplete);
 	}
 	else if (this.state === 'lab') {
 		document.body.classList.remove('is-muted', 'is-transition-panelsbelow');
 	}
-};
+};*/
 
 proto.onPostShowComplete = function () {
 	this.watcher.off('complete', this.onPostShowComplete);
@@ -181,8 +189,39 @@ proto.onPostHideComplete = function () {
 	}
 };
 
-proto.onViewLoaded = function () {
-	console.log('onViewLoaded');
+proto.showView = function () {
+	this.view.on('onshowed', this.onViewShowed);
+	this.view.show(this.lastState);
+};
+
+proto.onViewShowed = function (evt) {
+	evt.target.off('onshowed', this.onViewShowed);
+
+	document.body.classList.remove('is-muted', 'is-transition-topostfrompanels'); // need to store the transition class and remove it
+};
+
+proto.onViewHidden = function (evt) {
+	evt.target.off('onhidden', this.onViewHidden);
+
+	// switch (evt.target) {
+	// 	case this.panels :
+	// 		console.log('panels hidden');
+	// 		break;
+	// }
+
+	if (this.view.hasPage(location.pathname)) {
+		this.showView();
+	}
+	else {
+		this.view.on('onloaded', this.onViewLoaded);
+	}
+};
+
+proto.onViewLoaded = function (evt) {
+	if (evt.url === location.pathname) {
+		this.view.off('onloaded', this.onViewLoaded);
+		this.showView();
+	}
 };
 
 module.exports = App;
@@ -239,6 +278,11 @@ proto._getListeners = function (evt) {
 	return events[evt] || (events[evt] = []);
 };
 
+proto._setListeners = function (evt, listeners) {
+	var events = this._getEvents();
+	events[evt] = listeners;
+};
+
 proto.on = function (evt, listener) {
 	var listeners = this._getListeners(evt);
 	var index = listeners.indexOf(listener);
@@ -251,15 +295,17 @@ proto.off = function (evt, listener) {
 	var listeners = this._getListeners(evt);
 	var index = listeners.indexOf(listener);
 	if (index > -1) {
-		listeners.splice(index, 1);
+		this._setListeners(evt, listeners.slice(0, index).concat(listeners.slice(index + 1)));
 	}
 };
 
-proto.trigger = function (evt) {
+proto.trigger = function (evt, obj) {
+	obj = obj || {};
+	obj.target = obj.target || this;
 	var listeners = this._getListeners(evt);
-	var i = listeners.length;
-	while (i--) {
-		listeners[i].call();
+	var i, len = listeners.length;
+	for (i = 0; i < len; i++) {
+		listeners[i].call(this, obj);
 	}
 };
 
@@ -548,7 +594,11 @@ module.exports = function loadPage (url, callback) {
 					elements[i] = fragment.querySelectorAll(selectors[i]);
 				}
 
-				callback.apply(this, elements.length ? elements.concat(url) : [this.responseText, url]);
+				// callback.apply(this, elements.length ? elements.concat(url) : [this.responseText, url]);
+				// temp - simulate slow / random load time
+				setTimeout(function () {
+					callback.apply(this, elements.length ? [url].concat(elements) : [url, this.responseText]);
+				}.bind(this), 600 + (Math.random() * 200));
 			}
 		}
 	};
@@ -787,11 +837,18 @@ module.exports = function waitAnimationFrames (callback, howMany) {
 },{}],18:[function(require,module,exports){
 'use strict';
 
+var loadPage = require('../components/loadPage');
+var transitionEndEvent = require('../utils/transitionEndEvent')();
+
 var EventEmitter = require('../components/EventEmitter');
 
 function BaseView() {}
 
 var proto = BaseView.prototype = new EventEmitter();
+
+// proto.stateName = '';
+proto.loadSelectors = [];
+proto.pages = {};
 
 proto.show = function (fromState) {
 	//
@@ -801,8 +858,24 @@ proto.hide = function (nextState) {
 	//
 };
 
-proto.load = function () {
-	//
+proto.load = function (url) {
+	if (this.pages[url] === undefined) {
+		this.pages[url] = 'loading';
+		loadPage.apply(this, [url, this.onLoaded.bind(this)].concat(this.loadSelectors));
+	}
+};
+
+proto.hasPage = function (url) {
+	return this.pages[url] && this.pages[url] !== 'loading';
+};
+
+proto.listenToTransitionEnd = function (el, callback) {
+	var context = this;
+	var onTransitionEnded = function (evt) {
+		el.removeEventListener(transitionEndEvent, onTransitionEnded);
+		callback.call(context);
+	};
+	el.addEventListener(transitionEndEvent, onTransitionEnded, false);
 };
 
 proto.onShowed = function () {
@@ -814,12 +887,18 @@ proto.onHidden = function () {
 };
 
 proto.onLoaded = function () {
-	this.trigger('onloaded');
+	var args = Array.prototype.slice.call(arguments, 0);
+	var url = args.shift();
+	this.pages[url] = args;
+	this.trigger('onloaded', {
+		url: url,
+		args: args
+	});
 };
 
 module.exports = BaseView;
 
-},{"../components/EventEmitter":3}],19:[function(require,module,exports){
+},{"../components/EventEmitter":3,"../components/loadPage":7,"../utils/transitionEndEvent":16}],19:[function(require,module,exports){
 'use strict';
 
 var loadScript = require('../utils/loadScript');
@@ -978,6 +1057,7 @@ var ScrollEvents = require('../components/ScrollEvents');
 var TransitionWatcher = require('../components/TransitionWatcher');
 
 function Panels () {
+	// this.stateName = 'panels';
 	this.el = document.getElementById('panels') || createPageItem('panels', 'div', 'pagecontent-item', 'is-hidden');
 	this.nav = new PanelsNav();
 	this.panels = document.querySelectorAll('#panels .panel');
@@ -992,6 +1072,7 @@ function Panels () {
 	this.onScrolledToPoint = this.onScrolledToPoint.bind(this);
 	this.onPanelsLoaded = this.onPanelsLoaded.bind(this);
 	this.onNavClicked = this.onNavClicked.bind(this);
+	this.onHiddenToPost = this.onHiddenToPost.bind(this);
 
 	if (document.body.classList.contains('is-panels', 'is-intro')) {
 		this.introWatcher = new TransitionWatcher();
@@ -1034,10 +1115,24 @@ proto.hideBelow = function () {
 	this.el.classList.add('is-hidebelow');
 };
 
-proto.hide = function () {
-	this.disable();
-	this.el.classList.add('is-hidden');
-	this.onScrolledToPoint();
+proto.hide = function (nextState) {
+	switch (nextState) {
+		case 'post' :
+			this.transitionToPost();
+			this.on('onhidden', this.onHiddenToPost);
+			break;
+
+		default :
+			this.disable();
+			this.el.classList.add('is-hidden');
+			this.onScrolledToPoint();
+	}
+};
+
+proto.onHiddenToPost = function (evt) {
+	this.off('onhidden', this.onHiddenToPost);
+	this.hide();
+	this.resetTransition();
 };
 
 proto.addPanels = function (index, append) {
@@ -1222,9 +1317,9 @@ proto.transitionBelow = function () {
 proto.transitionToPost = function () {
 	this.transformed = this.nudgeSiblingPanels(this.currentIndex, 25); // 25 is half the expand width - maybe make this dynamic?
 	var listenTo = this.transformed[0];
-	var watcher = new TransitionWatcher();
-	this.listenToTransitionEnd(listenTo, watcher);
-	return watcher;
+	// var watcher = new TransitionWatcher();
+	this.listenToTransitionEnd(listenTo, this.onHidden);
+	// return watcher;
 };
 
 proto.transitionFromPost = function (url) {
@@ -1296,13 +1391,14 @@ proto.nudgeSiblingPanels = function (index, expandWidth) {
 	return nudgedPanels;
 };
 
-proto.listenToTransitionEnd = function (el, watcher) {
-	var onTransitionEnded = function (evt) {
-		el.removeEventListener(transitionEndEvent, onTransitionEnded);
-		watcher.complete();
-	};
-	el.addEventListener(transitionEndEvent, onTransitionEnded, false);
-};
+// proto.listenToTransitionEnd = function (el, callback) {
+// 	var context = this;
+// 	var onTransitionEnded = function (evt) {
+// 		el.removeEventListener(transitionEndEvent, onTransitionEnded);
+// 		callback.call(context);
+// 	};
+// 	el.addEventListener(transitionEndEvent, onTransitionEnded, false);
+// };
 
 proto.resetTransition = function () {
 	var i = this.transformed.length;
@@ -1387,13 +1483,20 @@ var Comments = require('./Comments');
 var TransitionWatcher = require('../components/TransitionWatcher');
 
 function Posts (options) {
+	// this.stateName = 'post';
 	this.el = document.getElementById('post') || createPageItem('post', 'div', 'pagecontent-item', 'is-hidden');
 	this.nextNav = document.querySelector('.post-nav-next');
 	this.previousNav = document.querySelector('.post-nav-previous');
 	this.closeNav = document.querySelector('.post-nav-close');
 
-	this.onPostLoaded = this.onPostLoaded.bind(this);
-	this.onShowTransitionEnd = this.onShowTransitionEnd.bind(this);
+	this.loadSelectors = [
+		'.post',
+		'.post-nav-next',
+		'.post-nav-previous'
+	];
+
+	// this.onPostLoaded = this.onPostLoaded.bind(this);
+	// this.onShowTransitionEnd = this.onShowTransitionEnd.bind(this);
 	this.onHideTransitionEnd = this.onHideTransitionEnd.bind(this);
 	this.onSlideOffTransitionEnd = this.onSlideOffTransitionEnd.bind(this);
 	this.onSlideOnTransitionEnd = this.onSlideOnTransitionEnd.bind(this);
@@ -1401,29 +1504,60 @@ function Posts (options) {
 	this.posts = {};
 	this.comments = new Comments();
 
-	this.loadSiblingPosts();
+	this.on('onloaded', this.onPostLoaded.bind(this));
+
+	this.on('onshowed', this.onShow.bind(this)); // maybe store and remove?
+
+	// this.loadSiblingPosts(); why is this here??
 
 	if (document.body.classList.contains('is-post', 'is-intro')) {
 		this.introWatcher = new TransitionWatcher();
 		this.onIntroEnded = this.onIntroEnded.bind(this);
 		this.el.addEventListener(transitionEndEvent, this.onIntroEnded, false);
+		this.loadSiblingPosts();
 	}
 }
 
 var proto = Posts.prototype = new BaseView();
 
-proto.preload = function(url) {
-	//
+proto.onPostLoaded = function(evt) {
+	var url = evt.url;
+	var post = evt.args[0][0];
+	var navNext = evt.args[1][0];
+	var navPrevious = evt.args[2][0];
+	var currentPost = this.posts[url] = {
+		post: post,
+		html: post.innerHTML,
+		color: post.dataset.color,
+		next: navNext.classList.contains('is-hidden') ? false : navNext.pathname,
+		previous: navPrevious.classList.contains('is-hidden') ? false : navPrevious.pathname
+	};
+
+	if (url === this.nextNav.pathname) {
+		setColor(this.nextNav, currentPost.color);
+	}
+	else if (url === this.previousNav.pathname) {
+		setColor(this.previousNav, currentPost.color);
+	}
 };
 
-proto.show = function(url) {
-	this.showNext = url;
-	this.loadPost(url);
-	this.watcher = new TransitionWatcher();
-	return this.watcher;
+proto.show = function(fromState) {
+	switch (fromState) {
+		case 'panels' :
+			console.log('show post, transition from panels');
+			this.showPost(location.pathname);
+			break;
+	}
 };
 
-proto.hide = function(url) {
+// proto.show = function(url) {
+// 	this.showNext = url;
+// 	this.loadPost(url);
+// 	this.watcher = new TransitionWatcher();
+// 	return this.watcher;
+// };
+
+proto.hide = function (url) {
 	this.watcher = new TransitionWatcher();
 	this.el.addEventListener(transitionEndEvent, this.onHideTransitionEnd, false);
 	this.el.classList.add('is-hidden');
@@ -1433,22 +1567,23 @@ proto.hide = function(url) {
 	return this.watcher;
 };
 
-proto.slide = function(url) {
-	this.showNext = url;
-	this.loadPost(url);
+proto.slide = function (url) {
+	console.log('slide!!!', url);
+	// this.showNext = url;
+	// this.loadPost(url);
 };
 
-proto.loadPost = function (url) {
-	loadPage(url, this.onPostLoaded, '.post', '.post-nav-next', '.post-nav-previous');
-};
+// proto.loadPost = function (url) {
+// 	loadPage(url, this.onPostLoaded, '.post', '.post-nav-next', '.post-nav-previous');
+// };
 
 proto.loadSiblingPosts = function () {
 	if (this.nextNav.pathname !== location.pathname) {
-		this.loadPost(this.nextNav.pathname);
+		this.load(this.nextNav.pathname);
 	}
 
 	if (this.previousNav.pathname !== location.pathname) {
-		this.loadPost(this.previousNav.pathname);
+		this.load(this.previousNav.pathname);
 	}
 };
 
@@ -1456,6 +1591,7 @@ proto.setNavHref = function (post) {
 	if (post.next) {
 		this.nextNav.href = post.next;
 		this.nextNav.classList.remove('is-hidden');
+		this.load(post.next);
 	}
 	else {
 		this.nextNav.classList.add('is-hidden');
@@ -1464,56 +1600,107 @@ proto.setNavHref = function (post) {
 	if (post.previous) {
 		this.previousNav.href = post.previous;
 		this.previousNav.classList.remove('is-hidden');
+		this.load(post.previous);
 	}
 	else {
 		this.previousNav.classList.add('is-hidden');
 	}
-
-	this.loadSiblingPosts();
 };
 
-proto.onPostLoaded = function (post, next, previous, url) {
+proto.showPost = function (url) {
 
-	var currentPost = this.posts[url] = {
-		post: post[0],
-		html: post[0].innerHTML,
-		color: post[0].dataset.color,
-		next: next[0].classList.contains('is-hidden') ? false : next[0].pathname,
-		previous: previous[0].classList.contains('is-hidden') ? false : previous[0].pathname
-	};
+	// console.log('here!', this.posts[url]);
 
-	if (this.showNext) {
-		this.showNext = undefined;
+	var currentPost = this.posts[url];
 
-		if (this.el.classList.contains('is-hidden')) {
-			this.el.innerHTML = currentPost.html;
-			this.el.classList.remove('is-hidden');
-			this.el.addEventListener(transitionEndEvent, this.onShowTransitionEnd, false);
-		}
-		else {
-			// navigating to another post
-			setColor(document.body, currentPost.color);
-			this.closeNav.classList.add('is-hidden');
-			var slideDirection = (!this.nextNav.classList.contains('is-hidden') && url === this.nextNav.pathname) ? 'right' : 'left';
-			document.body.classList.add('is-slideoff', 'is-slideoff-' + slideDirection);
-			this.el.removeEventListener(transitionEndEvent, this.onSlideOnTransitionEnd);
-			this.el.addEventListener(transitionEndEvent, this.onSlideOffTransitionEnd, false);
-		}
+	// var post = this.pages[url][0][0];
+	// var next = this.pages[url][1][0];
+	// var previous = this.pages[url][2][0];
 
-		this.setNavHref(currentPost);
+	// var currentPost = this.posts[url] = {
+	// 	post: post,
+	// 	html: post.innerHTML,
+	// 	color: post.dataset.color,
+	// 	next: navNext.classList.contains('is-hidden') ? false : navNext.pathname,
+	// 	previous: navPrevious.classList.contains('is-hidden') ? false : navPrevious.pathname
+	// };
+
+	// if (this.showNext) {
+	// 	this.showNext = undefined;
+
+	if (this.el.classList.contains('is-hidden')) {
+		this.el.innerHTML = currentPost.html;
+		this.el.classList.remove('is-hidden');
+		this.listenToTransitionEnd(this.el, this.onShowed);
+		// this.el.addEventListener(transitionEndEvent, this.onShowTransitionEnd, false);
 	}
-	else if (url === this.nextNav.pathname) {
-		setColor(this.nextNav, currentPost.color);
+	else {
+		// navigating to another post
+		setColor(document.body, currentPost.color);
+		this.closeNav.classList.add('is-hidden');
+		var slideDirection = (!this.nextNav.classList.contains('is-hidden') && url === this.nextNav.pathname) ? 'right' : 'left';
+		document.body.classList.add('is-slideoff', 'is-slideoff-' + slideDirection);
+		this.el.removeEventListener(transitionEndEvent, this.onSlideOnTransitionEnd);
+		this.el.addEventListener(transitionEndEvent, this.onSlideOffTransitionEnd, false);
 	}
-	else if (url === this.previousNav.pathname) {
-		setColor(this.previousNav, currentPost.color);
-	}
+
+	this.setNavHref(currentPost);
+
+	// }
+	// else if (url === this.nextNav.pathname) {
+	// 	setColor(this.nextNav, currentPost.color);
+	// }
+	// else if (url === this.previousNav.pathname) {
+	// 	setColor(this.previousNav, currentPost.color);
+	// }
 };
 
-proto.onShowTransitionEnd = function () {
-	this.el.removeEventListener(transitionEndEvent, this.onShowTransitionEnd);
+// proto.onPostLoaded = function (post, next, previous, url) {
+
+// 	var currentPost = this.posts[url] = {
+// 		post: post[0],
+// 		html: post[0].innerHTML,
+// 		color: post[0].dataset.color,
+// 		next: next[0].classList.contains('is-hidden') ? false : next[0].pathname,
+// 		previous: previous[0].classList.contains('is-hidden') ? false : previous[0].pathname
+// 	};
+
+// 	if (this.showNext) {
+// 		this.showNext = undefined;
+
+// 		if (this.el.classList.contains('is-hidden')) {
+// 			this.el.innerHTML = currentPost.html;
+// 			this.el.classList.remove('is-hidden');
+// 			this.el.addEventListener(transitionEndEvent, this.onShowTransitionEnd, false);
+// 		}
+// 		else {
+// 			// navigating to another post
+// 			setColor(document.body, currentPost.color);
+// 			this.closeNav.classList.add('is-hidden');
+// 			var slideDirection = (!this.nextNav.classList.contains('is-hidden') && url === this.nextNav.pathname) ? 'right' : 'left';
+// 			document.body.classList.add('is-slideoff', 'is-slideoff-' + slideDirection);
+// 			this.el.removeEventListener(transitionEndEvent, this.onSlideOnTransitionEnd);
+// 			this.el.addEventListener(transitionEndEvent, this.onSlideOffTransitionEnd, false);
+// 		}
+
+// 		this.setNavHref(currentPost);
+// 	}
+// 	else if (url === this.nextNav.pathname) {
+// 		setColor(this.nextNav, currentPost.color);
+// 	}
+// 	else if (url === this.previousNav.pathname) {
+// 		setColor(this.previousNav, currentPost.color);
+// 	}
+// };
+
+// proto.onShowTransitionEnd = function () {
+// 	this.el.removeEventListener(transitionEndEvent, this.onShowTransitionEnd);
+// 	this.closeNav.classList.remove('is-hidden');
+// 	this.watcher.complete();
+// };
+
+proto.onShow = function () {
 	this.closeNav.classList.remove('is-hidden');
-	this.watcher.complete();
 };
 
 proto.onHideTransitionEnd = function () {

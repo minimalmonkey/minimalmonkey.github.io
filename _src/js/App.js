@@ -16,9 +16,12 @@ function App (analytics) {
 	this.showLab = this.showLab.bind(this);
 
 	this.onPanelShowComplete = this.onPanelShowComplete.bind(this);
-	this.onPanelHideComplete = this.onPanelHideComplete.bind(this);
+	// this.onPanelHideComplete = this.onPanelHideComplete.bind(this);
 	this.onPostShowComplete = this.onPostShowComplete.bind(this);
 	this.onPostHideComplete = this.onPostHideComplete.bind(this);
+
+	this.onViewHidden = this.onViewHidden.bind(this);
+	this.onViewLoaded = this.onViewLoaded.bind(this);
 
 	this.initViews();
 	this.initRouter(analytics);
@@ -75,7 +78,7 @@ proto.showPanels = function (match, params) {
 		// already panels
 	}
 	else if (this.state === 'post') {
-		this.panels.preload();
+		// this.panels.preload();
 		document.body.classList.add('is-muted', 'is-transition-topanelsfrompost');
 		this.watcher = this.posts.hide();
 		this.watcher.on('complete', this.onPostHideComplete);
@@ -100,8 +103,12 @@ proto.showPost = function (match, params) {
 		var color = this.panels.getCurrentColor(params);
 		document.body.classList.add('is-muted', 'is-transition-topostfrompanels');
 		setColor(document.body, color);
-		this.watcher = this.panels.transitionToPost();
-		this.watcher.on('complete', this.onPanelHideComplete);
+		// this.watcher = this.panels.transitionToPost();
+		// this.watcher.on('complete', this.onPanelHideComplete);
+
+		this.posts.load(params);
+		this.view.on('onhidden', this.onViewHidden);
+		this.view.hide('post');
 	}
 	else if (this.state === 'post') {
 		this.posts.slide(location.pathname);
@@ -117,8 +124,8 @@ proto.showLab = function (match, params) {
 	if (this.state === 'panels') {
 		document.body.classList.add('is-muted', 'is-transition-panelsbelow', 'is-darktheme');
 		this.panels.hideBelow();
-		this.watcher = this.panels.transitionBelow();
-		this.watcher.on('complete', this.onPanelHideComplete);
+		// this.watcher = this.panels.transitionBelow();
+		// this.watcher.on('complete', this.onPanelHideComplete);
 	}
 	else if (this.state === 'header') {
 		this.header.close();
@@ -129,6 +136,7 @@ proto.showLab = function (match, params) {
 
 proto.setState = function (state) {
 	if (this.state) {
+		this.lastState = this.state;
 		document.body.classList.remove('is-' + this.state);
 	}
 	this.state = state;
@@ -150,19 +158,19 @@ proto.onPanelShowComplete = function () {
 	document.body.classList.remove('is-muted', 'is-transition-topanelsfrompost', 'is-transition-panelsbelow'); // TODO: be more specific
 };
 
-proto.onPanelHideComplete = function () {
-	this.watcher.off('complete', this.onPanelHideComplete);
-	this.panels.hide();
+/*proto.onPanelHideComplete = function () {
+	// this.watcher.off('complete', this.onPanelHideComplete);
+	// this.panels.hide();
 
 	if (this.state === 'post') {
-		this.panels.resetTransition();
+		// this.panels.resetTransition();
 		this.watcher = this.posts.show(location.pathname);
 		this.watcher.on('complete', this.onPostShowComplete);
 	}
 	else if (this.state === 'lab') {
 		document.body.classList.remove('is-muted', 'is-transition-panelsbelow');
 	}
-};
+};*/
 
 proto.onPostShowComplete = function () {
 	this.watcher.off('complete', this.onPostShowComplete);
@@ -178,8 +186,39 @@ proto.onPostHideComplete = function () {
 	}
 };
 
-proto.onViewLoaded = function () {
-	console.log('onViewLoaded');
+proto.showView = function () {
+	this.view.on('onshowed', this.onViewShowed);
+	this.view.show(this.lastState);
+};
+
+proto.onViewShowed = function (evt) {
+	evt.target.off('onshowed', this.onViewShowed);
+
+	document.body.classList.remove('is-muted', 'is-transition-topostfrompanels'); // need to store the transition class and remove it
+};
+
+proto.onViewHidden = function (evt) {
+	evt.target.off('onhidden', this.onViewHidden);
+
+	// switch (evt.target) {
+	// 	case this.panels :
+	// 		console.log('panels hidden');
+	// 		break;
+	// }
+
+	if (this.view.hasPage(location.pathname)) {
+		this.showView();
+	}
+	else {
+		this.view.on('onloaded', this.onViewLoaded);
+	}
+};
+
+proto.onViewLoaded = function (evt) {
+	if (evt.url === location.pathname) {
+		this.view.off('onloaded', this.onViewLoaded);
+		this.showView();
+	}
 };
 
 module.exports = App;
