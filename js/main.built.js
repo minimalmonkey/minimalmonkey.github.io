@@ -1495,8 +1495,6 @@ function Posts (options) {
 		'.post-nav-previous'
 	];
 
-	// this.onPostLoaded = this.onPostLoaded.bind(this);
-	// this.onShowTransitionEnd = this.onShowTransitionEnd.bind(this);
 	this.onHideTransitionEnd = this.onHideTransitionEnd.bind(this);
 	this.onSlideOffTransitionEnd = this.onSlideOffTransitionEnd.bind(this);
 	this.onSlideOnTransitionEnd = this.onSlideOnTransitionEnd.bind(this);
@@ -1505,16 +1503,26 @@ function Posts (options) {
 	this.comments = new Comments();
 
 	this.on('onloaded', this.onPostLoaded.bind(this));
-
 	this.on('onshowed', this.onShow.bind(this)); // maybe store and remove?
-
-	// this.loadSiblingPosts(); why is this here??
 
 	if (document.body.classList.contains('is-post', 'is-intro')) {
 		this.introWatcher = new TransitionWatcher();
 		this.onIntroEnded = this.onIntroEnded.bind(this);
 		this.el.addEventListener(transitionEndEvent, this.onIntroEnded, false);
 		this.loadSiblingPosts();
+
+		// deeplinked so let's add this page data to both our posts and pages
+		var elements = [];
+		var i = this.loadSelectors.length;
+		while (i--) {
+			elements[i] = document.querySelectorAll(this.loadSelectors[i]);
+		}
+		this.pages[location.pathname] = elements;
+
+		this.onPostLoaded({
+			url: location.pathname,
+			args: elements
+		});
 	}
 }
 
@@ -1544,18 +1552,14 @@ proto.onPostLoaded = function(evt) {
 proto.show = function(fromState) {
 	switch (fromState) {
 		case 'panels' :
-			console.log('show post, transition from panels');
 			this.showPost(location.pathname);
+			break;
+
+		default :
+			//
 			break;
 	}
 };
-
-// proto.show = function(url) {
-// 	this.showNext = url;
-// 	this.loadPost(url);
-// 	this.watcher = new TransitionWatcher();
-// 	return this.watcher;
-// };
 
 proto.hide = function (url) {
 	this.watcher = new TransitionWatcher();
@@ -1568,148 +1572,36 @@ proto.hide = function (url) {
 };
 
 proto.slide = function (url) {
-	console.log('slide!!!', url);
-	// this.showNext = url;
-	// this.loadPost(url);
-};
+	this.slideOff(url);
 
-// proto.loadPost = function (url) {
-// 	loadPage(url, this.onPostLoaded, '.post', '.post-nav-next', '.post-nav-previous');
-// };
-
-proto.loadSiblingPosts = function () {
-	if (this.nextNav.pathname !== location.pathname) {
-		this.load(this.nextNav.pathname);
-	}
-
-	if (this.previousNav.pathname !== location.pathname) {
-		this.load(this.previousNav.pathname);
-	}
-};
-
-proto.setNavHref = function (post) {
-	if (post.next) {
-		this.nextNav.href = post.next;
-		this.nextNav.classList.remove('is-hidden');
-		this.load(post.next);
+	if (this.posts[url]) {
+		// post is already loaded
+		setColor(document.body, this.posts[url].color);
+		this.setNavHref(this.posts[url]);
 	}
 	else {
-		this.nextNav.classList.add('is-hidden');
-	}
-
-	if (post.previous) {
-		this.previousNav.href = post.previous;
-		this.previousNav.classList.remove('is-hidden');
-		this.load(post.previous);
-	}
-	else {
-		this.previousNav.classList.add('is-hidden');
+		// need to load post
+		var callback = function (evt) {
+			if (evt.url === url) {
+				this.off('onloaded', callback);
+				setColor(document.body, this.posts[url].color);
+				this.setNavHref(this.posts[url]);
+			}
+		};
+		this.on('onloaded', callback);
+		this.load(url);
 	}
 };
 
-proto.showPost = function (url) {
-
-	// console.log('here!', this.posts[url]);
-
-	var currentPost = this.posts[url];
-
-	// var post = this.pages[url][0][0];
-	// var next = this.pages[url][1][0];
-	// var previous = this.pages[url][2][0];
-
-	// var currentPost = this.posts[url] = {
-	// 	post: post,
-	// 	html: post.innerHTML,
-	// 	color: post.dataset.color,
-	// 	next: navNext.classList.contains('is-hidden') ? false : navNext.pathname,
-	// 	previous: navPrevious.classList.contains('is-hidden') ? false : navPrevious.pathname
-	// };
-
-	// if (this.showNext) {
-	// 	this.showNext = undefined;
-
-	if (this.el.classList.contains('is-hidden')) {
-		this.el.innerHTML = currentPost.html;
-		this.el.classList.remove('is-hidden');
-		this.listenToTransitionEnd(this.el, this.onShowed);
-		// this.el.addEventListener(transitionEndEvent, this.onShowTransitionEnd, false);
-	}
-	else {
-		// navigating to another post
-		setColor(document.body, currentPost.color);
-		this.closeNav.classList.add('is-hidden');
-		var slideDirection = (!this.nextNav.classList.contains('is-hidden') && url === this.nextNav.pathname) ? 'right' : 'left';
-		document.body.classList.add('is-slideoff', 'is-slideoff-' + slideDirection);
-		this.el.removeEventListener(transitionEndEvent, this.onSlideOnTransitionEnd);
-		this.el.addEventListener(transitionEndEvent, this.onSlideOffTransitionEnd, false);
-	}
-
-	this.setNavHref(currentPost);
-
-	// }
-	// else if (url === this.nextNav.pathname) {
-	// 	setColor(this.nextNav, currentPost.color);
-	// }
-	// else if (url === this.previousNav.pathname) {
-	// 	setColor(this.previousNav, currentPost.color);
-	// }
+proto.slideOff = function (url) {
+	this.closeNav.classList.add('is-hidden');
+	var slideDirection = (!this.nextNav.classList.contains('is-hidden') && url === this.nextNav.pathname) ? 'right' : 'left';
+	document.body.classList.add('is-slideoff', 'is-slideoff-' + slideDirection);
+	this.el.removeEventListener(transitionEndEvent, this.onSlideOnTransitionEnd);
+	this.el.addEventListener(transitionEndEvent, this.onSlideOffTransitionEnd, false);
 };
 
-// proto.onPostLoaded = function (post, next, previous, url) {
-
-// 	var currentPost = this.posts[url] = {
-// 		post: post[0],
-// 		html: post[0].innerHTML,
-// 		color: post[0].dataset.color,
-// 		next: next[0].classList.contains('is-hidden') ? false : next[0].pathname,
-// 		previous: previous[0].classList.contains('is-hidden') ? false : previous[0].pathname
-// 	};
-
-// 	if (this.showNext) {
-// 		this.showNext = undefined;
-
-// 		if (this.el.classList.contains('is-hidden')) {
-// 			this.el.innerHTML = currentPost.html;
-// 			this.el.classList.remove('is-hidden');
-// 			this.el.addEventListener(transitionEndEvent, this.onShowTransitionEnd, false);
-// 		}
-// 		else {
-// 			// navigating to another post
-// 			setColor(document.body, currentPost.color);
-// 			this.closeNav.classList.add('is-hidden');
-// 			var slideDirection = (!this.nextNav.classList.contains('is-hidden') && url === this.nextNav.pathname) ? 'right' : 'left';
-// 			document.body.classList.add('is-slideoff', 'is-slideoff-' + slideDirection);
-// 			this.el.removeEventListener(transitionEndEvent, this.onSlideOnTransitionEnd);
-// 			this.el.addEventListener(transitionEndEvent, this.onSlideOffTransitionEnd, false);
-// 		}
-
-// 		this.setNavHref(currentPost);
-// 	}
-// 	else if (url === this.nextNav.pathname) {
-// 		setColor(this.nextNav, currentPost.color);
-// 	}
-// 	else if (url === this.previousNav.pathname) {
-// 		setColor(this.previousNav, currentPost.color);
-// 	}
-// };
-
-// proto.onShowTransitionEnd = function () {
-// 	this.el.removeEventListener(transitionEndEvent, this.onShowTransitionEnd);
-// 	this.closeNav.classList.remove('is-hidden');
-// 	this.watcher.complete();
-// };
-
-proto.onShow = function () {
-	this.closeNav.classList.remove('is-hidden');
-};
-
-proto.onHideTransitionEnd = function () {
-	this.el.removeEventListener(transitionEndEvent, this.onHideTransitionEnd);
-	this.watcher.complete();
-};
-
-proto.onSlideOffTransitionEnd = function () {
-	this.el.removeEventListener(transitionEndEvent, this.onSlideOffTransitionEnd);
+proto.slideOn = function () {
 	this.el.innerHTML = this.posts[location.pathname].html;
 
 	window.scrollTo(0, 0);
@@ -1731,6 +1623,83 @@ proto.onSlideOffTransitionEnd = function () {
 		this.el.addEventListener(transitionEndEvent, this.onSlideOnTransitionEnd, false);
 		this.comments.refresh();
 	}.bind(this), 2);
+};
+
+proto.loadSiblingPosts = function () {
+	var currentUrl = location.pathname;
+	var nextUrl = this.nextNav.pathname;
+	var previousUrl = this.previousNav.pathname;
+
+	if (nextUrl !== currentUrl && !this.nextNav.classList.contains('is-hidden')) {
+		if (this.hasPage(nextUrl)) {
+			setColor(this.nextNav, this.posts[nextUrl].color);
+		}
+		else {
+			this.load(nextUrl);
+		}
+	}
+
+	if (previousUrl !== currentUrl && !this.previousNav.classList.contains('is-hidden')) {
+		if (this.hasPage(previousUrl)) {
+			setColor(this.previousNav, this.posts[previousUrl].color);
+		}
+		else {
+			this.load(previousUrl);
+		}
+	}
+};
+
+proto.setNavHref = function (post) {
+	if (post.next) {
+		this.nextNav.href = post.next;
+		this.nextNav.classList.remove('is-hidden');
+	}
+	else {
+		this.nextNav.classList.add('is-hidden');
+	}
+
+	if (post.previous) {
+		this.previousNav.href = post.previous;
+		this.previousNav.classList.remove('is-hidden');
+	}
+	else {
+		this.previousNav.classList.add('is-hidden');
+	}
+
+	this.loadSiblingPosts();
+};
+
+proto.showPost = function (url) {
+	var currentPost = this.posts[url];
+	this.el.innerHTML = currentPost.html;
+	this.el.classList.remove('is-hidden');
+	this.listenToTransitionEnd(this.el, this.onShowed);
+	this.setNavHref(currentPost);
+};
+
+proto.onShow = function () {
+	this.closeNav.classList.remove('is-hidden');
+};
+
+proto.onHideTransitionEnd = function () {
+	this.el.removeEventListener(transitionEndEvent, this.onHideTransitionEnd);
+	this.watcher.complete();
+};
+
+proto.onSlideOffTransitionEnd = function () {
+	this.el.removeEventListener(transitionEndEvent, this.onSlideOffTransitionEnd);
+	if (this.posts[location.pathname]) {
+		this.slideOn();
+	}
+	else {
+		var callback = function (evt) {
+			if (evt.url === location.pathname) {
+				this.off('onloaded', callback);
+				this.slideOn();
+			}
+		};
+		this.on('onloaded', callback);
+	}
 };
 
 proto.onSlideOnTransitionEnd = function () {
