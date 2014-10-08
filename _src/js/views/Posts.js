@@ -34,22 +34,17 @@ function Posts (options) {
 	this.on('onshowed', this.onShow.bind(this)); // maybe store and remove?
 
 	if (document.body.classList.contains('is-post', 'is-intro')) {
+		// TODO: better intro stuff here - use events
 		this.introWatcher = new TransitionWatcher();
 		this.onIntroEnded = this.onIntroEnded.bind(this);
 		this.el.addEventListener(transitionEndEvent, this.onIntroEnded, false);
 		this.loadSiblingPosts();
 
-		// deeplinked so let's add this page data to both our posts and pages
-		var elements = [];
-		var i = this.loadSelectors.length;
-		while (i--) {
-			elements[i] = document.querySelectorAll(this.loadSelectors[i]);
-		}
-		this.pages[location.pathname] = elements;
+		this.deeplinked();
 
 		this.onPostLoaded({
 			url: location.pathname,
-			args: elements
+			args: this.pages[location.pathname]
 		});
 	}
 }
@@ -77,27 +72,47 @@ proto.onPostLoaded = function(evt) {
 	}
 };
 
-proto.show = function(fromState) {
+proto.show = function(fromState, lastUrl) {
 	switch (fromState) {
 		case 'panels' :
 			this.showPost(location.pathname);
 			break;
 
 		default :
-			//
-			break;
+			// TODO: add default
 	}
 };
 
-proto.hide = function (url) {
-	this.watcher = new TransitionWatcher();
-	this.el.addEventListener(transitionEndEvent, this.onHideTransitionEnd, false);
+proto.hide = function (nextState) {
+	switch (nextState) {
+		case 'panels' :
+			document.body.classList.add('is-transition-topanelsfrompost');
+			this.hidePost();
+			// this.on('onhidden', this.onHiddenToPanels);
+			break;
+
+		default :
+			// TODO: add default
+	}
+};
+
+proto.hidePost = function () {
+	this.listenToTransitionEnd(this.el, this.onHidden);
 	this.el.classList.add('is-hidden');
 	this.nextNav.classList.add('is-hidden');
 	this.previousNav.classList.add('is-hidden');
 	this.closeNav.classList.add('is-hidden');
-	return this.watcher;
 };
+
+// proto.hide = function (url) {
+// 	this.watcher = new TransitionWatcher();
+// 	this.el.addEventListener(transitionEndEvent, this.onHideTransitionEnd, false);
+// 	this.el.classList.add('is-hidden');
+// 	this.nextNav.classList.add('is-hidden');
+// 	this.previousNav.classList.add('is-hidden');
+// 	this.closeNav.classList.add('is-hidden');
+// 	return this.watcher;
+// };
 
 proto.slide = function (url) {
 	this.slideOff(url);

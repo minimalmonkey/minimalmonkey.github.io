@@ -21,18 +21,27 @@ function Panels () {
 	this.totalPanels = this.panels.length;
 	this.currentIndex = -1;
 
+	this.loadSelectors = [
+		'#panels .panel',
+		'#panels-nav'
+	];
+
 	this.onMouseOver = this.onMouseOver.bind(this);
 	this.onMouseOut = this.onMouseOut.bind(this);
 	this.onScrolledToEnd = this.onScrolledToEnd.bind(this);
 	this.onScrolledToPoint = this.onScrolledToPoint.bind(this);
-	this.onPanelsLoaded = this.onPanelsLoaded.bind(this);
+	// this.onPanelsLoaded = this.onPanelsLoaded.bind(this);
 	this.onNavClicked = this.onNavClicked.bind(this);
 	this.onHiddenToPost = this.onHiddenToPost.bind(this);
+
+	this.on('onloaded', this.onPanelsLoaded.bind(this));
 
 	if (document.body.classList.contains('is-panels', 'is-intro')) {
 		this.introWatcher = new TransitionWatcher();
 		this.onIntroEnded = this.onIntroEnded.bind(this);
 		this.panels[this.totalPanels - 1].addEventListener(transitionEndEvent, this.onIntroEnded, false);
+
+		this.deeplinked();
 	}
 	else if (document.body.classList.contains('is-lab')) {
 		this.hideBelow();
@@ -41,29 +50,59 @@ function Panels () {
 
 var proto = Panels.prototype = new BaseView();
 
-proto.preload = function () {
-	if (this.panels.length <= 0) {
-		loadPage('/', this.onPanelsLoaded, '#panels .panel', '#panels-nav');
+proto.show = function (fromState, lastUrl) {
+	switch (fromState) {
+		case 'post' :
+			this.showFromPost(lastUrl);
+			break;
+
+		case 'lab' :
+			this.showFromBelow();
+			break;
+
+		default :
+			// TODO: add default
 	}
 };
 
+// proto.preload = function () {
+// 	if (this.panels.length <= 0) {
+// 		loadPage('/', this.onPanelsLoaded, '#panels .panel', '#panels-nav');
+// 	}
+// };
+
 proto.showFromPost = function (url) {
-	this.enable();
+
 	this.el.classList.remove('is-hidden');
-	this.scrollEvents.update(this.el);
-	this.watcher = this.transitionFromPost(url);
-	return this.watcher;
+
+	// this.scrollEvents.update(this.el);
+	this.transitionFromPost(url);
+
+	this.enable();
+
+	// window.requestAnimationFrame(function () {
+	// 	this.scrollEvents.update(this.el);
+	// 	this.transitionFromPost(url);
+	// }.bind(this));
+
+	// waitAnimationFrames(function () {
+	// 	this.scrollEvents.update(this.el);
+	// 	this.transitionFromPost(url);
+	// }.bind(this), 20);
 };
 
-proto.transitionFromBelow = function () {
-	this.enable();
+proto.showFromBelow = function () {
+
 	this.el.classList.remove('is-hidden');
 
 	waitAnimationFrames(function () {
 		this.el.classList.remove('is-hidebelow');
 	}.bind(this), 2);
 
-	return this.transitionBelow();
+	// return
+	this.transitionBelow();
+
+	this.enable();
 };
 
 proto.hideBelow = function () {
@@ -88,6 +127,11 @@ proto.onHiddenToPost = function (evt) {
 	this.off('onhidden', this.onHiddenToPost);
 	this.hide();
 	this.resetTransition();
+
+	// waitAnimationFrames(function () {
+	// 	this.hide();
+	// 	this.resetTransition();
+	// }.bind(this), 2);
 };
 
 proto.addPanels = function (index, append) {
@@ -181,7 +225,15 @@ proto.onMouseOut = function (evt) {
 	}
 };
 
-proto.onPanelsLoaded = function (panels, nav) {
+proto.onPanelsLoaded = function (evt) {
+
+	var panels = evt.args[0];
+	var nav = evt.args[1];
+
+	// console.log('onPanelsLoaded!', evt);
+	// return;
+
+	// panels, nav
 
 	this.nav.setLoading(false);
 	this.panels = this.panels.concat(Array.prototype.slice.call(panels));
@@ -214,7 +266,9 @@ proto.onPanelsLoaded = function (panels, nav) {
 proto.onScrolledToEnd = function (evt) {
 	this.el.removeEventListener('reachedend', this.onScrolledToEnd);
 	this.nav.setLoading(true);
-	loadPage(this.nav.getPath(), this.onPanelsLoaded, '#panels .panel', '#panels-nav');
+	// TODO: make this just load()
+	console.log('scrolled to end.... TODO');
+	// loadPage(this.nav.getPath(), this.onPanelsLoaded, '#panels .panel', '#panels-nav');
 };
 
 proto.onScrolledToPoint = function (evt) {
@@ -254,22 +308,33 @@ proto.getLastShownPanel = function () {
 };
 
 proto.transitionBelow = function () {
-	var watcher = new TransitionWatcher();
-	var listenTo = this.getLastShownPanel();
+	// var watcher = new TransitionWatcher();
 
-	if (listenTo === undefined) {
+	// var listenTo = this.getLastShownPanel();
+
+	/*if (listenTo === undefined) {
 		console.log('wait for panels to load first....');
 		// panel not loaded - do fade instead
 		// also check if any panels, if not, load
 		// them or wait until they have loaded
 		return watcher;
-	}
+	}*/
 
-	this.listenToTransitionEnd(listenTo, watcher);
-	return watcher;
+	// this.listenToTransitionEnd(listenTo, watcher);
+	// return watcher;
+
+	this.listenToTransitionEnd(this.getLastShownPanel(), this.onShowed);
 };
 
 proto.transitionToPost = function () {
+	// console.log('>>>>>> window.pageXOffset:', window.pageXOffset);
+
+	// return;
+	// if (this.foo) {
+	// 	return;
+	// }
+	// this.foo = true;
+
 	this.transformed = this.nudgeSiblingPanels(this.currentIndex, 25); // 25 is half the expand width - maybe make this dynamic?
 	var listenTo = this.transformed[0];
 	// var watcher = new TransitionWatcher();
@@ -278,7 +343,10 @@ proto.transitionToPost = function () {
 };
 
 proto.transitionFromPost = function (url) {
-	var watcher = new TransitionWatcher();
+
+	console.log('YEAH, here');
+
+	/*var watcher = new TransitionWatcher();
 	var panelObj = this.panelsUrlMap[url];
 
 	if (panelObj === undefined) {
@@ -286,12 +354,17 @@ proto.transitionFromPost = function (url) {
 		// also check if any panels, if not, load
 		// them or wait until they have loaded
 		return watcher;
-	}
+	}*/
 
+	// console.log('window.pageXOffset:', window.pageXOffset);
+
+	var panelObj = this.panelsUrlMap[url];
 	var midPoint = window.innerWidth * 0.5;
 	var left = panelObj.panel.offsetLeft + (this.panels[0].offsetWidth * 0.5);
 	var scrollLeft = Math.round(left - midPoint);
 	window.scrollTo(scrollLeft, 0);
+
+	// console.log('window.pageXOffset:', window.pageXOffset);
 
 	this.transformed = this.nudgeSiblingPanels(panelObj.index);
 	var listenTo = this.transformed[0];
@@ -302,10 +375,10 @@ proto.transitionFromPost = function (url) {
 		document.body.classList.remove('is-transition-topanelsfrompost');
 		panelObj.panel.classList.remove('is-transition-panel');
 		this.resetTransition();
-		this.listenToTransitionEnd(listenTo, watcher);
+		this.listenToTransitionEnd(listenTo, this.onShowed);
 	}.bind(this), 2);
 
-	return watcher;
+	// return watcher;
 };
 
 proto.nudgeSiblingPanels = function (index, expandWidth) {
@@ -370,6 +443,9 @@ proto.enable = function () {
 	this.addPanels();
 	if (this.scrollEvents === undefined) {
 		this.scrollEvents = new ScrollEvents(this.el);
+	}
+	else {
+		this.scrollEvents.update(this.el);
 	}
 };
 

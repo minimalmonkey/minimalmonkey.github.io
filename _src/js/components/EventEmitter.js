@@ -19,6 +19,10 @@ proto._setListeners = function (evt, listeners) {
 };
 
 proto.on = function (evt, listener) {
+	if (typeof listener !== 'function') {
+		// throw error ?
+		return;
+	}
 	var listeners = this._getListeners(evt);
 	var index = listeners.indexOf(listener);
 	if (index < 0) {
@@ -39,7 +43,9 @@ proto.trigger = function (evt, obj) {
 	obj.target = obj.target || this;
 	var listeners = this._getListeners(evt);
 	var i, len = listeners.length;
+	// console.log('trigger', evt, this);
 	for (i = 0; i < len; i++) {
+		// console.log(listeners[i]);
 		listeners[i].call(this, obj);
 	}
 };

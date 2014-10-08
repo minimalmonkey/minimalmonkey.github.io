@@ -13,7 +13,20 @@ var proto = BaseView.prototype = new EventEmitter();
 proto.loadSelectors = [];
 proto.pages = {};
 
-proto.show = function (fromState) {
+proto.deeplinked = function () {
+	var elements = [];
+	var i = this.loadSelectors.length;
+	while (i--) {
+		elements[i] = document.querySelectorAll(this.loadSelectors[i]);
+	}
+	this.pages[location.pathname] = elements;
+};
+
+proto.update = function (url) {
+	//
+};
+
+proto.show = function (fromState, lastUrl) {
 	//
 };
 
