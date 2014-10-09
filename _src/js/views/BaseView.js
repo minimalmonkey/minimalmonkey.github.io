@@ -9,7 +9,6 @@ function BaseView() {}
 
 var proto = BaseView.prototype = new EventEmitter();
 
-// proto.stateName = '';
 proto.loadSelectors = [];
 proto.pages = {};
 
@@ -22,17 +21,11 @@ proto.deeplinked = function () {
 	this.pages[location.pathname] = elements;
 };
 
-proto.update = function (url) {
-	//
-};
+proto.update = function (url) {};
 
-proto.show = function (fromState, lastUrl) {
-	//
-};
+proto.show = function (fromState, lastUrl) {};
 
-proto.hide = function (nextState) {
-	//
-};
+proto.hide = function (nextState) {};
 
 proto.load = function (url) {
 	if (url && this.pages[url] === undefined) {
@@ -56,10 +49,17 @@ proto.listenToTransitionEnd = function (el, callback) {
 
 proto.onShowed = function () {
 	this.trigger('onshowed');
+	this.enable();
 };
 
 proto.onHidden = function () {
 	this.trigger('onhidden');
+	this.disable();
+};
+
+proto.onIntroComplete = function (evt) {
+	this.trigger('onintrocomplete');
+	this.enable();
 };
 
 proto.onLoaded = function () {
@@ -71,5 +71,9 @@ proto.onLoaded = function () {
 		args: args
 	});
 };
+
+proto.enable = function () {};
+
+proto.disable = function () {};
 
 module.exports = BaseView;

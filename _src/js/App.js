@@ -1,5 +1,6 @@
 'use strict';
 
+var Analytics = require('./components/Analytics');
 var Header = require('./views/Header');
 var Lab = require('./views/Lab');
 var Panels = require('./views/Panels');
@@ -8,6 +9,7 @@ var Router = require('./components/Router');
 
 function App (analytics) {
 	this.onNavigate = this.onNavigate.bind(this);
+	this.onIntroComplete = this.onIntroComplete.bind(this);
 	this.onViewHidden = this.onViewHidden.bind(this);
 	this.onViewLoaded = this.onViewLoaded.bind(this);
 
@@ -17,12 +19,14 @@ function App (analytics) {
 var proto = App.prototype;
 
 proto.init = function (analytics) {
+	this.analytics = new Analytics('UA-54501731-1', 'minimalmonkey.github.io', 200);
+
 	this.header = new Header();
 	this.panels = new Panels();
 	this.posts = new Posts();
 	this.lab = new Lab();
 
-	this.router = new Router(analytics, [
+	this.router = new Router([
 		this.panels.el
 	]);
 
@@ -37,14 +41,7 @@ proto.init = function (analytics) {
 
 	this.router.match(location.pathname);
 
-	this.onIntroComplete = this.onIntroComplete.bind(this);
-
-	if (this.view && this.view.introWatcher) {
-		this.view.introWatcher.on('complete', this.onIntroComplete);
-	}
-	else {
-		this.header.introWatcher.on('complete', this.onIntroComplete);
-	}
+	this.view.on('onintrocomplete', this.onIntroComplete);
 
 	window.requestAnimationFrame(function () {
 		document.body.classList.add('is-introtransition');
@@ -69,6 +66,7 @@ proto.onNavigate = function (view, state, match, params) {
 		this.view.hide(state);
 	}
 	this.setView(view, state);
+	this.analytics.update(location.pathname);
 };
 
 proto.setView = function (view, state) {
@@ -85,12 +83,6 @@ proto.setView = function (view, state) {
 };
 
 proto.onIntroComplete = function () {
-	if (this.view.introWatcher) {
-		this.view.introWatcher.clear();
-	}
-	else {
-		this.header.introWatcher.clear();
-	}
 	document.body.classList.remove('is-introtransition');
 };
 

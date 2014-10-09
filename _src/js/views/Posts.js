@@ -8,10 +8,8 @@ var waitAnimationFrames = require('../utils/waitAnimationFrames');
 
 var BaseView = require('./BaseView');
 var Comments = require('./Comments');
-var TransitionWatcher = require('../components/TransitionWatcher');
 
 function Posts (options) {
-	// this.stateName = 'post';
 	this.el = document.getElementById('post') || createPageItem('post', 'div', 'pagecontent-item', 'is-hidden');
 	this.nextNav = document.querySelector('.post-nav-next');
 	this.previousNav = document.querySelector('.post-nav-previous');
@@ -34,18 +32,15 @@ function Posts (options) {
 	this.on('onshowed', this.onShow.bind(this)); // maybe store and remove?
 
 	if (document.body.classList.contains('is-post', 'is-intro')) {
-		// TODO: better intro stuff here - use events
-		this.introWatcher = new TransitionWatcher();
-		this.onIntroEnded = this.onIntroEnded.bind(this);
-		this.el.addEventListener(transitionEndEvent, this.onIntroEnded, false);
-		this.loadSiblingPosts();
-
+		this.listenToTransitionEnd(this.el, this.onIntroComplete.bind(this));
 		this.deeplinked();
 
 		this.onPostLoaded({
 			url: location.pathname,
 			args: this.pages[location.pathname]
 		});
+
+		this.loadSiblingPosts();
 	}
 }
 
@@ -103,16 +98,6 @@ proto.hidePost = function () {
 	this.previousNav.classList.add('is-hidden');
 	this.closeNav.classList.add('is-hidden');
 };
-
-// proto.hide = function (url) {
-// 	this.watcher = new TransitionWatcher();
-// 	this.el.addEventListener(transitionEndEvent, this.onHideTransitionEnd, false);
-// 	this.el.classList.add('is-hidden');
-// 	this.nextNav.classList.add('is-hidden');
-// 	this.previousNav.classList.add('is-hidden');
-// 	this.closeNav.classList.add('is-hidden');
-// 	return this.watcher;
-// };
 
 proto.update = function (url) {
 	this.slide(url);
@@ -260,16 +245,6 @@ proto.onIntroEnded = function (evt) {
 	this.el.removeEventListener(transitionEndEvent, this.onIntroEnded);
 	this.introWatcher.complete();
 	this.comments.refresh();
-};
-
-proto.enable = function () {
-	if (this.el) {
-		//
-	}
-};
-
-proto.disable = function () {
-	//
 };
 
 module.exports = Posts;
