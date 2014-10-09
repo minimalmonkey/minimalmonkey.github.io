@@ -1,42 +1,27 @@
 'use strict';
 
-// var setColor = require('./utils/setColor');
-
-var Router = require('./components/Router');
 var Header = require('./views/Header');
+var Lab = require('./views/Lab');
 var Panels = require('./views/Panels');
 var Posts = require('./views/Posts');
-var Lab = require('./views/Lab');
+var Router = require('./components/Router');
 
 function App (analytics) {
-
-	this.showHeader = this.showHeader.bind(this);
-	this.showPanels = this.showPanels.bind(this);
-	this.showPost = this.showPost.bind(this);
-	this.showLab = this.showLab.bind(this);
-
+	this.onNavigate = this.onNavigate.bind(this);
 	this.onViewHidden = this.onViewHidden.bind(this);
 	this.onViewLoaded = this.onViewLoaded.bind(this);
 
-	this.initViews();
-	this.initRouter(analytics);
-
-	window.requestAnimationFrame(function () {
-		document.body.classList.add('is-introtransition');
-		document.body.classList.remove('is-intro');
-	});
+	this.init(analytics);
 }
 
 var proto = App.prototype;
 
-proto.initViews = function () {
+proto.init = function (analytics) {
 	this.header = new Header();
 	this.panels = new Panels();
 	this.posts = new Posts();
 	this.lab = new Lab();
-};
 
-proto.initRouter = function (analytics) {
 	this.router = new Router(analytics, [
 		this.panels.el
 	]);
@@ -44,11 +29,11 @@ proto.initRouter = function (analytics) {
 	var headerLinks = this.header.getPageLinks();
 	var i = headerLinks.length;
 	while (i--) {
-		this.router.add(headerLinks[i], this.showHeader);
+		this.router.add(headerLinks[i], this.onNavigate, this.header, 'header');
 	}
-	this.router.add('/', this.showPanels);
-	this.router.add('/lab/', this.showLab);
-	this.router.add('*post', this.showPost);
+	this.router.add('/', this.onNavigate, this.panels, 'panels');
+	this.router.add('/lab/', this.onNavigate, this.lab, 'lab');
+	this.router.add('*post', this.onNavigate, this.posts, 'post');
 
 	this.router.match(location.pathname);
 
@@ -60,66 +45,14 @@ proto.initRouter = function (analytics) {
 	else {
 		this.header.introWatcher.on('complete', this.onIntroComplete);
 	}
+
+	window.requestAnimationFrame(function () {
+		document.body.classList.add('is-introtransition');
+		document.body.classList.remove('is-intro');
+	});
 };
 
-proto.showHeader = function (match, params) {
-	this.showDynamic(match, params, this.header, 'header');
-	// this.header.open(match, this.state !== 'header' ? this.router.lastURL : false);
-	// this.setView(this.header, 'header');
-};
-
-proto.showPanels = function (match, params) {
-	this.showDynamic(match, '/', this.panels, 'panels'); // TODO: figure out how we do '/' for panels dynamically
-	/*if (this.state === 'header') {
-		this.header.close();
-	}
-	else if (this.state === 'panels') {
-		this.view.update(params);
-	}
-	else if (this.state) {
-		document.body.classList.add('is-muted');
-		this.panels.load('/');
-		this.view.on('onhidden', this.onViewHidden);
-		this.view.hide('panels');
-	}
-	this.setView(this.panels, 'panels');*/
-};
-
-proto.showPost = function (match, params) {
-	this.showDynamic(match, params, this.posts, 'post');
-	/*if (this.state === 'header') {
-		this.header.close();
-	}
-	else if (this.state === 'post') {
-		this.view.update(params);
-	}
-	else if (this.state) {
-		document.body.classList.add('is-muted');
-		this.posts.load(params);
-		this.view.on('onhidden', this.onViewHidden);
-		this.view.hide('post');
-	}
-	this.setView(this.posts, 'post');*/
-};
-
-proto.showLab = function (match, params) {
-	this.showDynamic(match, params, this.lab, 'lab');
-	/*if (this.state === 'header') {
-		this.header.close();
-	}
-	else if (this.state === 'lab') {
-		this.view.update(params);
-	}
-	else if (this.state) {
-		document.body.classList.add('is-muted');
-		this.lab.load(params);
-		this.view.on('onhidden', this.onViewHidden);
-		this.view.hide('lab');
-	}
-	this.setView(this.lab, 'lab');*/
-};
-
-proto.showDynamic = function (match, params, view, state) {
+proto.onNavigate = function (view, state, match, params) {
 	if (state === 'header') {
 		this.header.open(match, this.state !== 'header' ? this.router.lastURL : false);
 	}
@@ -137,13 +70,6 @@ proto.showDynamic = function (match, params, view, state) {
 	}
 	this.setView(view, state);
 };
-
-
-
-
-
-
-
 
 proto.setView = function (view, state) {
 	if (this.state === state) {

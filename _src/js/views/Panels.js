@@ -131,6 +131,10 @@ proto.hide = function (nextState) {
 	}
 };
 
+proto.load = function (url) {
+	BaseView.prototype.load.call(this, url || '/');
+};
+
 proto.onHiddenToPost = function (evt) {
 	this.off('onhidden', this.onHiddenToPost);
 	this.hide();

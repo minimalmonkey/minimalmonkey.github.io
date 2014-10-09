@@ -3,43 +3,28 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
-// var setColor = require('./utils/setColor');
-
-var Router = require('./components/Router');
 var Header = require('./views/Header');
+var Lab = require('./views/Lab');
 var Panels = require('./views/Panels');
 var Posts = require('./views/Posts');
-var Lab = require('./views/Lab');
+var Router = require('./components/Router');
 
 function App (analytics) {
-
-	this.showHeader = this.showHeader.bind(this);
-	this.showPanels = this.showPanels.bind(this);
-	this.showPost = this.showPost.bind(this);
-	this.showLab = this.showLab.bind(this);
-
+	this.onNavigate = this.onNavigate.bind(this);
 	this.onViewHidden = this.onViewHidden.bind(this);
 	this.onViewLoaded = this.onViewLoaded.bind(this);
 
-	this.initViews();
-	this.initRouter(analytics);
-
-	window.requestAnimationFrame(function () {
-		document.body.classList.add('is-introtransition');
-		document.body.classList.remove('is-intro');
-	});
+	this.init(analytics);
 }
 
 var proto = App.prototype;
 
-proto.initViews = function () {
+proto.init = function (analytics) {
 	this.header = new Header();
 	this.panels = new Panels();
 	this.posts = new Posts();
 	this.lab = new Lab();
-};
 
-proto.initRouter = function (analytics) {
 	this.router = new Router(analytics, [
 		this.panels.el
 	]);
@@ -47,11 +32,11 @@ proto.initRouter = function (analytics) {
 	var headerLinks = this.header.getPageLinks();
 	var i = headerLinks.length;
 	while (i--) {
-		this.router.add(headerLinks[i], this.showHeader);
+		this.router.add(headerLinks[i], this.onNavigate, this.header, 'header');
 	}
-	this.router.add('/', this.showPanels);
-	this.router.add('/lab/', this.showLab);
-	this.router.add('*post', this.showPost);
+	this.router.add('/', this.onNavigate, this.panels, 'panels');
+	this.router.add('/lab/', this.onNavigate, this.lab, 'lab');
+	this.router.add('*post', this.onNavigate, this.posts, 'post');
 
 	this.router.match(location.pathname);
 
@@ -63,66 +48,14 @@ proto.initRouter = function (analytics) {
 	else {
 		this.header.introWatcher.on('complete', this.onIntroComplete);
 	}
+
+	window.requestAnimationFrame(function () {
+		document.body.classList.add('is-introtransition');
+		document.body.classList.remove('is-intro');
+	});
 };
 
-proto.showHeader = function (match, params) {
-	this.showDynamic(match, params, this.header, 'header');
-	// this.header.open(match, this.state !== 'header' ? this.router.lastURL : false);
-	// this.setView(this.header, 'header');
-};
-
-proto.showPanels = function (match, params) {
-	this.showDynamic(match, '/', this.panels, 'panels'); // TODO: figure out how we do '/' for panels dynamically
-	/*if (this.state === 'header') {
-		this.header.close();
-	}
-	else if (this.state === 'panels') {
-		this.view.update(params);
-	}
-	else if (this.state) {
-		document.body.classList.add('is-muted');
-		this.panels.load('/');
-		this.view.on('onhidden', this.onViewHidden);
-		this.view.hide('panels');
-	}
-	this.setView(this.panels, 'panels');*/
-};
-
-proto.showPost = function (match, params) {
-	this.showDynamic(match, params, this.posts, 'post');
-	/*if (this.state === 'header') {
-		this.header.close();
-	}
-	else if (this.state === 'post') {
-		this.view.update(params);
-	}
-	else if (this.state) {
-		document.body.classList.add('is-muted');
-		this.posts.load(params);
-		this.view.on('onhidden', this.onViewHidden);
-		this.view.hide('post');
-	}
-	this.setView(this.posts, 'post');*/
-};
-
-proto.showLab = function (match, params) {
-	this.showDynamic(match, params, this.lab, 'lab');
-	/*if (this.state === 'header') {
-		this.header.close();
-	}
-	else if (this.state === 'lab') {
-		this.view.update(params);
-	}
-	else if (this.state) {
-		document.body.classList.add('is-muted');
-		this.lab.load(params);
-		this.view.on('onhidden', this.onViewHidden);
-		this.view.hide('lab');
-	}
-	this.setView(this.lab, 'lab');*/
-};
-
-proto.showDynamic = function (match, params, view, state) {
+proto.onNavigate = function (view, state, match, params) {
 	if (state === 'header') {
 		this.header.open(match, this.state !== 'header' ? this.router.lastURL : false);
 	}
@@ -140,13 +73,6 @@ proto.showDynamic = function (match, params, view, state) {
 	}
 	this.setView(view, state);
 };
-
-
-
-
-
-
-
 
 proto.setView = function (view, state) {
 	if (this.state === state) {
@@ -364,18 +290,23 @@ proto.navigate = function (route, silent) {
 	this.analytics.update(route);
 };
 
+proto.getRoutes = function (route) {
+	if (this.routes[route] === undefined) {
+		this.routes[route] = {
+			pattern: route,
+			listeners: []
+		};
+	}
+	return this.routes[route];
+};
+
 proto.add = function (route, callback) {
-
 	route = routeToRegExp(route);
-
-	if (this.routes[route]) {
-		if (this.routes[route].indexOf(callback) < 0) {
-			this.routes[route].push(callback);
-		}
-	}
-	else {
-		this.routes[route] = [route, callback];
-	}
+	var routes = this.getRoutes(route);
+	routes.listeners.push({
+		callback: callback,
+		args: Array.prototype.slice.call(arguments).splice(2)
+	});
 };
 
 proto.remove = function (route, callback) {
@@ -385,11 +316,14 @@ proto.remove = function (route, callback) {
 proto.match = function (route) {
 	var exec;
 	for (var key in this.routes) {
-		exec = this.routes[key][0].exec(route);
+		exec = this.routes[key].pattern.exec(route);
 		if (exec && exec.length) {
-			var i = this.routes[key].length;
-			while (--i > 0) {
-				this.routes[key][i].apply(this, exec.splice(0, 2));
+			exec = exec.splice(0, 2);
+			var listener;
+			var i = this.routes[key].listeners.length;
+			while (i--) {
+				listener = this.routes[key].listeners[i];
+				listener.callback.apply(this, listener.args.concat(exec));
 			}
 			break;
 		}
@@ -1190,6 +1124,10 @@ proto.hide = function (nextState) {
 			this.el.classList.add('is-hidden');
 			this.onScrolledToPoint();
 	}
+};
+
+proto.load = function (url) {
+	BaseView.prototype.load.call(this, url || '/');
 };
 
 proto.onHiddenToPost = function (evt) {
