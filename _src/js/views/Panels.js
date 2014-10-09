@@ -3,6 +3,7 @@
 var createPageItem = require('../utils/createPageItem');
 var isMouseOut = require('../utils/isMouseOut');
 var loadPage = require('../components/loadPage');
+var setColor = require('../utils/setColor');
 var transitionEndEvent = require('../utils/transitionEndEvent')();
 var waitAnimationFrames = require('../utils/waitAnimationFrames');
 
@@ -106,6 +107,8 @@ proto.showFromBelow = function () {
 };
 
 proto.hideBelow = function () {
+	setColor(document.body);
+	document.body.classList.add('is-transition-panelsbelow');
 	this.el.classList.add('is-hidebelow');
 };
 
@@ -114,6 +117,11 @@ proto.hide = function (nextState) {
 		case 'post' :
 			this.transitionToPost();
 			this.on('onhidden', this.onHiddenToPost);
+			break;
+
+		case 'lab' :
+			this.hideBelow();
+			window.requestAnimationFrame(this.onHidden.bind(this));
 			break;
 
 		default :
@@ -327,6 +335,10 @@ proto.transitionBelow = function () {
 };
 
 proto.transitionToPost = function () {
+	var color = this.getCurrentColor(location.pathname);
+	document.body.classList.add('is-transition-topostfrompanels');
+	setColor(document.body, color);
+
 	// console.log('>>>>>> window.pageXOffset:', window.pageXOffset);
 
 	// return;
@@ -344,7 +356,7 @@ proto.transitionToPost = function () {
 
 proto.transitionFromPost = function (url) {
 
-	console.log('YEAH, here');
+	// console.log('YEAH, here');
 
 	/*var watcher = new TransitionWatcher();
 	var panelObj = this.panelsUrlMap[url];

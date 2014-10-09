@@ -114,6 +114,12 @@ proto.hidePost = function () {
 // 	return this.watcher;
 // };
 
+proto.update = function (url) {
+	this.slide(url);
+};
+
+
+// maybe just put all this in update ??
 proto.slide = function (url) {
 	this.slideOff(url);
 

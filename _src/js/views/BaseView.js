@@ -35,7 +35,7 @@ proto.hide = function (nextState) {
 };
 
 proto.load = function (url) {
-	if (this.pages[url] === undefined) {
+	if (url && this.pages[url] === undefined) {
 		this.pages[url] = 'loading';
 		loadPage.apply(this, [url, this.onLoaded.bind(this)].concat(this.loadSelectors));
 	}

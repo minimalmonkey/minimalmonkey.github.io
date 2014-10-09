@@ -3,7 +3,7 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
-var setColor = require('./utils/setColor');
+// var setColor = require('./utils/setColor');
 
 var Router = require('./components/Router');
 var Header = require('./views/Header');
@@ -17,11 +17,6 @@ function App (analytics) {
 	this.showPanels = this.showPanels.bind(this);
 	this.showPost = this.showPost.bind(this);
 	this.showLab = this.showLab.bind(this);
-
-	this.onPanelShowComplete = this.onPanelShowComplete.bind(this);
-	// this.onPanelHideComplete = this.onPanelHideComplete.bind(this);
-	// this.onPostShowComplete = this.onPostShowComplete.bind(this);
-	// this.onPostHideComplete = this.onPostHideComplete.bind(this);
 
 	this.onViewHidden = this.onViewHidden.bind(this);
 	this.onViewLoaded = this.onViewLoaded.bind(this);
@@ -71,16 +66,18 @@ proto.initRouter = function (analytics) {
 };
 
 proto.showHeader = function (match, params) {
-	this.header.open(match, this.state !== 'header' ? this.router.lastURL : false);
-	this.setView(this.header, 'header');
+	this.showDynamic(match, params, this.header, 'header');
+	// this.header.open(match, this.state !== 'header' ? this.router.lastURL : false);
+	// this.setView(this.header, 'header');
 };
 
 proto.showPanels = function (match, params) {
-	if (this.state === 'header') {
+	this.showDynamic(match, '/', this.panels, 'panels'); // TODO: figure out how we do '/' for panels dynamically
+	/*if (this.state === 'header') {
 		this.header.close();
 	}
 	else if (this.state === 'panels') {
-		this.view.update(location.pathname); // could this be params ??
+		this.view.update(params);
 	}
 	else if (this.state) {
 		document.body.classList.add('is-muted');
@@ -88,88 +85,68 @@ proto.showPanels = function (match, params) {
 		this.view.on('onhidden', this.onViewHidden);
 		this.view.hide('panels');
 	}
-	this.setView(this.panels, 'panels');
+	this.setView(this.panels, 'panels');*/
 };
 
-/*proto.showPanels = function (match, params) {
-	if (this.state === 'panels') {
-		// already panels
-	}
-	else if (this.state === 'post') {
-
-		// document.body.classList.add('is-muted');
-
-
-		// document.body.classList.add('is-muted', 'is-transition-topanelsfrompost');
-
-
-		this.panels.load('/');
-		this.view.on('onhidden', this.onViewHidden);
-		this.view.hide('panels');
-
-
-		// this.panels.preload();
-		// document.body.classList.add('is-muted', 'is-transition-topanelsfrompost');
-		// this.watcher = this.posts.hide();
-		// this.watcher.on('complete', this.onPostHideComplete);
-	}
-	else if (this.state === 'lab') {
-
-		// document.body.classList.add('is-muted');
-
-
-		// this.panels.preload();
-		// document.body.classList.add('is-muted', 'is-transition-panelsbelow');
-		// document.body.classList.remove('is-darktheme');
-
-		this.panels.load('/');
-		this.view.on('onhidden', this.onViewHidden);
-		this.view.hide('panels');
-
-
-		// this.watcher = this.panels.transitionFromBelow();
-		// this.watcher.on('complete', this.onPanelShowComplete);
-
-
-	}
-	else if (this.state === 'header') {
+proto.showPost = function (match, params) {
+	this.showDynamic(match, params, this.posts, 'post');
+	/*if (this.state === 'header') {
 		this.header.close();
 	}
-	this.view = this.panels;
-	this.setState('panels');
-};*/
-
-proto.showPost = function (match, params) {
-	if (this.state === 'panels') {
-		var color = this.panels.getCurrentColor(params);
-		document.body.classList.add('is-muted', 'is-transition-topostfrompanels');
-		setColor(document.body, color);
-
+	else if (this.state === 'post') {
+		this.view.update(params);
+	}
+	else if (this.state) {
+		document.body.classList.add('is-muted');
 		this.posts.load(params);
 		this.view.on('onhidden', this.onViewHidden);
 		this.view.hide('post');
 	}
-	else if (this.state === 'post') {
-		this.posts.slide(location.pathname);
-	}
-	else if (this.state === 'header') {
-		this.header.close();
-	}
-	this.setView(this.posts, 'post');
+	this.setView(this.posts, 'post');*/
 };
 
 proto.showLab = function (match, params) {
-	if (this.state === 'panels') {
-		document.body.classList.add('is-muted', 'is-transition-panelsbelow', 'is-darktheme');
-		this.panels.hideBelow();
-		// this.watcher = this.panels.transitionBelow();
-		// this.watcher.on('complete', this.onPanelHideComplete);
+	this.showDynamic(match, params, this.lab, 'lab');
+	/*if (this.state === 'header') {
+		this.header.close();
+	}
+	else if (this.state === 'lab') {
+		this.view.update(params);
+	}
+	else if (this.state) {
+		document.body.classList.add('is-muted');
+		this.lab.load(params);
+		this.view.on('onhidden', this.onViewHidden);
+		this.view.hide('lab');
+	}
+	this.setView(this.lab, 'lab');*/
+};
+
+proto.showDynamic = function (match, params, view, state) {
+	if (state === 'header') {
+		this.header.open(match, this.state !== 'header' ? this.router.lastURL : false);
 	}
 	else if (this.state === 'header') {
 		this.header.close();
 	}
-	this.setView(this.lab, 'lab');
+	else if (this.state === state) {
+		this.view.update(params);
+	}
+	else if (this.state) {
+		document.body.classList.add('is-muted');
+		view.load(params);
+		this.view.on('onhidden', this.onViewHidden);
+		this.view.hide(state);
+	}
+	this.setView(view, state);
 };
+
+
+
+
+
+
+
 
 proto.setView = function (view, state) {
 	if (this.state === state) {
@@ -194,39 +171,6 @@ proto.onIntroComplete = function () {
 	document.body.classList.remove('is-introtransition');
 };
 
-proto.onPanelShowComplete = function () {
-	this.watcher.off('complete', this.onPanelShowComplete);
-	document.body.classList.remove('is-muted', 'is-transition-topanelsfrompost', 'is-transition-panelsbelow'); // TODO: be more specific
-};
-
-/*proto.onPanelHideComplete = function () {
-	// this.watcher.off('complete', this.onPanelHideComplete);
-	// this.panels.hide();
-
-	if (this.state === 'post') {
-		// this.panels.resetTransition();
-		this.watcher = this.posts.show(location.pathname);
-		this.watcher.on('complete', this.onPostShowComplete);
-	}
-	else if (this.state === 'lab') {
-		document.body.classList.remove('is-muted', 'is-transition-panelsbelow');
-	}
-};*/
-
-/*proto.onPostShowComplete = function () {
-	this.watcher.off('complete', this.onPostShowComplete);
-	document.body.classList.remove('is-muted', 'is-transition-topostfrompanels');
-};*/
-
-/*proto.onPostHideComplete = function () {
-	this.watcher.off('complete', this.onPostHideComplete);
-
-	if (this.state === 'panels') {
-		this.watcher = this.panels.showFromPost(this.router.lastURL);
-		this.watcher.on('complete', this.onPanelShowComplete);
-	}
-};*/
-
 proto.showView = function () {
 	this.view.on('onshowed', this.onViewShowed);
 	this.view.show(this.lastState, this.router.lastURL);
@@ -235,18 +179,12 @@ proto.showView = function () {
 proto.onViewShowed = function (evt) {
 	evt.target.off('onshowed', this.onViewShowed);
 
-	document.body.classList.remove('is-muted', 'is-transition-topostfrompanels'); // need to store the transition class and remove it
+	// document.body.classList.remove('is-muted', 'is-transition-topostfrompanels'); // need to store the transition class and remove it
+	document.body.classList.remove('is-muted', 'is-transition-topostfrompanels', 'is-transition-topanelsfrompost', 'is-transition-panelsbelow'); // TODO: be more specific
 };
 
 proto.onViewHidden = function (evt) {
 	evt.target.off('onhidden', this.onViewHidden);
-
-	// switch (evt.target) {
-	// 	case this.panels :
-	// 		console.log('panels hidden');
-	// 		break;
-	// }
-
 	if (this.view.hasPage(location.pathname)) {
 		this.showView();
 	}
@@ -264,7 +202,7 @@ proto.onViewLoaded = function (evt) {
 
 module.exports = App;
 
-},{"./components/Router":4,"./utils/setColor":14,"./views/Header":20,"./views/Lab":21,"./views/Panels":22,"./views/Posts":24}],2:[function(require,module,exports){
+},{"./components/Router":4,"./views/Header":20,"./views/Lab":21,"./views/Panels":22,"./views/Posts":24}],2:[function(require,module,exports){
 'use strict';
 
 var loadScript = require('../utils/loadScript');
@@ -638,11 +576,11 @@ module.exports = function loadPage (url, callback) {
 					elements[i] = fragment.querySelectorAll(selectors[i]);
 				}
 
-				// callback.apply(this, elements.length ? [url].concat(elements) : [url, this.responseText]);
+				callback.apply(this, elements.length ? [url].concat(elements) : [url, this.responseText]);
 				// temp - simulate slow / random load time
-				setTimeout(function () {
-					callback.apply(this, elements.length ? [url].concat(elements) : [url, this.responseText]);
-				}.bind(this), 2000 + (Math.random() * 500));
+				// setTimeout(function () {
+				// 	callback.apply(this, elements.length ? [url].concat(elements) : [url, this.responseText]);
+				// }.bind(this), 200 + (Math.random() * 500));
 			}
 		}
 	};
@@ -798,8 +736,10 @@ module.exports = function setColor (element, color) {
 	if (element.dataset.color) {
 		element.classList.remove('color-' + element.dataset.color);
 	}
-	element.dataset.color = color;
-	element.classList.add('color-' + color);
+	if (color) {
+		element.dataset.color = color;
+		element.classList.add('color-' + color);
+	}
 };
 
 },{}],15:[function(require,module,exports){
@@ -916,7 +856,7 @@ proto.hide = function (nextState) {
 };
 
 proto.load = function (url) {
-	if (this.pages[url] === undefined) {
+	if (url && this.pages[url] === undefined) {
 		this.pages[url] = 'loading';
 		loadPage.apply(this, [url, this.onLoaded.bind(this)].concat(this.loadSelectors));
 	}
@@ -1093,6 +1033,11 @@ function Labs () {
 
 var proto = Labs.prototype = new BaseView();
 
+proto.hasPage = function (url) {
+	// override and always return true until real labs page exists
+	return true;
+};
+
 proto.hide = function (nextState) {
 	switch (nextState) {
 		case 'panels' :
@@ -1107,9 +1052,9 @@ proto.hide = function (nextState) {
 	}
 };
 
-// proto.show = function () {
-// 	//
-// };
+proto.show = function (fromState, lastUrl) {
+	document.body.classList.add('is-darktheme');
+};
 
 module.exports = Labs;
 
@@ -1119,6 +1064,7 @@ module.exports = Labs;
 var createPageItem = require('../utils/createPageItem');
 var isMouseOut = require('../utils/isMouseOut');
 var loadPage = require('../components/loadPage');
+var setColor = require('../utils/setColor');
 var transitionEndEvent = require('../utils/transitionEndEvent')();
 var waitAnimationFrames = require('../utils/waitAnimationFrames');
 
@@ -1222,6 +1168,8 @@ proto.showFromBelow = function () {
 };
 
 proto.hideBelow = function () {
+	setColor(document.body);
+	document.body.classList.add('is-transition-panelsbelow');
 	this.el.classList.add('is-hidebelow');
 };
 
@@ -1230,6 +1178,11 @@ proto.hide = function (nextState) {
 		case 'post' :
 			this.transitionToPost();
 			this.on('onhidden', this.onHiddenToPost);
+			break;
+
+		case 'lab' :
+			this.hideBelow();
+			window.requestAnimationFrame(this.onHidden.bind(this));
 			break;
 
 		default :
@@ -1443,6 +1396,10 @@ proto.transitionBelow = function () {
 };
 
 proto.transitionToPost = function () {
+	var color = this.getCurrentColor(location.pathname);
+	document.body.classList.add('is-transition-topostfrompanels');
+	setColor(document.body, color);
+
 	// console.log('>>>>>> window.pageXOffset:', window.pageXOffset);
 
 	// return;
@@ -1460,7 +1417,7 @@ proto.transitionToPost = function () {
 
 proto.transitionFromPost = function (url) {
 
-	console.log('YEAH, here');
+	// console.log('YEAH, here');
 
 	/*var watcher = new TransitionWatcher();
 	var panelObj = this.panelsUrlMap[url];
@@ -1572,7 +1529,7 @@ proto.disable = function () {
 
 module.exports = Panels;
 
-},{"../components/ScrollEvents":5,"../components/TransitionWatcher":6,"../components/loadPage":7,"../utils/createPageItem":11,"../utils/isMouseOut":12,"../utils/transitionEndEvent":16,"../utils/waitAnimationFrames":17,"./BaseView":18,"./PanelsNav":23}],23:[function(require,module,exports){
+},{"../components/ScrollEvents":5,"../components/TransitionWatcher":6,"../components/loadPage":7,"../utils/createPageItem":11,"../utils/isMouseOut":12,"../utils/setColor":14,"../utils/transitionEndEvent":16,"../utils/waitAnimationFrames":17,"./BaseView":18,"./PanelsNav":23}],23:[function(require,module,exports){
 'use strict';
 
 var createPageItem = require('../utils/createPageItem');
@@ -1733,6 +1690,12 @@ proto.hidePost = function () {
 // 	return this.watcher;
 // };
 
+proto.update = function (url) {
+	this.slide(url);
+};
+
+
+// maybe just put all this in update ??
 proto.slide = function (url) {
 	this.slideOff(url);
 

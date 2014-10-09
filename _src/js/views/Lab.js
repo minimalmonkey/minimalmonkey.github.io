@@ -8,6 +8,11 @@ function Labs () {
 
 var proto = Labs.prototype = new BaseView();
 
+proto.hasPage = function (url) {
+	// override and always return true until real labs page exists
+	return true;
+};
+
 proto.hide = function (nextState) {
 	switch (nextState) {
 		case 'panels' :
@@ -22,8 +27,8 @@ proto.hide = function (nextState) {
 	}
 };
 
-// proto.show = function () {
-// 	//
-// };
+proto.show = function (fromState, lastUrl) {
+	document.body.classList.add('is-darktheme');
+};
 
 module.exports = Labs;
