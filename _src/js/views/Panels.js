@@ -77,7 +77,7 @@ proto.showFromBelow = function () {
 
 proto.hideBelow = function () {
 	setColor(document.body);
-	document.body.classList.add('is-transition-panelsbelow');
+	document.body.classList.add('is-transition-panelsbelow'); // TODO: should probably remove this when transition is done no? Maybe in app
 	this.el.classList.add('is-hidebelow');
 };
 

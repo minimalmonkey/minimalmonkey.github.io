@@ -94,8 +94,14 @@ proto.showView = function () {
 proto.onViewShowed = function (evt) {
 	evt.target.off('onshowed', this.onViewShowed);
 
-	// document.body.classList.remove('is-muted', 'is-transition-topostfrompanels'); // need to store the transition class and remove it
-	document.body.classList.remove('is-muted', 'is-transition-topostfrompanels', 'is-transition-topanelsfrompost', 'is-transition-panelsbelow'); // TODO: be more specific
+	var classes = document.body.classList;
+	var i = classes.length;
+	while (i--) {
+		if (classes[i].indexOf('is-transition-') === 0) {
+			document.body.classList.remove(classes[i]);
+		}
+	}
+	document.body.classList.remove('is-muted');
 };
 
 proto.onViewHidden = function (evt) {

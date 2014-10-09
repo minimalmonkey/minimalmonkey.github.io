@@ -43,9 +43,7 @@ proto.trigger = function (evt, obj) {
 	obj.target = obj.target || this;
 	var listeners = this._getListeners(evt);
 	var i, len = listeners.length;
-	// console.log('trigger', evt, this);
 	for (i = 0; i < len; i++) {
-		// console.log(listeners[i]);
 		listeners[i].call(this, obj);
 	}
 };

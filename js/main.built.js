@@ -97,8 +97,14 @@ proto.showView = function () {
 proto.onViewShowed = function (evt) {
 	evt.target.off('onshowed', this.onViewShowed);
 
-	// document.body.classList.remove('is-muted', 'is-transition-topostfrompanels'); // need to store the transition class and remove it
-	document.body.classList.remove('is-muted', 'is-transition-topostfrompanels', 'is-transition-topanelsfrompost', 'is-transition-panelsbelow'); // TODO: be more specific
+	var classes = document.body.classList;
+	var i = classes.length;
+	while (i--) {
+		if (classes[i].indexOf('is-transition-') === 0) {
+			document.body.classList.remove(classes[i]);
+		}
+	}
+	document.body.classList.remove('is-muted');
 };
 
 proto.onViewHidden = function (evt) {
@@ -202,9 +208,7 @@ proto.trigger = function (evt, obj) {
 	obj.target = obj.target || this;
 	var listeners = this._getListeners(evt);
 	var i, len = listeners.length;
-	// console.log('trigger', evt, this);
 	for (i = 0; i < len; i++) {
-		// console.log(listeners[i]);
 		listeners[i].call(this, obj);
 	}
 };
@@ -1022,7 +1026,7 @@ proto.showFromBelow = function () {
 
 proto.hideBelow = function () {
 	setColor(document.body);
-	document.body.classList.add('is-transition-panelsbelow');
+	document.body.classList.add('is-transition-panelsbelow'); // TODO: should probably remove this when transition is done no? Maybe in app
 	this.el.classList.add('is-hidebelow');
 };
 
