@@ -3,8 +3,7 @@
 var addEventListenerList = require('../utils/addEventListenerList');
 var routeToRegExp = require('./routeToRegExp');
 
-function Router (analytics, observeList) {
-	this.analytics = analytics;
+function Router (observeList) {
 	this.lastURL = this.currentURL = location.pathname;
 
 	this.onClicked = this.onClicked.bind(this);
@@ -64,22 +63,25 @@ proto.navigate = function (route, silent) {
 	this.currentURL = route;
 
 	this.match(route);
+};
 
-	this.analytics.update(route);
+proto.getRoutes = function (route) {
+	if (this.routes[route] === undefined) {
+		this.routes[route] = {
+			pattern: route,
+			listeners: []
+		};
+	}
+	return this.routes[route];
 };
 
 proto.add = function (route, callback) {
-
 	route = routeToRegExp(route);
-
-	if (this.routes[route]) {
-		if (this.routes[route].indexOf(callback) < 0) {
-			this.routes[route].push(callback);
-		}
-	}
-	else {
-		this.routes[route] = [route, callback];
-	}
+	var routes = this.getRoutes(route);
+	routes.listeners.push({
+		callback: callback,
+		args: Array.prototype.slice.call(arguments).splice(2)
+	});
 };
 
 proto.remove = function (route, callback) {
@@ -89,11 +91,14 @@ proto.remove = function (route, callback) {
 proto.match = function (route) {
 	var exec;
 	for (var key in this.routes) {
-		exec = this.routes[key][0].exec(route);
+		exec = this.routes[key].pattern.exec(route);
 		if (exec && exec.length) {
-			var i = this.routes[key].length;
-			while (--i > 0) {
-				this.routes[key][i].apply(this, exec.splice(0, 2));
+			exec = exec.splice(0, 2);
+			var listener;
+			var i = this.routes[key].listeners.length;
+			while (i--) {
+				listener = this.routes[key].listeners[i];
+				listener.callback.apply(this, listener.args.concat(exec));
 			}
 			break;
 		}

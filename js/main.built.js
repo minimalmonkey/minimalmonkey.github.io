@@ -3,135 +3,82 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
-var setColor = require('./utils/setColor');
-
-var Router = require('./components/Router');
+var Analytics = require('./components/Analytics');
 var Header = require('./views/Header');
+var Lab = require('./views/Lab');
 var Panels = require('./views/Panels');
 var Posts = require('./views/Posts');
-var Lab = require('./views/Lab');
+var Router = require('./components/Router');
 
 function App (analytics) {
+	this.onNavigate = this.onNavigate.bind(this);
+	this.onIntroComplete = this.onIntroComplete.bind(this);
+	this.onViewHidden = this.onViewHidden.bind(this);
+	this.onViewLoaded = this.onViewLoaded.bind(this);
 
-	this.showHeader = this.showHeader.bind(this);
-	this.showPanels = this.showPanels.bind(this);
-	this.showPost = this.showPost.bind(this);
-	this.showLab = this.showLab.bind(this);
-
-	this.onPanelShowComplete = this.onPanelShowComplete.bind(this);
-	this.onPanelHideComplete = this.onPanelHideComplete.bind(this);
-	this.onPostShowComplete = this.onPostShowComplete.bind(this);
-	this.onPostHideComplete = this.onPostHideComplete.bind(this);
-
-	this.initViews();
-	this.initRouter(analytics);
-
-	window.requestAnimationFrame(function () {
-		document.body.classList.add('is-introtransition');
-		document.body.classList.remove('is-intro');
-	});
+	this.init(analytics);
 }
 
 var proto = App.prototype;
 
-proto.initViews = function () {
+proto.init = function (analytics) {
+	this.analytics = new Analytics('UA-54501731-1', 'minimalmonkey.github.io', 200);
+
 	this.header = new Header();
 	this.panels = new Panels();
 	this.posts = new Posts();
 	this.lab = new Lab();
-};
 
-proto.initRouter = function (analytics) {
-	this.router = new Router(analytics, [
+	this.router = new Router([
 		this.panels.el
 	]);
 
 	var headerLinks = this.header.getPageLinks();
 	var i = headerLinks.length;
 	while (i--) {
-		this.router.add(headerLinks[i], this.showHeader);
+		this.router.add(headerLinks[i], this.onNavigate, this.header, 'header');
 	}
-	this.router.add('/', this.showPanels);
-	this.router.add('/lab/', this.showLab);
-	this.router.add('*post', this.showPost);
+	this.router.add('/', this.onNavigate, this.panels, 'panels');
+	this.router.add('/lab/', this.onNavigate, this.lab, 'lab');
+	this.router.add('*post', this.onNavigate, this.posts, 'post');
 
 	this.router.match(location.pathname);
 
-	this.onIntroComplete = this.onIntroComplete.bind(this);
+	this.view.on('onintrocomplete', this.onIntroComplete);
 
-	if (this.view && this.view.introWatcher) {
-		this.view.introWatcher.on('complete', this.onIntroComplete);
-	}
-	else {
-		this.header.introWatcher.on('complete', this.onIntroComplete);
-	}
+	window.requestAnimationFrame(function () {
+		document.body.classList.add('is-introtransition');
+		document.body.classList.remove('is-intro');
+	});
 };
 
-proto.showHeader = function (match, params) {
-	this.header.open(match, this.state !== 'header' ? this.router.lastURL : false);
-	this.view = this.header;
-	this.setState('header');
-};
-
-proto.showPanels = function (match, params) {
-	if (this.state === 'panels') {
-		// already panels
-	}
-	else if (this.state === 'post') {
-		this.panels.preload();
-		document.body.classList.add('is-muted', 'is-transition-topanelsfrompost');
-		this.watcher = this.posts.hide();
-		this.watcher.on('complete', this.onPostHideComplete);
-	}
-	else if (this.state === 'lab') {
-		this.panels.preload();
-		document.body.classList.add('is-muted', 'is-transition-panelsbelow');
-		document.body.classList.remove('is-darktheme');
-		this.watcher = this.panels.transitionFromBelow();
-		this.watcher.on('complete', this.onPanelShowComplete);
+proto.onNavigate = function (view, state, match, params) {
+	if (state === 'header') {
+		this.header.open(match, this.state !== 'header' ? this.router.lastURL : false);
 	}
 	else if (this.state === 'header') {
 		this.header.close();
 	}
-	this.view = this.panels;
-	this.setState('panels');
+	else if (this.state === state) {
+		this.view.update(params);
+	}
+	else if (this.state) {
+		document.body.classList.add('is-muted');
+		view.load(params);
+		this.view.on('onhidden', this.onViewHidden);
+		this.view.hide(state);
+	}
+	this.setView(view, state);
+	this.analytics.update(location.pathname);
 };
 
-proto.showPost = function (match, params) {
-	if (this.state === 'panels') {
-		// TODO: preload post while animating
-		var color = this.panels.getCurrentColor(params);
-		document.body.classList.add('is-muted', 'is-transition-topostfrompanels');
-		setColor(document.body, color);
-		this.watcher = this.panels.transitionToPost();
-		this.watcher.on('complete', this.onPanelHideComplete);
+proto.setView = function (view, state) {
+	if (this.state === state) {
+		return;
 	}
-	else if (this.state === 'post') {
-		this.posts.slide(location.pathname);
-	}
-	else if (this.state === 'header') {
-		this.header.close();
-	}
-	this.view = this.posts;
-	this.setState('post');
-};
-
-proto.showLab = function (match, params) {
-	if (this.state === 'panels') {
-		document.body.classList.add('is-muted', 'is-transition-panelsbelow', 'is-darktheme');
-		this.panels.hideBelow();
-		this.watcher = this.panels.transitionBelow();
-		this.watcher.on('complete', this.onPanelHideComplete);
-	}
-	else if (this.state === 'header') {
-		this.header.close();
-	}
-	this.view = this.lab;
-	this.setState('lab');
-};
-
-proto.setState = function (state) {
+	this.view = view;
 	if (this.state) {
+		this.lastState = this.state;
 		document.body.classList.remove('is-' + this.state);
 	}
 	this.state = state;
@@ -139,55 +86,47 @@ proto.setState = function (state) {
 };
 
 proto.onIntroComplete = function () {
-	if (this.view.introWatcher) {
-		this.view.introWatcher.clear();
-	}
-	else {
-		this.header.introWatcher.clear();
-	}
 	document.body.classList.remove('is-introtransition');
 };
 
-proto.onPanelShowComplete = function () {
-	this.watcher.off('complete', this.onPanelShowComplete);
-	document.body.classList.remove('is-muted', 'is-transition-topanelsfrompost', 'is-transition-panelsbelow'); // TODO: be more specific
+proto.showView = function () {
+	this.view.on('onshowed', this.onViewShowed);
+	this.view.show(this.lastState, this.router.lastURL);
 };
 
-proto.onPanelHideComplete = function () {
-	this.watcher.off('complete', this.onPanelHideComplete);
-	this.panels.hide();
+proto.onViewShowed = function (evt) {
+	evt.target.off('onshowed', this.onViewShowed);
 
-	if (this.state === 'post') {
-		this.panels.resetTransition();
-		this.watcher = this.posts.show(location.pathname);
-		this.watcher.on('complete', this.onPostShowComplete);
+	var classes = document.body.classList;
+	var i = classes.length;
+	while (i--) {
+		if (classes[i].indexOf('is-transition-') === 0) {
+			document.body.classList.remove(classes[i]);
+		}
 	}
-	else if (this.state === 'lab') {
-		document.body.classList.remove('is-muted', 'is-transition-panelsbelow');
+	document.body.classList.remove('is-muted');
+};
+
+proto.onViewHidden = function (evt) {
+	evt.target.off('onhidden', this.onViewHidden);
+	if (this.view.hasPage(location.pathname)) {
+		this.showView();
 	}
-};
-
-proto.onPostShowComplete = function () {
-	this.watcher.off('complete', this.onPostShowComplete);
-	document.body.classList.remove('is-muted', 'is-transition-topostfrompanels');
-};
-
-proto.onPostHideComplete = function () {
-	this.watcher.off('complete', this.onPostHideComplete);
-
-	if (this.state === 'panels') {
-		this.watcher = this.panels.showFromPost(this.router.lastURL);
-		this.watcher.on('complete', this.onPanelShowComplete);
+	else {
+		this.view.on('onloaded', this.onViewLoaded);
 	}
 };
 
-proto.onViewLoaded = function () {
-	console.log('onViewLoaded');
+proto.onViewLoaded = function (evt) {
+	if (evt.url === location.pathname) {
+		this.view.off('onloaded', this.onViewLoaded);
+		this.showView();
+	}
 };
 
 module.exports = App;
 
-},{"./components/Router":4,"./utils/setColor":14,"./views/Header":20,"./views/Lab":21,"./views/Panels":22,"./views/Posts":24}],2:[function(require,module,exports){
+},{"./components/Analytics":2,"./components/Router":4,"./views/Header":19,"./views/Lab":20,"./views/Panels":21,"./views/Posts":23}],2:[function(require,module,exports){
 'use strict';
 
 var loadScript = require('../utils/loadScript');
@@ -223,7 +162,7 @@ proto.update = function (url) {
 
 module.exports = Analytics;
 
-},{"../utils/loadScript":13}],3:[function(require,module,exports){
+},{"../utils/loadScript":12}],3:[function(require,module,exports){
 'use strict';
 
 function EventEmitter() {}
@@ -239,7 +178,16 @@ proto._getListeners = function (evt) {
 	return events[evt] || (events[evt] = []);
 };
 
+proto._setListeners = function (evt, listeners) {
+	var events = this._getEvents();
+	events[evt] = listeners;
+};
+
 proto.on = function (evt, listener) {
+	if (typeof listener !== 'function') {
+		// throw error ?
+		return;
+	}
 	var listeners = this._getListeners(evt);
 	var index = listeners.indexOf(listener);
 	if (index < 0) {
@@ -251,15 +199,17 @@ proto.off = function (evt, listener) {
 	var listeners = this._getListeners(evt);
 	var index = listeners.indexOf(listener);
 	if (index > -1) {
-		listeners.splice(index, 1);
+		this._setListeners(evt, listeners.slice(0, index).concat(listeners.slice(index + 1)));
 	}
 };
 
-proto.trigger = function (evt) {
+proto.trigger = function (evt, obj) {
+	obj = obj || {};
+	obj.target = obj.target || this;
 	var listeners = this._getListeners(evt);
-	var i = listeners.length;
-	while (i--) {
-		listeners[i].call();
+	var i, len = listeners.length;
+	for (i = 0; i < len; i++) {
+		listeners[i].call(this, obj);
 	}
 };
 
@@ -271,8 +221,7 @@ module.exports = EventEmitter;
 var addEventListenerList = require('../utils/addEventListenerList');
 var routeToRegExp = require('./routeToRegExp');
 
-function Router (analytics, observeList) {
-	this.analytics = analytics;
+function Router (observeList) {
 	this.lastURL = this.currentURL = location.pathname;
 
 	this.onClicked = this.onClicked.bind(this);
@@ -332,22 +281,25 @@ proto.navigate = function (route, silent) {
 	this.currentURL = route;
 
 	this.match(route);
+};
 
-	this.analytics.update(route);
+proto.getRoutes = function (route) {
+	if (this.routes[route] === undefined) {
+		this.routes[route] = {
+			pattern: route,
+			listeners: []
+		};
+	}
+	return this.routes[route];
 };
 
 proto.add = function (route, callback) {
-
 	route = routeToRegExp(route);
-
-	if (this.routes[route]) {
-		if (this.routes[route].indexOf(callback) < 0) {
-			this.routes[route].push(callback);
-		}
-	}
-	else {
-		this.routes[route] = [route, callback];
-	}
+	var routes = this.getRoutes(route);
+	routes.listeners.push({
+		callback: callback,
+		args: Array.prototype.slice.call(arguments).splice(2)
+	});
 };
 
 proto.remove = function (route, callback) {
@@ -357,11 +309,14 @@ proto.remove = function (route, callback) {
 proto.match = function (route) {
 	var exec;
 	for (var key in this.routes) {
-		exec = this.routes[key][0].exec(route);
+		exec = this.routes[key].pattern.exec(route);
 		if (exec && exec.length) {
-			var i = this.routes[key].length;
-			while (--i > 0) {
-				this.routes[key][i].apply(this, exec.splice(0, 2));
+			exec = exec.splice(0, 2);
+			var listener;
+			var i = this.routes[key].listeners.length;
+			while (i--) {
+				listener = this.routes[key].listeners[i];
+				listener.callback.apply(this, listener.args.concat(exec));
 			}
 			break;
 		}
@@ -378,7 +333,7 @@ proto.disable = function () {
 
 module.exports = Router;
 
-},{"../utils/addEventListenerList":10,"./routeToRegExp":8}],5:[function(require,module,exports){
+},{"../utils/addEventListenerList":9,"./routeToRegExp":7}],5:[function(require,module,exports){
 'use strict';
 
 var throttleEvent = require('../utils/throttleEvent');
@@ -477,53 +432,7 @@ proto.disable = function () {
 
 module.exports = ScrollEvents;
 
-},{"../utils/throttleEvent":15}],6:[function(require,module,exports){
-'use strict';
-
-function TransitionWatcher () {
-	this.listeners = [];
-}
-
-var proto = TransitionWatcher.prototype;
-
-proto.complete = function () {
-	this.trigger('complete');
-};
-
-proto.trigger = function (evt) {
-	if (this.listeners[evt] && this.listeners[evt].length) {
-		var i = this.listeners[evt].length;
-		while (i--) {
-			this.listeners[evt][i].call();
-		}
-	}
-};
-
-proto.on = function (evt, callback) {
-	if (this.listeners[evt]) {
-		this.listeners[evt].push(callback);
-	}
-	else {
-		this.listeners[evt] = [callback];
-	}
-};
-
-proto.off = function (evt, callback) {
-	if (this.listeners[evt] && this.listeners[evt].length) {
-		var i = this.listeners[evt].indexOf(callback);
-		if (i > -1) {
-			this.listeners[evt].splice(i, 1);
-		}
-	}
-};
-
-proto.clear = function () {
-	this.listeners = [];
-};
-
-module.exports = TransitionWatcher;
-
-},{}],7:[function(require,module,exports){
+},{"../utils/throttleEvent":14}],6:[function(require,module,exports){
 'use strict';
 
 module.exports = function loadPage (url, callback) {
@@ -548,7 +457,11 @@ module.exports = function loadPage (url, callback) {
 					elements[i] = fragment.querySelectorAll(selectors[i]);
 				}
 
-				callback.apply(this, elements.length ? elements.concat(url) : [this.responseText, url]);
+				callback.apply(this, elements.length ? [url].concat(elements) : [url, this.responseText]);
+				// temp - simulate slow / random load time
+				// setTimeout(function () {
+				// 	callback.apply(this, elements.length ? [url].concat(elements) : [url, this.responseText]);
+				// }.bind(this), 200 + (Math.random() * 500));
 			}
 		}
 	};
@@ -557,7 +470,7 @@ module.exports = function loadPage (url, callback) {
 	req.send();
 };
 
-},{}],8:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 'use strict';
 
 var optionalParam = /\((.*?)\)/g;
@@ -582,24 +495,32 @@ module.exports = function routeToRegExp (route) {
 	return new RegExp('^' + route + '(?:\\?([\\s\\S]*))?$');
 };
 
-},{}],9:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict';
 
-// analytics
-var Analytics = require('./components/Analytics');
-var analytics = new Analytics('UA-54501731-1', 'minimalmonkey.github.io', 200);
-
-// app
-if (document.documentElement.classList) { // TODO: maybe change to see if MutationObserver exists & screw IE10?
-	var App = require('./App');
-	var app = new App(analytics);
-}
-
-// external
 var loadScript = require('./utils/loadScript');
-// loadScript('twitter-wjs', '//platform.twitter.com/widgets.js', 1200);
 
-},{"./App":1,"./components/Analytics":2,"./utils/loadScript":13}],10:[function(require,module,exports){
+var Analytics = require('./components/Analytics');
+var App = require('./App');
+
+var init = function () {
+	var externalsDelay;
+
+	if (document.documentElement.classList) { // TODO: maybe change to see if MutationObserver exists & screw IE10?
+		new App();
+		externalsDelay = 1200;
+	}
+	else {
+		new Analytics('UA-54501731-1', 'minimalmonkey.github.io');
+		externalsDelay = 0;
+	}
+
+	// loadScript('twitter-wjs', '//platform.twitter.com/widgets.js', externalsDelay);
+};
+
+init();
+
+},{"./App":1,"./components/Analytics":2,"./utils/loadScript":12}],9:[function(require,module,exports){
 'use strict';
 
 module.exports = function addEventListenerList (list, type, listener, useCapture) {
@@ -609,7 +530,7 @@ module.exports = function addEventListenerList (list, type, listener, useCapture
 	}
 };
 
-},{}],11:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 'use strict';
 
 module.exports = function createPageItem (id, type) {
@@ -620,7 +541,7 @@ module.exports = function createPageItem (id, type) {
 	return el;
 };
 
-},{}],12:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 'use strict';
 
 /**
@@ -652,7 +573,7 @@ module.exports = function isMouseOut (evt) {
 	return true;
 };
 
-},{}],13:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 'use strict';
 
 /**
@@ -697,18 +618,20 @@ module.exports = function loadScript (id, src, delay, dest) {
 	}, delay);
 };
 
-},{}],14:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 'use strict';
 
 module.exports = function setColor (element, color) {
 	if (element.dataset.color) {
 		element.classList.remove('color-' + element.dataset.color);
 	}
-	element.dataset.color = color;
-	element.classList.add('color-' + color);
+	if (color) {
+		element.dataset.color = color;
+		element.classList.add('color-' + color);
+	}
 };
 
-},{}],15:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 'use strict';
 
 /**
@@ -734,7 +657,7 @@ module.exports = function throttleEvent (callback, delay) {
 	};
 };
 
-},{}],16:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 'use strict';
 
 var transitionEnd;
@@ -763,7 +686,7 @@ module.exports = function transitionEndEvent () {
 	}
 };
 
-},{}],17:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 'use strict';
 
 module.exports = function waitAnimationFrames (callback, howMany) {
@@ -784,8 +707,11 @@ module.exports = function waitAnimationFrames (callback, howMany) {
 	waitForNext();
 };
 
-},{}],18:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 'use strict';
+
+var loadPage = require('../components/loadPage');
+var transitionEndEvent = require('../utils/transitionEndEvent')();
 
 var EventEmitter = require('../components/EventEmitter');
 
@@ -793,33 +719,76 @@ function BaseView() {}
 
 var proto = BaseView.prototype = new EventEmitter();
 
-proto.show = function (fromState) {
-	//
+proto.loadSelectors = [];
+proto.pages = {};
+
+proto.deeplinked = function () {
+	var elements = [];
+	var i = this.loadSelectors.length;
+	while (i--) {
+		elements[i] = document.querySelectorAll(this.loadSelectors[i]);
+	}
+	this.pages[location.pathname] = elements;
 };
 
-proto.hide = function (nextState) {
-	//
+proto.update = function (url) {};
+
+proto.show = function (fromState, lastUrl) {};
+
+proto.hide = function (nextState) {};
+
+proto.load = function (url) {
+	if (url && this.pages[url] === undefined) {
+		this.pages[url] = 'loading';
+		loadPage.apply(this, [url, this.onLoaded.bind(this)].concat(this.loadSelectors));
+	}
 };
 
-proto.load = function () {
-	//
+proto.hasPage = function (url) {
+	return this.pages[url] && this.pages[url] !== 'loading';
+};
+
+proto.listenToTransitionEnd = function (el, callback) {
+	var context = this;
+	var onTransitionEnded = function (evt) {
+		el.removeEventListener(transitionEndEvent, onTransitionEnded);
+		callback.call(context);
+	};
+	el.addEventListener(transitionEndEvent, onTransitionEnded, false);
 };
 
 proto.onShowed = function () {
 	this.trigger('onshowed');
+	this.enable();
 };
 
 proto.onHidden = function () {
 	this.trigger('onhidden');
+	this.disable();
+};
+
+proto.onIntroComplete = function (evt) {
+	this.trigger('onintrocomplete');
+	this.enable();
 };
 
 proto.onLoaded = function () {
-	this.trigger('onloaded');
+	var args = Array.prototype.slice.call(arguments, 0);
+	var url = args.shift();
+	this.pages[url] = args;
+	this.trigger('onloaded', {
+		url: url,
+		args: args
+	});
 };
+
+proto.enable = function () {};
+
+proto.disable = function () {};
 
 module.exports = BaseView;
 
-},{"../components/EventEmitter":3}],19:[function(require,module,exports){
+},{"../components/EventEmitter":3,"../components/loadPage":6,"../utils/transitionEndEvent":15}],18:[function(require,module,exports){
 'use strict';
 
 var loadScript = require('../utils/loadScript');
@@ -867,13 +836,12 @@ proto.onClicked = function () {
 
 module.exports = Comments;
 
-},{"../utils/loadScript":13}],20:[function(require,module,exports){
+},{"../utils/loadScript":12}],19:[function(require,module,exports){
 'use strict';
 
 var transitionEndEvent = require('../utils/transitionEndEvent')();
 
 var BaseView = require('./BaseView');
-var TransitionWatcher = require('../components/TransitionWatcher');
 
 function Header () {
 	this.el = document.getElementById('siteheader');
@@ -892,9 +860,7 @@ function Header () {
 		};
 	}
 
-	this.introWatcher = new TransitionWatcher();
-	this.onIntroEnded = this.onIntroEnded.bind(this);
-	this.el.addEventListener(transitionEndEvent, this.onIntroEnded, false);
+	this.listenToTransitionEnd(this.el, this.onIntroComplete.bind(this));
 }
 
 var proto = Header.prototype = new BaseView();
@@ -939,43 +905,60 @@ proto.getPageLinks = function () {
 	return pathnames;
 };
 
-proto.onIntroEnded = function (evt) {
-	this.el.removeEventListener(transitionEndEvent, this.onIntroEnded);
-	this.introWatcher.complete();
-};
-
 module.exports = Header;
 
-},{"../components/TransitionWatcher":6,"../utils/transitionEndEvent":16,"./BaseView":18}],21:[function(require,module,exports){
+},{"../utils/transitionEndEvent":15,"./BaseView":17}],20:[function(require,module,exports){
 'use strict';
 
 var BaseView = require('./BaseView');
 
 function Labs () {
-	//
+	if (document.body.classList.contains('is-lab', 'is-intro')) {
+		// doesn't have an intro at the moment so listen to siteheader instead
+		this.listenToTransitionEnd(document.getElementById('siteheader'), this.onIntroComplete.bind(this));
+	}
 }
 
 var proto = Labs.prototype = new BaseView();
 
-proto.show = function () {
-	//
+proto.hasPage = function (url) {
+	// override and always return true until real labs page exists
+	return true;
+};
+
+proto.hide = function (nextState) {
+	switch (nextState) {
+		case 'panels' :
+			// TODO: add delay then remove whatever view we have here
+			document.body.classList.add('is-transition-panelsbelow');
+			document.body.classList.remove('is-darktheme');
+			window.requestAnimationFrame(this.onHidden.bind(this));
+			break;
+
+		default :
+			// TODO: add default
+	}
+};
+
+proto.show = function (fromState, lastUrl) {
+	document.body.classList.add('is-darktheme');
 };
 
 module.exports = Labs;
 
-},{"./BaseView":18}],22:[function(require,module,exports){
+},{"./BaseView":17}],21:[function(require,module,exports){
 'use strict';
 
 var createPageItem = require('../utils/createPageItem');
 var isMouseOut = require('../utils/isMouseOut');
 var loadPage = require('../components/loadPage');
+var setColor = require('../utils/setColor');
 var transitionEndEvent = require('../utils/transitionEndEvent')();
 var waitAnimationFrames = require('../utils/waitAnimationFrames');
 
 var BaseView = require('./BaseView');
 var PanelsNav = require('./PanelsNav');
 var ScrollEvents = require('../components/ScrollEvents');
-var TransitionWatcher = require('../components/TransitionWatcher');
 
 function Panels () {
 	this.el = document.getElementById('panels') || createPageItem('panels', 'div', 'pagecontent-item', 'is-hidden');
@@ -986,17 +969,23 @@ function Panels () {
 	this.totalPanels = this.panels.length;
 	this.currentIndex = -1;
 
+	this.loadSelectors = [
+		'#panels .panel',
+		'#panels-nav'
+	];
+
 	this.onMouseOver = this.onMouseOver.bind(this);
 	this.onMouseOut = this.onMouseOut.bind(this);
 	this.onScrolledToEnd = this.onScrolledToEnd.bind(this);
 	this.onScrolledToPoint = this.onScrolledToPoint.bind(this);
-	this.onPanelsLoaded = this.onPanelsLoaded.bind(this);
 	this.onNavClicked = this.onNavClicked.bind(this);
+	this.onHiddenToPost = this.onHiddenToPost.bind(this);
+
+	this.on('onloaded', this.onPanelsLoaded.bind(this));
 
 	if (document.body.classList.contains('is-panels', 'is-intro')) {
-		this.introWatcher = new TransitionWatcher();
-		this.onIntroEnded = this.onIntroEnded.bind(this);
-		this.panels[this.totalPanels - 1].addEventListener(transitionEndEvent, this.onIntroEnded, false);
+		this.listenToTransitionEnd(this.panels[this.totalPanels - 1], this.onIntroComplete.bind(this));
+		this.deeplinked();
 	}
 	else if (document.body.classList.contains('is-lab')) {
 		this.hideBelow();
@@ -1005,39 +994,69 @@ function Panels () {
 
 var proto = Panels.prototype = new BaseView();
 
-proto.preload = function () {
-	if (this.panels.length <= 0) {
-		loadPage('/', this.onPanelsLoaded, '#panels .panel', '#panels-nav');
+proto.show = function (fromState, lastUrl) {
+	switch (fromState) {
+		case 'post' :
+			this.showFromPost(lastUrl);
+			break;
+
+		case 'lab' :
+			this.showFromBelow();
+			break;
+
+		default :
+			// TODO: add default
 	}
 };
 
 proto.showFromPost = function (url) {
-	this.enable();
 	this.el.classList.remove('is-hidden');
-	this.scrollEvents.update(this.el);
-	this.watcher = this.transitionFromPost(url);
-	return this.watcher;
+	this.transitionFromPost(url);
+	// this.enable();
 };
 
-proto.transitionFromBelow = function () {
-	this.enable();
+proto.showFromBelow = function () {
 	this.el.classList.remove('is-hidden');
-
+	this.listenToTransitionEnd(this.getLastShownPanel(), this.onShowed);
+	// this.enable();
 	waitAnimationFrames(function () {
 		this.el.classList.remove('is-hidebelow');
 	}.bind(this), 2);
-
-	return this.transitionBelow();
 };
 
 proto.hideBelow = function () {
+	setColor(document.body);
+	document.body.classList.add('is-transition-panelsbelow'); // TODO: should probably remove this when transition is done no? Maybe in app
 	this.el.classList.add('is-hidebelow');
 };
 
-proto.hide = function () {
-	this.disable();
-	this.el.classList.add('is-hidden');
-	this.onScrolledToPoint();
+proto.hide = function (nextState) {
+	switch (nextState) {
+		case 'post' :
+			this.transitionToPost();
+			this.on('onhidden', this.onHiddenToPost);
+			break;
+
+		case 'lab' :
+			this.hideBelow();
+			window.requestAnimationFrame(this.onHidden.bind(this));
+			break;
+
+		default :
+			this.disable();
+			this.el.classList.add('is-hidden');
+			this.onScrolledToPoint();
+	}
+};
+
+proto.load = function (url) {
+	BaseView.prototype.load.call(this, url || '/');
+};
+
+proto.onHiddenToPost = function (evt) {
+	this.off('onhidden', this.onHiddenToPost);
+	this.hide();
+	this.resetTransition();
 };
 
 proto.addPanels = function (index, append) {
@@ -1088,22 +1107,6 @@ proto.removeExpandClass = function () {
 	}
 };
 
-proto.onIntroEnded = function (evt) {
-	this.panels[this.totalPanels - 1].removeEventListener(transitionEndEvent, this.onIntroEnded);
-	this.enable();
-	this.introWatcher.complete();
-
-	var onMouseMove = function (evt) {
-		document.removeEventListener('mousemove', onMouseMove);
-		var index = this.panels.indexOf(evt.target);
-		if (index > -1) {
-			this.onMouseOver();
-			this.onPanelMouseOver(index);
-		}
-	}.bind(this);
-	document.addEventListener('mousemove', onMouseMove, false);
-};
-
 proto.onPanelMouseOver = function (index) {
 	if (this.currentIndex != index) {
 		this.removeExpandClass();
@@ -1131,7 +1134,10 @@ proto.onMouseOut = function (evt) {
 	}
 };
 
-proto.onPanelsLoaded = function (panels, nav) {
+proto.onPanelsLoaded = function (evt) {
+	// TODO: clean up this method - e.g. why the return ??
+	var panels = evt.args[0];
+	var nav = evt.args[1];
 
 	this.nav.setLoading(false);
 	this.panels = this.panels.concat(Array.prototype.slice.call(panels));
@@ -1164,7 +1170,9 @@ proto.onPanelsLoaded = function (panels, nav) {
 proto.onScrolledToEnd = function (evt) {
 	this.el.removeEventListener('reachedend', this.onScrolledToEnd);
 	this.nav.setLoading(true);
-	loadPage(this.nav.getPath(), this.onPanelsLoaded, '#panels .panel', '#panels-nav');
+	// TODO: make this just load()
+	console.log('scrolled to end.... TODO');
+	// loadPage(this.nav.getPath(), this.onPanelsLoaded, '#panels .panel', '#panels-nav');
 };
 
 proto.onScrolledToPoint = function (evt) {
@@ -1203,41 +1211,18 @@ proto.getLastShownPanel = function () {
 	return panel;
 };
 
-proto.transitionBelow = function () {
-	var watcher = new TransitionWatcher();
-	var listenTo = this.getLastShownPanel();
-
-	if (listenTo === undefined) {
-		console.log('wait for panels to load first....');
-		// panel not loaded - do fade instead
-		// also check if any panels, if not, load
-		// them or wait until they have loaded
-		return watcher;
-	}
-
-	this.listenToTransitionEnd(listenTo, watcher);
-	return watcher;
-};
-
 proto.transitionToPost = function () {
+	var color = this.getCurrentColor(location.pathname);
+	document.body.classList.add('is-transition-topostfrompanels');
+	setColor(document.body, color);
+
 	this.transformed = this.nudgeSiblingPanels(this.currentIndex, 25); // 25 is half the expand width - maybe make this dynamic?
 	var listenTo = this.transformed[0];
-	var watcher = new TransitionWatcher();
-	this.listenToTransitionEnd(listenTo, watcher);
-	return watcher;
+	this.listenToTransitionEnd(listenTo, this.onHidden);
 };
 
 proto.transitionFromPost = function (url) {
-	var watcher = new TransitionWatcher();
 	var panelObj = this.panelsUrlMap[url];
-
-	if (panelObj === undefined) {
-		// panel not loaded - do fade instead
-		// also check if any panels, if not, load
-		// them or wait until they have loaded
-		return watcher;
-	}
-
 	var midPoint = window.innerWidth * 0.5;
 	var left = panelObj.panel.offsetLeft + (this.panels[0].offsetWidth * 0.5);
 	var scrollLeft = Math.round(left - midPoint);
@@ -1252,10 +1237,8 @@ proto.transitionFromPost = function (url) {
 		document.body.classList.remove('is-transition-topanelsfrompost');
 		panelObj.panel.classList.remove('is-transition-panel');
 		this.resetTransition();
-		this.listenToTransitionEnd(listenTo, watcher);
+		this.listenToTransitionEnd(listenTo, this.onShowed);
 	}.bind(this), 2);
-
-	return watcher;
 };
 
 proto.nudgeSiblingPanels = function (index, expandWidth) {
@@ -1296,14 +1279,6 @@ proto.nudgeSiblingPanels = function (index, expandWidth) {
 	return nudgedPanels;
 };
 
-proto.listenToTransitionEnd = function (el, watcher) {
-	var onTransitionEnded = function (evt) {
-		el.removeEventListener(transitionEndEvent, onTransitionEnded);
-		watcher.complete();
-	};
-	el.addEventListener(transitionEndEvent, onTransitionEnded, false);
-};
-
 proto.resetTransition = function () {
 	var i = this.transformed.length;
 	while (i--) {
@@ -1320,6 +1295,19 @@ proto.enable = function () {
 	if (this.scrollEvents === undefined) {
 		this.scrollEvents = new ScrollEvents(this.el);
 	}
+	else {
+		this.scrollEvents.update(this.el);
+	}
+
+	var onMouseMove = function (evt) {
+		document.removeEventListener('mousemove', onMouseMove);
+		var index = this.panels.indexOf(evt.target);
+		if (index > -1) {
+			this.onMouseOver();
+			this.onPanelMouseOver(index);
+		}
+	}.bind(this);
+	document.addEventListener('mousemove', onMouseMove, false);
 };
 
 proto.disable = function () {
@@ -1329,7 +1317,7 @@ proto.disable = function () {
 
 module.exports = Panels;
 
-},{"../components/ScrollEvents":5,"../components/TransitionWatcher":6,"../components/loadPage":7,"../utils/createPageItem":11,"../utils/isMouseOut":12,"../utils/transitionEndEvent":16,"../utils/waitAnimationFrames":17,"./BaseView":18,"./PanelsNav":23}],23:[function(require,module,exports){
+},{"../components/ScrollEvents":5,"../components/loadPage":6,"../utils/createPageItem":10,"../utils/isMouseOut":11,"../utils/setColor":13,"../utils/transitionEndEvent":15,"../utils/waitAnimationFrames":16,"./BaseView":17,"./PanelsNav":22}],22:[function(require,module,exports){
 'use strict';
 
 var createPageItem = require('../utils/createPageItem');
@@ -1373,7 +1361,7 @@ proto.setPath = function (path) {
 
 module.exports = PanelsNav;
 
-},{"../utils/createPageItem":11}],24:[function(require,module,exports){
+},{"../utils/createPageItem":10}],23:[function(require,module,exports){
 'use strict';
 
 var createPageItem = require('../utils/createPageItem');
@@ -1384,7 +1372,6 @@ var waitAnimationFrames = require('../utils/waitAnimationFrames');
 
 var BaseView = require('./BaseView');
 var Comments = require('./Comments');
-var TransitionWatcher = require('../components/TransitionWatcher');
 
 function Posts (options) {
 	this.el = document.getElementById('post') || createPageItem('post', 'div', 'pagecontent-item', 'is-hidden');
@@ -1392,8 +1379,12 @@ function Posts (options) {
 	this.previousNav = document.querySelector('.post-nav-previous');
 	this.closeNav = document.querySelector('.post-nav-close');
 
-	this.onPostLoaded = this.onPostLoaded.bind(this);
-	this.onShowTransitionEnd = this.onShowTransitionEnd.bind(this);
+	this.loadSelectors = [
+		'.post',
+		'.post-nav-next',
+		'.post-nav-previous'
+	];
+
 	this.onHideTransitionEnd = this.onHideTransitionEnd.bind(this);
 	this.onSlideOffTransitionEnd = this.onSlideOffTransitionEnd.bind(this);
 	this.onSlideOnTransitionEnd = this.onSlideOnTransitionEnd.bind(this);
@@ -1401,108 +1392,38 @@ function Posts (options) {
 	this.posts = {};
 	this.comments = new Comments();
 
-	this.loadSiblingPosts();
+	this.on('onloaded', this.onPostLoaded.bind(this));
+	this.on('onshowed', this.onShow.bind(this)); // maybe store and remove?
 
 	if (document.body.classList.contains('is-post', 'is-intro')) {
-		this.introWatcher = new TransitionWatcher();
-		this.onIntroEnded = this.onIntroEnded.bind(this);
-		this.el.addEventListener(transitionEndEvent, this.onIntroEnded, false);
+		this.listenToTransitionEnd(this.el, this.onIntroComplete.bind(this));
+		this.deeplinked();
+
+		this.onPostLoaded({
+			url: location.pathname,
+			args: this.pages[location.pathname]
+		});
+
+		this.loadSiblingPosts();
 	}
 }
 
 var proto = Posts.prototype = new BaseView();
 
-proto.preload = function(url) {
-	//
-};
-
-proto.show = function(url) {
-	this.showNext = url;
-	this.loadPost(url);
-	this.watcher = new TransitionWatcher();
-	return this.watcher;
-};
-
-proto.hide = function(url) {
-	this.watcher = new TransitionWatcher();
-	this.el.addEventListener(transitionEndEvent, this.onHideTransitionEnd, false);
-	this.el.classList.add('is-hidden');
-	this.nextNav.classList.add('is-hidden');
-	this.previousNav.classList.add('is-hidden');
-	this.closeNav.classList.add('is-hidden');
-	return this.watcher;
-};
-
-proto.slide = function(url) {
-	this.showNext = url;
-	this.loadPost(url);
-};
-
-proto.loadPost = function (url) {
-	loadPage(url, this.onPostLoaded, '.post', '.post-nav-next', '.post-nav-previous');
-};
-
-proto.loadSiblingPosts = function () {
-	if (this.nextNav.pathname !== location.pathname) {
-		this.loadPost(this.nextNav.pathname);
-	}
-
-	if (this.previousNav.pathname !== location.pathname) {
-		this.loadPost(this.previousNav.pathname);
-	}
-};
-
-proto.setNavHref = function (post) {
-	if (post.next) {
-		this.nextNav.href = post.next;
-		this.nextNav.classList.remove('is-hidden');
-	}
-	else {
-		this.nextNav.classList.add('is-hidden');
-	}
-
-	if (post.previous) {
-		this.previousNav.href = post.previous;
-		this.previousNav.classList.remove('is-hidden');
-	}
-	else {
-		this.previousNav.classList.add('is-hidden');
-	}
-
-	this.loadSiblingPosts();
-};
-
-proto.onPostLoaded = function (post, next, previous, url) {
-
+proto.onPostLoaded = function(evt) {
+	var url = evt.url;
+	var post = evt.args[0][0];
+	var navNext = evt.args[1][0];
+	var navPrevious = evt.args[2][0];
 	var currentPost = this.posts[url] = {
-		post: post[0],
-		html: post[0].innerHTML,
-		color: post[0].dataset.color,
-		next: next[0].classList.contains('is-hidden') ? false : next[0].pathname,
-		previous: previous[0].classList.contains('is-hidden') ? false : previous[0].pathname
+		post: post,
+		html: post.innerHTML,
+		color: post.dataset.color,
+		next: navNext.classList.contains('is-hidden') ? false : navNext.pathname,
+		previous: navPrevious.classList.contains('is-hidden') ? false : navPrevious.pathname
 	};
 
-	if (this.showNext) {
-		this.showNext = undefined;
-
-		if (this.el.classList.contains('is-hidden')) {
-			this.el.innerHTML = currentPost.html;
-			this.el.classList.remove('is-hidden');
-			this.el.addEventListener(transitionEndEvent, this.onShowTransitionEnd, false);
-		}
-		else {
-			// navigating to another post
-			setColor(document.body, currentPost.color);
-			this.closeNav.classList.add('is-hidden');
-			var slideDirection = (!this.nextNav.classList.contains('is-hidden') && url === this.nextNav.pathname) ? 'right' : 'left';
-			document.body.classList.add('is-slideoff', 'is-slideoff-' + slideDirection);
-			this.el.removeEventListener(transitionEndEvent, this.onSlideOnTransitionEnd);
-			this.el.addEventListener(transitionEndEvent, this.onSlideOffTransitionEnd, false);
-		}
-
-		this.setNavHref(currentPost);
-	}
-	else if (url === this.nextNav.pathname) {
+	if (url === this.nextNav.pathname) {
 		setColor(this.nextNav, currentPost.color);
 	}
 	else if (url === this.previousNav.pathname) {
@@ -1510,19 +1431,75 @@ proto.onPostLoaded = function (post, next, previous, url) {
 	}
 };
 
-proto.onShowTransitionEnd = function () {
-	this.el.removeEventListener(transitionEndEvent, this.onShowTransitionEnd);
-	this.closeNav.classList.remove('is-hidden');
-	this.watcher.complete();
+proto.show = function(fromState, lastUrl) {
+	switch (fromState) {
+		case 'panels' :
+			this.showPost(location.pathname);
+			break;
+
+		default :
+			// TODO: add default
+	}
 };
 
-proto.onHideTransitionEnd = function () {
-	this.el.removeEventListener(transitionEndEvent, this.onHideTransitionEnd);
-	this.watcher.complete();
+proto.hide = function (nextState) {
+	switch (nextState) {
+		case 'panels' :
+			document.body.classList.add('is-transition-topanelsfrompost');
+			this.hidePost();
+			// this.on('onhidden', this.onHiddenToPanels);
+			break;
+
+		default :
+			// TODO: add default
+	}
 };
 
-proto.onSlideOffTransitionEnd = function () {
-	this.el.removeEventListener(transitionEndEvent, this.onSlideOffTransitionEnd);
+proto.hidePost = function () {
+	this.listenToTransitionEnd(this.el, this.onHidden);
+	this.el.classList.add('is-hidden');
+	this.nextNav.classList.add('is-hidden');
+	this.previousNav.classList.add('is-hidden');
+	this.closeNav.classList.add('is-hidden');
+};
+
+proto.update = function (url) {
+	this.slide(url);
+};
+
+
+// maybe just put all this in update ??
+proto.slide = function (url) {
+	this.slideOff(url);
+
+	if (this.posts[url]) {
+		// post is already loaded
+		setColor(document.body, this.posts[url].color);
+		this.setNavHref(this.posts[url]);
+	}
+	else {
+		// need to load post
+		var callback = function (evt) {
+			if (evt.url === url) {
+				this.off('onloaded', callback);
+				setColor(document.body, this.posts[url].color);
+				this.setNavHref(this.posts[url]);
+			}
+		};
+		this.on('onloaded', callback);
+		this.load(url);
+	}
+};
+
+proto.slideOff = function (url) {
+	this.closeNav.classList.add('is-hidden');
+	var slideDirection = (!this.nextNav.classList.contains('is-hidden') && url === this.nextNav.pathname) ? 'right' : 'left';
+	document.body.classList.add('is-slideoff', 'is-slideoff-' + slideDirection);
+	this.el.removeEventListener(transitionEndEvent, this.onSlideOnTransitionEnd);
+	this.el.addEventListener(transitionEndEvent, this.onSlideOffTransitionEnd, false);
+};
+
+proto.slideOn = function () {
 	this.el.innerHTML = this.posts[location.pathname].html;
 
 	window.scrollTo(0, 0);
@@ -1546,6 +1523,83 @@ proto.onSlideOffTransitionEnd = function () {
 	}.bind(this), 2);
 };
 
+proto.loadSiblingPosts = function () {
+	var currentUrl = location.pathname;
+	var nextUrl = this.nextNav.pathname;
+	var previousUrl = this.previousNav.pathname;
+
+	if (nextUrl !== currentUrl && !this.nextNav.classList.contains('is-hidden')) {
+		if (this.hasPage(nextUrl)) {
+			setColor(this.nextNav, this.posts[nextUrl].color);
+		}
+		else {
+			this.load(nextUrl);
+		}
+	}
+
+	if (previousUrl !== currentUrl && !this.previousNav.classList.contains('is-hidden')) {
+		if (this.hasPage(previousUrl)) {
+			setColor(this.previousNav, this.posts[previousUrl].color);
+		}
+		else {
+			this.load(previousUrl);
+		}
+	}
+};
+
+proto.setNavHref = function (post) {
+	if (post.next) {
+		this.nextNav.href = post.next;
+		this.nextNav.classList.remove('is-hidden');
+	}
+	else {
+		this.nextNav.classList.add('is-hidden');
+	}
+
+	if (post.previous) {
+		this.previousNav.href = post.previous;
+		this.previousNav.classList.remove('is-hidden');
+	}
+	else {
+		this.previousNav.classList.add('is-hidden');
+	}
+
+	this.loadSiblingPosts();
+};
+
+proto.showPost = function (url) {
+	var currentPost = this.posts[url];
+	this.el.innerHTML = currentPost.html;
+	this.el.classList.remove('is-hidden');
+	this.listenToTransitionEnd(this.el, this.onShowed);
+	this.setNavHref(currentPost);
+};
+
+proto.onShow = function () {
+	this.closeNav.classList.remove('is-hidden');
+};
+
+proto.onHideTransitionEnd = function () {
+	this.el.removeEventListener(transitionEndEvent, this.onHideTransitionEnd);
+	this.watcher.complete();
+};
+
+proto.onSlideOffTransitionEnd = function () {
+	this.el.removeEventListener(transitionEndEvent, this.onSlideOffTransitionEnd);
+	if (this.posts[location.pathname]) {
+		this.slideOn();
+	}
+	else {
+		var callback = function (evt) {
+			if (evt.url === location.pathname) {
+				this.off('onloaded', callback);
+				this.slideOn();
+			}
+		};
+		this.on('onloaded', callback);
+	}
+};
+
 proto.onSlideOnTransitionEnd = function () {
 	this.el.removeEventListener(transitionEndEvent, this.onSlideOnTransitionEnd);
 	this.closeNav.classList.remove('is-hidden');
@@ -1557,16 +1611,6 @@ proto.onIntroEnded = function (evt) {
 	this.comments.refresh();
 };
 
-proto.enable = function () {
-	if (this.el) {
-		//
-	}
-};
-
-proto.disable = function () {
-	//
-};
-
 module.exports = Posts;
 
-},{"../components/TransitionWatcher":6,"../components/loadPage":7,"../utils/createPageItem":11,"../utils/setColor":14,"../utils/transitionEndEvent":16,"../utils/waitAnimationFrames":17,"./BaseView":18,"./Comments":19}]},{},[9]);
+},{"../components/loadPage":6,"../utils/createPageItem":10,"../utils/setColor":13,"../utils/transitionEndEvent":15,"../utils/waitAnimationFrames":16,"./BaseView":17,"./Comments":18}]},{},[8]);

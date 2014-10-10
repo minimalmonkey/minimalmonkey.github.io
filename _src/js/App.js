@@ -1,134 +1,81 @@
 'use strict';
 
-var setColor = require('./utils/setColor');
-
-var Router = require('./components/Router');
+var Analytics = require('./components/Analytics');
 var Header = require('./views/Header');
+var Lab = require('./views/Lab');
 var Panels = require('./views/Panels');
 var Posts = require('./views/Posts');
-var Lab = require('./views/Lab');
+var Router = require('./components/Router');
 
 function App (analytics) {
+	this.onNavigate = this.onNavigate.bind(this);
+	this.onIntroComplete = this.onIntroComplete.bind(this);
+	this.onViewHidden = this.onViewHidden.bind(this);
+	this.onViewLoaded = this.onViewLoaded.bind(this);
 
-	this.showHeader = this.showHeader.bind(this);
-	this.showPanels = this.showPanels.bind(this);
-	this.showPost = this.showPost.bind(this);
-	this.showLab = this.showLab.bind(this);
-
-	this.onPanelShowComplete = this.onPanelShowComplete.bind(this);
-	this.onPanelHideComplete = this.onPanelHideComplete.bind(this);
-	this.onPostShowComplete = this.onPostShowComplete.bind(this);
-	this.onPostHideComplete = this.onPostHideComplete.bind(this);
-
-	this.initViews();
-	this.initRouter(analytics);
-
-	window.requestAnimationFrame(function () {
-		document.body.classList.add('is-introtransition');
-		document.body.classList.remove('is-intro');
-	});
+	this.init(analytics);
 }
 
 var proto = App.prototype;
 
-proto.initViews = function () {
+proto.init = function (analytics) {
+	this.analytics = new Analytics('UA-54501731-1', 'minimalmonkey.github.io', 200);
+
 	this.header = new Header();
 	this.panels = new Panels();
 	this.posts = new Posts();
 	this.lab = new Lab();
-};
 
-proto.initRouter = function (analytics) {
-	this.router = new Router(analytics, [
+	this.router = new Router([
 		this.panels.el
 	]);
 
 	var headerLinks = this.header.getPageLinks();
 	var i = headerLinks.length;
 	while (i--) {
-		this.router.add(headerLinks[i], this.showHeader);
+		this.router.add(headerLinks[i], this.onNavigate, this.header, 'header');
 	}
-	this.router.add('/', this.showPanels);
-	this.router.add('/lab/', this.showLab);
-	this.router.add('*post', this.showPost);
+	this.router.add('/', this.onNavigate, this.panels, 'panels');
+	this.router.add('/lab/', this.onNavigate, this.lab, 'lab');
+	this.router.add('*post', this.onNavigate, this.posts, 'post');
 
 	this.router.match(location.pathname);
 
-	this.onIntroComplete = this.onIntroComplete.bind(this);
+	this.view.on('onintrocomplete', this.onIntroComplete);
 
-	if (this.view && this.view.introWatcher) {
-		this.view.introWatcher.on('complete', this.onIntroComplete);
-	}
-	else {
-		this.header.introWatcher.on('complete', this.onIntroComplete);
-	}
+	window.requestAnimationFrame(function () {
+		document.body.classList.add('is-introtransition');
+		document.body.classList.remove('is-intro');
+	});
 };
 
-proto.showHeader = function (match, params) {
-	this.header.open(match, this.state !== 'header' ? this.router.lastURL : false);
-	this.view = this.header;
-	this.setState('header');
-};
-
-proto.showPanels = function (match, params) {
-	if (this.state === 'panels') {
-		// already panels
-	}
-	else if (this.state === 'post') {
-		this.panels.preload();
-		document.body.classList.add('is-muted', 'is-transition-topanelsfrompost');
-		this.watcher = this.posts.hide();
-		this.watcher.on('complete', this.onPostHideComplete);
-	}
-	else if (this.state === 'lab') {
-		this.panels.preload();
-		document.body.classList.add('is-muted', 'is-transition-panelsbelow');
-		document.body.classList.remove('is-darktheme');
-		this.watcher = this.panels.transitionFromBelow();
-		this.watcher.on('complete', this.onPanelShowComplete);
+proto.onNavigate = function (view, state, match, params) {
+	if (state === 'header') {
+		this.header.open(match, this.state !== 'header' ? this.router.lastURL : false);
 	}
 	else if (this.state === 'header') {
 		this.header.close();
 	}
-	this.view = this.panels;
-	this.setState('panels');
+	else if (this.state === state) {
+		this.view.update(params);
+	}
+	else if (this.state) {
+		document.body.classList.add('is-muted');
+		view.load(params);
+		this.view.on('onhidden', this.onViewHidden);
+		this.view.hide(state);
+	}
+	this.setView(view, state);
+	this.analytics.update(location.pathname);
 };
 
-proto.showPost = function (match, params) {
-	if (this.state === 'panels') {
-		// TODO: preload post while animating
-		var color = this.panels.getCurrentColor(params);
-		document.body.classList.add('is-muted', 'is-transition-topostfrompanels');
-		setColor(document.body, color);
-		this.watcher = this.panels.transitionToPost();
-		this.watcher.on('complete', this.onPanelHideComplete);
+proto.setView = function (view, state) {
+	if (this.state === state) {
+		return;
 	}
-	else if (this.state === 'post') {
-		this.posts.slide(location.pathname);
-	}
-	else if (this.state === 'header') {
-		this.header.close();
-	}
-	this.view = this.posts;
-	this.setState('post');
-};
-
-proto.showLab = function (match, params) {
-	if (this.state === 'panels') {
-		document.body.classList.add('is-muted', 'is-transition-panelsbelow', 'is-darktheme');
-		this.panels.hideBelow();
-		this.watcher = this.panels.transitionBelow();
-		this.watcher.on('complete', this.onPanelHideComplete);
-	}
-	else if (this.state === 'header') {
-		this.header.close();
-	}
-	this.view = this.lab;
-	this.setState('lab');
-};
-
-proto.setState = function (state) {
+	this.view = view;
 	if (this.state) {
+		this.lastState = this.state;
 		document.body.classList.remove('is-' + this.state);
 	}
 	this.state = state;
@@ -136,50 +83,42 @@ proto.setState = function (state) {
 };
 
 proto.onIntroComplete = function () {
-	if (this.view.introWatcher) {
-		this.view.introWatcher.clear();
-	}
-	else {
-		this.header.introWatcher.clear();
-	}
 	document.body.classList.remove('is-introtransition');
 };
 
-proto.onPanelShowComplete = function () {
-	this.watcher.off('complete', this.onPanelShowComplete);
-	document.body.classList.remove('is-muted', 'is-transition-topanelsfrompost', 'is-transition-panelsbelow'); // TODO: be more specific
+proto.showView = function () {
+	this.view.on('onshowed', this.onViewShowed);
+	this.view.show(this.lastState, this.router.lastURL);
 };
 
-proto.onPanelHideComplete = function () {
-	this.watcher.off('complete', this.onPanelHideComplete);
-	this.panels.hide();
+proto.onViewShowed = function (evt) {
+	evt.target.off('onshowed', this.onViewShowed);
 
-	if (this.state === 'post') {
-		this.panels.resetTransition();
-		this.watcher = this.posts.show(location.pathname);
-		this.watcher.on('complete', this.onPostShowComplete);
+	var classes = document.body.classList;
+	var i = classes.length;
+	while (i--) {
+		if (classes[i].indexOf('is-transition-') === 0) {
+			document.body.classList.remove(classes[i]);
+		}
 	}
-	else if (this.state === 'lab') {
-		document.body.classList.remove('is-muted', 'is-transition-panelsbelow');
+	document.body.classList.remove('is-muted');
+};
+
+proto.onViewHidden = function (evt) {
+	evt.target.off('onhidden', this.onViewHidden);
+	if (this.view.hasPage(location.pathname)) {
+		this.showView();
 	}
-};
-
-proto.onPostShowComplete = function () {
-	this.watcher.off('complete', this.onPostShowComplete);
-	document.body.classList.remove('is-muted', 'is-transition-topostfrompanels');
-};
-
-proto.onPostHideComplete = function () {
-	this.watcher.off('complete', this.onPostHideComplete);
-
-	if (this.state === 'panels') {
-		this.watcher = this.panels.showFromPost(this.router.lastURL);
-		this.watcher.on('complete', this.onPanelShowComplete);
+	else {
+		this.view.on('onloaded', this.onViewLoaded);
 	}
 };
 
-proto.onViewLoaded = function () {
-	console.log('onViewLoaded');
+proto.onViewLoaded = function (evt) {
+	if (evt.url === location.pathname) {
+		this.view.off('onloaded', this.onViewLoaded);
+		this.showView();
+	}
 };
 
 module.exports = App;

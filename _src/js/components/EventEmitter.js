@@ -13,7 +13,16 @@ proto._getListeners = function (evt) {
 	return events[evt] || (events[evt] = []);
 };
 
+proto._setListeners = function (evt, listeners) {
+	var events = this._getEvents();
+	events[evt] = listeners;
+};
+
 proto.on = function (evt, listener) {
+	if (typeof listener !== 'function') {
+		// throw error ?
+		return;
+	}
 	var listeners = this._getListeners(evt);
 	var index = listeners.indexOf(listener);
 	if (index < 0) {
@@ -25,15 +34,17 @@ proto.off = function (evt, listener) {
 	var listeners = this._getListeners(evt);
 	var index = listeners.indexOf(listener);
 	if (index > -1) {
-		listeners.splice(index, 1);
+		this._setListeners(evt, listeners.slice(0, index).concat(listeners.slice(index + 1)));
 	}
 };
 
-proto.trigger = function (evt) {
+proto.trigger = function (evt, obj) {
+	obj = obj || {};
+	obj.target = obj.target || this;
 	var listeners = this._getListeners(evt);
-	var i = listeners.length;
-	while (i--) {
-		listeners[i].call();
+	var i, len = listeners.length;
+	for (i = 0; i < len; i++) {
+		listeners[i].call(this, obj);
 	}
 };
 

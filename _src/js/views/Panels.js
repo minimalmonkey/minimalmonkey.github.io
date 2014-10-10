@@ -3,13 +3,13 @@
 var createPageItem = require('../utils/createPageItem');
 var isMouseOut = require('../utils/isMouseOut');
 var loadPage = require('../components/loadPage');
+var setColor = require('../utils/setColor');
 var transitionEndEvent = require('../utils/transitionEndEvent')();
 var waitAnimationFrames = require('../utils/waitAnimationFrames');
 
 var BaseView = require('./BaseView');
 var PanelsNav = require('./PanelsNav');
 var ScrollEvents = require('../components/ScrollEvents');
-var TransitionWatcher = require('../components/TransitionWatcher');
 
 function Panels () {
 	this.el = document.getElementById('panels') || createPageItem('panels', 'div', 'pagecontent-item', 'is-hidden');
@@ -20,17 +20,23 @@ function Panels () {
 	this.totalPanels = this.panels.length;
 	this.currentIndex = -1;
 
+	this.loadSelectors = [
+		'#panels .panel',
+		'#panels-nav'
+	];
+
 	this.onMouseOver = this.onMouseOver.bind(this);
 	this.onMouseOut = this.onMouseOut.bind(this);
 	this.onScrolledToEnd = this.onScrolledToEnd.bind(this);
 	this.onScrolledToPoint = this.onScrolledToPoint.bind(this);
-	this.onPanelsLoaded = this.onPanelsLoaded.bind(this);
 	this.onNavClicked = this.onNavClicked.bind(this);
+	this.onHiddenToPost = this.onHiddenToPost.bind(this);
+
+	this.on('onloaded', this.onPanelsLoaded.bind(this));
 
 	if (document.body.classList.contains('is-panels', 'is-intro')) {
-		this.introWatcher = new TransitionWatcher();
-		this.onIntroEnded = this.onIntroEnded.bind(this);
-		this.panels[this.totalPanels - 1].addEventListener(transitionEndEvent, this.onIntroEnded, false);
+		this.listenToTransitionEnd(this.panels[this.totalPanels - 1], this.onIntroComplete.bind(this));
+		this.deeplinked();
 	}
 	else if (document.body.classList.contains('is-lab')) {
 		this.hideBelow();
@@ -39,39 +45,69 @@ function Panels () {
 
 var proto = Panels.prototype = new BaseView();
 
-proto.preload = function () {
-	if (this.panels.length <= 0) {
-		loadPage('/', this.onPanelsLoaded, '#panels .panel', '#panels-nav');
+proto.show = function (fromState, lastUrl) {
+	switch (fromState) {
+		case 'post' :
+			this.showFromPost(lastUrl);
+			break;
+
+		case 'lab' :
+			this.showFromBelow();
+			break;
+
+		default :
+			// TODO: add default
 	}
 };
 
 proto.showFromPost = function (url) {
-	this.enable();
 	this.el.classList.remove('is-hidden');
-	this.scrollEvents.update(this.el);
-	this.watcher = this.transitionFromPost(url);
-	return this.watcher;
+	this.transitionFromPost(url);
+	// this.enable();
 };
 
-proto.transitionFromBelow = function () {
-	this.enable();
+proto.showFromBelow = function () {
 	this.el.classList.remove('is-hidden');
-
+	this.listenToTransitionEnd(this.getLastShownPanel(), this.onShowed);
+	// this.enable();
 	waitAnimationFrames(function () {
 		this.el.classList.remove('is-hidebelow');
 	}.bind(this), 2);
-
-	return this.transitionBelow();
 };
 
 proto.hideBelow = function () {
+	setColor(document.body);
+	document.body.classList.add('is-transition-panelsbelow'); // TODO: should probably remove this when transition is done no? Maybe in app
 	this.el.classList.add('is-hidebelow');
 };
 
-proto.hide = function () {
-	this.disable();
-	this.el.classList.add('is-hidden');
-	this.onScrolledToPoint();
+proto.hide = function (nextState) {
+	switch (nextState) {
+		case 'post' :
+			this.transitionToPost();
+			this.on('onhidden', this.onHiddenToPost);
+			break;
+
+		case 'lab' :
+			this.hideBelow();
+			window.requestAnimationFrame(this.onHidden.bind(this));
+			break;
+
+		default :
+			this.disable();
+			this.el.classList.add('is-hidden');
+			this.onScrolledToPoint();
+	}
+};
+
+proto.load = function (url) {
+	BaseView.prototype.load.call(this, url || '/');
+};
+
+proto.onHiddenToPost = function (evt) {
+	this.off('onhidden', this.onHiddenToPost);
+	this.hide();
+	this.resetTransition();
 };
 
 proto.addPanels = function (index, append) {
@@ -122,22 +158,6 @@ proto.removeExpandClass = function () {
 	}
 };
 
-proto.onIntroEnded = function (evt) {
-	this.panels[this.totalPanels - 1].removeEventListener(transitionEndEvent, this.onIntroEnded);
-	this.enable();
-	this.introWatcher.complete();
-
-	var onMouseMove = function (evt) {
-		document.removeEventListener('mousemove', onMouseMove);
-		var index = this.panels.indexOf(evt.target);
-		if (index > -1) {
-			this.onMouseOver();
-			this.onPanelMouseOver(index);
-		}
-	}.bind(this);
-	document.addEventListener('mousemove', onMouseMove, false);
-};
-
 proto.onPanelMouseOver = function (index) {
 	if (this.currentIndex != index) {
 		this.removeExpandClass();
@@ -165,7 +185,10 @@ proto.onMouseOut = function (evt) {
 	}
 };
 
-proto.onPanelsLoaded = function (panels, nav) {
+proto.onPanelsLoaded = function (evt) {
+	// TODO: clean up this method - e.g. why the return ??
+	var panels = evt.args[0];
+	var nav = evt.args[1];
 
 	this.nav.setLoading(false);
 	this.panels = this.panels.concat(Array.prototype.slice.call(panels));
@@ -198,7 +221,9 @@ proto.onPanelsLoaded = function (panels, nav) {
 proto.onScrolledToEnd = function (evt) {
 	this.el.removeEventListener('reachedend', this.onScrolledToEnd);
 	this.nav.setLoading(true);
-	loadPage(this.nav.getPath(), this.onPanelsLoaded, '#panels .panel', '#panels-nav');
+	// TODO: make this just load()
+	console.log('scrolled to end.... TODO');
+	// loadPage(this.nav.getPath(), this.onPanelsLoaded, '#panels .panel', '#panels-nav');
 };
 
 proto.onScrolledToPoint = function (evt) {
@@ -237,41 +262,18 @@ proto.getLastShownPanel = function () {
 	return panel;
 };
 
-proto.transitionBelow = function () {
-	var watcher = new TransitionWatcher();
-	var listenTo = this.getLastShownPanel();
-
-	if (listenTo === undefined) {
-		console.log('wait for panels to load first....');
-		// panel not loaded - do fade instead
-		// also check if any panels, if not, load
-		// them or wait until they have loaded
-		return watcher;
-	}
-
-	this.listenToTransitionEnd(listenTo, watcher);
-	return watcher;
-};
-
 proto.transitionToPost = function () {
+	var color = this.getCurrentColor(location.pathname);
+	document.body.classList.add('is-transition-topostfrompanels');
+	setColor(document.body, color);
+
 	this.transformed = this.nudgeSiblingPanels(this.currentIndex, 25); // 25 is half the expand width - maybe make this dynamic?
 	var listenTo = this.transformed[0];
-	var watcher = new TransitionWatcher();
-	this.listenToTransitionEnd(listenTo, watcher);
-	return watcher;
+	this.listenToTransitionEnd(listenTo, this.onHidden);
 };
 
 proto.transitionFromPost = function (url) {
-	var watcher = new TransitionWatcher();
 	var panelObj = this.panelsUrlMap[url];
-
-	if (panelObj === undefined) {
-		// panel not loaded - do fade instead
-		// also check if any panels, if not, load
-		// them or wait until they have loaded
-		return watcher;
-	}
-
 	var midPoint = window.innerWidth * 0.5;
 	var left = panelObj.panel.offsetLeft + (this.panels[0].offsetWidth * 0.5);
 	var scrollLeft = Math.round(left - midPoint);
@@ -286,10 +288,8 @@ proto.transitionFromPost = function (url) {
 		document.body.classList.remove('is-transition-topanelsfrompost');
 		panelObj.panel.classList.remove('is-transition-panel');
 		this.resetTransition();
-		this.listenToTransitionEnd(listenTo, watcher);
+		this.listenToTransitionEnd(listenTo, this.onShowed);
 	}.bind(this), 2);
-
-	return watcher;
 };
 
 proto.nudgeSiblingPanels = function (index, expandWidth) {
@@ -330,14 +330,6 @@ proto.nudgeSiblingPanels = function (index, expandWidth) {
 	return nudgedPanels;
 };
 
-proto.listenToTransitionEnd = function (el, watcher) {
-	var onTransitionEnded = function (evt) {
-		el.removeEventListener(transitionEndEvent, onTransitionEnded);
-		watcher.complete();
-	};
-	el.addEventListener(transitionEndEvent, onTransitionEnded, false);
-};
-
 proto.resetTransition = function () {
 	var i = this.transformed.length;
 	while (i--) {
@@ -354,6 +346,19 @@ proto.enable = function () {
 	if (this.scrollEvents === undefined) {
 		this.scrollEvents = new ScrollEvents(this.el);
 	}
+	else {
+		this.scrollEvents.update(this.el);
+	}
+
+	var onMouseMove = function (evt) {
+		document.removeEventListener('mousemove', onMouseMove);
+		var index = this.panels.indexOf(evt.target);
+		if (index > -1) {
+			this.onMouseOver();
+			this.onPanelMouseOver(index);
+		}
+	}.bind(this);
+	document.addEventListener('mousemove', onMouseMove, false);
 };
 
 proto.disable = function () {
