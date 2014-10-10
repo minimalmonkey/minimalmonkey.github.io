@@ -185,45 +185,42 @@ proto.onMouseOut = function (evt) {
 	}
 };
 
-proto.onPanelsLoaded = function (evt) {
-	// TODO: clean up this method - e.g. why the return ??
-	var panels = evt.args[0];
-	var nav = evt.args[1];
-
+proto.setNav = function (nav) {
 	this.nav.setLoading(false);
-	this.panels = this.panels.concat(Array.prototype.slice.call(panels));
-	var index = this.totalPanels;
-	this.totalPanels = this.panels.length;
-	this.addPanels(index, true);
-
-	if (this.scrollEvents === undefined) {
-		// not enabled yet
-		if (nav[0]) {
-			this.nav.setPath(nav[0].href);
-		}
-		return;
-	}
-
-	this.scrollEvents.addPoint(this.scrollEvents.widthMinusWindow + this.panels[0].offsetWidth);
-	this.el.addEventListener('reachedpoint', this.onScrolledToPoint, false);
 	this.nav.el.addEventListener('click', this.onNavClicked, false);
-
-	if (nav[0]) {
-		this.nav.setPath(nav[0].href);
-		this.scrollEvents.update(this.el);
-		this.el.addEventListener('reachedend', this.onScrolledToEnd, false);
+	if (nav) {
+		this.nav.setPath(nav.href);
 	}
 	else {
 		this.allPanelsLoaded = true;
 	}
 };
 
+proto.onPanelsLoaded = function (evt) {
+	var panels = evt.args[0];
+	var nav = evt.args[1][0];
+
+	this.setNav(nav);
+	this.panels = this.panels.concat(Array.prototype.slice.call(panels));
+	var index = this.totalPanels;
+	this.totalPanels = this.panels.length;
+	this.addPanels(index, true);
+
+	if (this.scrollEvents !== undefined) {
+		this.scrollEvents.addPoint(this.scrollEvents.widthMinusWindow + this.panels[0].offsetWidth);
+		this.el.addEventListener('reachedpoint', this.onScrolledToPoint, false);
+
+		if (nav) {
+			this.scrollEvents.update(this.el);
+			this.el.addEventListener('reachedend', this.onScrolledToEnd, false);
+		}
+	}
+};
+
 proto.onScrolledToEnd = function (evt) {
 	this.el.removeEventListener('reachedend', this.onScrolledToEnd);
 	this.nav.setLoading(true);
-	// TODO: make this just load()
-	console.log('scrolled to end.... TODO');
-	// loadPage(this.nav.getPath(), this.onPanelsLoaded, '#panels .panel', '#panels-nav');
+	this.load(this.nav.getPath());
 };
 
 proto.onScrolledToPoint = function (evt) {
