@@ -38,7 +38,7 @@ function Panels () {
 		this.listenToTransitionEnd(this.panels[this.totalPanels - 1], this.onIntroComplete.bind(this));
 		this.deeplinked();
 	}
-	else if (document.body.classList.contains('is-lab')) {
+	else if (document.body.classList.contains('is-lab') || document.body.classList.contains('is-404')) {
 		this.hideBelow();
 	}
 }
@@ -52,6 +52,7 @@ proto.show = function (fromState, lastUrl) {
 			break;
 
 		case 'lab' :
+		case '404' :
 			this.showFromBelow();
 			break;
 
@@ -89,6 +90,7 @@ proto.hide = function (nextState) {
 			break;
 
 		case 'lab' :
+		case '404' :
 			this.hideBelow();
 			window.requestAnimationFrame(this.onHidden.bind(this));
 			break;
@@ -210,7 +212,7 @@ proto.onPanelsLoaded = function (evt) {
 		this.scrollEvents.addPoint(this.scrollEvents.widthMinusWindow + this.panels[0].offsetWidth);
 		this.el.addEventListener('reachedpoint', this.onScrolledToPoint, false);
 
-		if (nav) {
+		if (!this.allPanelsLoaded) {
 			this.scrollEvents.update(this.el);
 			this.el.addEventListener('reachedend', this.onScrolledToEnd, false);
 		}

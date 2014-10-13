@@ -4,6 +4,7 @@
 'use strict';
 
 var Analytics = require('./components/Analytics');
+var Error404 = require('./views/Error404');
 var Header = require('./views/Header');
 var Lab = require('./views/Lab');
 var Panels = require('./views/Panels');
@@ -28,6 +29,7 @@ proto.init = function (analytics) {
 	this.panels = new Panels();
 	this.posts = new Posts();
 	this.lab = new Lab();
+	this.error404 = new Error404();
 
 	this.router = new Router([
 		this.panels.el
@@ -38,6 +40,11 @@ proto.init = function (analytics) {
 	while (i--) {
 		this.router.add(headerLinks[i], this.onNavigate, this.header, 'header');
 	}
+
+	if (document.body.classList.contains('is-404')) {
+		this.router.add(location.pathname, this.onNavigate, this.error404, '404');
+	}
+
 	this.router.add('/', this.onNavigate, this.panels, 'panels');
 	this.router.add('/lab/', this.onNavigate, this.lab, 'lab');
 	this.router.add('*post', this.onNavigate, this.posts, 'post');
@@ -126,7 +133,7 @@ proto.onViewLoaded = function (evt) {
 
 module.exports = App;
 
-},{"./components/Analytics":2,"./components/Router":4,"./views/Header":19,"./views/Lab":20,"./views/Panels":21,"./views/Posts":23}],2:[function(require,module,exports){
+},{"./components/Analytics":2,"./components/Router":4,"./views/Error404":19,"./views/Header":20,"./views/Lab":21,"./views/Panels":22,"./views/Posts":24}],2:[function(require,module,exports){
 'use strict';
 
 var loadScript = require('../utils/loadScript');
@@ -839,6 +846,44 @@ module.exports = Comments;
 },{"../utils/loadScript":12}],19:[function(require,module,exports){
 'use strict';
 
+var BaseView = require('./BaseView');
+
+function Error404 () {
+	if (document.body.classList.contains('is-404', 'is-intro')) {
+		// doesn't have an intro at the moment so listen to siteheader instead
+		this.listenToTransitionEnd(document.getElementById('siteheader'), this.onIntroComplete.bind(this));
+	}
+}
+
+var proto = Error404.prototype = new BaseView();
+
+proto.hasPage = function (url) {
+	// override and always return true until real labs page exists
+	return true;
+};
+
+proto.hide = function (nextState) {
+	switch (nextState) {
+		case 'panels' :
+			// TODO: add delay then remove whatever view we have here
+			document.body.classList.add('is-transition-panelsbelow');
+			window.requestAnimationFrame(this.onHidden.bind(this));
+			break;
+
+		default :
+			// TODO: add default
+	}
+};
+
+proto.show = function (fromState, lastUrl) {
+	//
+};
+
+module.exports = Error404;
+
+},{"./BaseView":17}],20:[function(require,module,exports){
+'use strict';
+
 var transitionEndEvent = require('../utils/transitionEndEvent')();
 
 var BaseView = require('./BaseView');
@@ -907,7 +952,7 @@ proto.getPageLinks = function () {
 
 module.exports = Header;
 
-},{"../utils/transitionEndEvent":15,"./BaseView":17}],20:[function(require,module,exports){
+},{"../utils/transitionEndEvent":15,"./BaseView":17}],21:[function(require,module,exports){
 'use strict';
 
 var BaseView = require('./BaseView');
@@ -946,7 +991,7 @@ proto.show = function (fromState, lastUrl) {
 
 module.exports = Labs;
 
-},{"./BaseView":17}],21:[function(require,module,exports){
+},{"./BaseView":17}],22:[function(require,module,exports){
 'use strict';
 
 var createPageItem = require('../utils/createPageItem');
@@ -987,7 +1032,7 @@ function Panels () {
 		this.listenToTransitionEnd(this.panels[this.totalPanels - 1], this.onIntroComplete.bind(this));
 		this.deeplinked();
 	}
-	else if (document.body.classList.contains('is-lab')) {
+	else if (document.body.classList.contains('is-lab') || document.body.classList.contains('is-404')) {
 		this.hideBelow();
 	}
 }
@@ -1001,6 +1046,7 @@ proto.show = function (fromState, lastUrl) {
 			break;
 
 		case 'lab' :
+		case '404' :
 			this.showFromBelow();
 			break;
 
@@ -1038,6 +1084,7 @@ proto.hide = function (nextState) {
 			break;
 
 		case 'lab' :
+		case '404' :
 			this.hideBelow();
 			window.requestAnimationFrame(this.onHidden.bind(this));
 			break;
@@ -1159,7 +1206,7 @@ proto.onPanelsLoaded = function (evt) {
 		this.scrollEvents.addPoint(this.scrollEvents.widthMinusWindow + this.panels[0].offsetWidth);
 		this.el.addEventListener('reachedpoint', this.onScrolledToPoint, false);
 
-		if (nav) {
+		if (!this.allPanelsLoaded) {
 			this.scrollEvents.update(this.el);
 			this.el.addEventListener('reachedend', this.onScrolledToEnd, false);
 		}
@@ -1314,7 +1361,7 @@ proto.disable = function () {
 
 module.exports = Panels;
 
-},{"../components/ScrollEvents":5,"../components/loadPage":6,"../utils/createPageItem":10,"../utils/isMouseOut":11,"../utils/setColor":13,"../utils/transitionEndEvent":15,"../utils/waitAnimationFrames":16,"./BaseView":17,"./PanelsNav":22}],22:[function(require,module,exports){
+},{"../components/ScrollEvents":5,"../components/loadPage":6,"../utils/createPageItem":10,"../utils/isMouseOut":11,"../utils/setColor":13,"../utils/transitionEndEvent":15,"../utils/waitAnimationFrames":16,"./BaseView":17,"./PanelsNav":23}],23:[function(require,module,exports){
 'use strict';
 
 var createPageItem = require('../utils/createPageItem');
@@ -1358,7 +1405,7 @@ proto.setPath = function (path) {
 
 module.exports = PanelsNav;
 
-},{"../utils/createPageItem":10}],23:[function(require,module,exports){
+},{"../utils/createPageItem":10}],24:[function(require,module,exports){
 'use strict';
 
 var createPageItem = require('../utils/createPageItem');

@@ -1,6 +1,7 @@
 'use strict';
 
 var Analytics = require('./components/Analytics');
+var Error404 = require('./views/Error404');
 var Header = require('./views/Header');
 var Lab = require('./views/Lab');
 var Panels = require('./views/Panels');
@@ -25,6 +26,7 @@ proto.init = function (analytics) {
 	this.panels = new Panels();
 	this.posts = new Posts();
 	this.lab = new Lab();
+	this.error404 = new Error404();
 
 	this.router = new Router([
 		this.panels.el
@@ -35,6 +37,11 @@ proto.init = function (analytics) {
 	while (i--) {
 		this.router.add(headerLinks[i], this.onNavigate, this.header, 'header');
 	}
+
+	if (document.body.classList.contains('is-404')) {
+		this.router.add(location.pathname, this.onNavigate, this.error404, '404');
+	}
+
 	this.router.add('/', this.onNavigate, this.panels, 'panels');
 	this.router.add('/lab/', this.onNavigate, this.lab, 'lab');
 	this.router.add('*post', this.onNavigate, this.posts, 'post');

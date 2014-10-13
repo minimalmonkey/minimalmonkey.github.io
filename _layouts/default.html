@@ -17,7 +17,7 @@ I like cats. But only Internet cats.
 
 	{% include head.html %}
 
-	<body class="is-intro{% if paginator %} is-panels{% elsif page.type == 'headerpage'%} is-header{% elsif page.type == 'labpage' %} is-lab is-darktheme{% else %} is-post{% endif %}{% if page.color %} color-{{ page.color }}{% endif %}"{% if page.color %} data-color="{{ page.color }}"{% endif %}>
+	<body class="is-intro{% if paginator %} is-panels{% elsif page.type == 'headerpage'%} is-header{% elsif page.type == 'labpage' %} is-lab is-darktheme{% elsif page.color %} is-post color-{{ page.color }}{% else %} is-404{% endif %}"{% if page.color %} data-color="{{ page.color }}"{% endif %}>
 
 		{% include header.html %}
 

@@ -1079,6 +1079,28 @@ body {
     .panel-read-text {
       left: 40px; } }
 
+.error404 {
+  position: absolute;
+  top: 52px;
+  right: 0;
+  bottom: 0;
+  left: 0; }
+
+.error404-header {
+  position: absolute;
+  top: 47%;
+  left: 50%;
+  margin: 0;
+  color: #eee;
+  font-size: 130px;
+  font-weight: 200;
+  -webkit-transform-origin: 50%;
+      -ms-transform-origin: 50%;
+          transform-origin: 50%;
+  -webkit-transform: translateX(-50%) translateY(-50%);
+      -ms-transform: translateX(-50%) translateY(-50%);
+          transform: translateX(-50%) translateY(-50%); }
+
 .slidelink {
   display: inline-block;
   position: relative;
