@@ -1681,6 +1681,8 @@ body {
     background: #0082c8; }
   .color-blue ::selection {
     background: #0082c8; }
+  .color-blue .panels {
+    background: #0082c8; }
   .color-blue #disqus_thread a {
     color: #0082c8; }
 
@@ -1689,6 +1691,8 @@ body {
   .color-green ::-moz-selection {
     background: #167c80; }
   .color-green ::selection {
+    background: #167c80; }
+  .color-green .panels {
     background: #167c80; }
   .color-green #disqus_thread a {
     color: #167c80; }
@@ -1699,6 +1703,8 @@ body {
     background: #a2c5bf; }
   .color-lime ::selection {
     background: #a2c5bf; }
+  .color-lime .panels {
+    background: #a2c5bf; }
   .color-lime #disqus_thread a {
     color: #a2c5bf; }
 
@@ -1707,6 +1713,8 @@ body {
   .color-navy ::-moz-selection {
     background: #16528e; }
   .color-navy ::selection {
+    background: #16528e; }
+  .color-navy .panels {
     background: #16528e; }
   .color-navy #disqus_thread a {
     color: #16528e; }
@@ -1717,6 +1725,8 @@ body {
     background: #e8846b; }
   .color-orange ::selection {
     background: #e8846b; }
+  .color-orange .panels {
+    background: #e8846b; }
   .color-orange #disqus_thread a {
     color: #e8846b; }
 
@@ -1726,6 +1736,8 @@ body {
     background: #72616e; }
   .color-purple ::selection {
     background: #72616e; }
+  .color-purple .panels {
+    background: #72616e; }
   .color-purple #disqus_thread a {
     color: #72616e; }
 
@@ -1734,6 +1746,8 @@ body {
   .color-red ::-moz-selection {
     background: #e54b4b; }
   .color-red ::selection {
+    background: #e54b4b; }
+  .color-red .panels {
     background: #e54b4b; }
   .color-red #disqus_thread a {
     color: #e54b4b; }
