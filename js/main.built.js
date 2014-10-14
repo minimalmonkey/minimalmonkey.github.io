@@ -25,6 +25,9 @@ var proto = App.prototype;
 proto.init = function (analytics) {
 	this.analytics = new Analytics('UA-54501731-1', 'minimalmonkey.github.io', 200);
 
+	this.logoButton = document.getElementById('siteheader-logo');
+	this.logoButton.addEventListener('click', this.onLogoButtonClicked.bind(this));
+
 	this.header = new Header();
 	this.panels = new Panels();
 	this.posts = new Posts();
@@ -77,6 +80,25 @@ proto.onNavigate = function (view, state, match, params) {
 	}
 	this.setView(view, state);
 	this.analytics.update(location.pathname);
+};
+
+proto.onLogoButtonClicked = function (evt) {
+	evt.preventDefault();
+	var path = '/';
+	switch (this.state) {
+		case 'panels' :
+			if (window.pageXOffset > 0) {
+				this.panels.scrollEvents.scrollToStart();
+				return;
+			}
+			path = '/lab/';
+			break;
+
+		case 'header' :
+			path = this.header.closeURL;
+			break;
+	}
+	this.router.navigate(path);
 };
 
 proto.setView = function (view, state) {
@@ -343,6 +365,8 @@ module.exports = Router;
 },{"../utils/addEventListenerList":9,"./routeToRegExp":7}],5:[function(require,module,exports){
 'use strict';
 
+var EASE = 0.175;
+
 var throttleEvent = require('../utils/throttleEvent');
 
 function ScrollEvents (el) {
@@ -357,20 +381,27 @@ var proto = ScrollEvents.prototype;
 
 proto.scrollToPoint = function (index) {
 	if (this.points[index]) {
-		var tx = this.points[index];
-		var animateScroll = function () {
-			var px = window.pageXOffset;
-			var lx = window.pageXOffset;
-			var vx = (tx - px) * 0.175;
-			px += vx;
-			window.scrollTo(px, window.pageYOffset);
-			if (~~px != lx) {
-				window.requestAnimationFrame(animateScroll);
-			}
-		};
-		animateScroll();
+		this.animateScroll(this.points[index]);
 	}
 };
+
+proto.scrollToStart = function () {
+	this.animateScroll(0);
+};
+
+proto.animateScroll = function (tx) {
+	var updateScrollPosition = function () {
+		var px = window.pageXOffset;
+		var lx = window.pageXOffset;
+		var vx = (tx - px) * EASE;
+		px += vx;
+		window.scrollTo(px, window.pageYOffset);
+		if (~~px != lx) {
+			window.requestAnimationFrame(updateScrollPosition);
+		}
+	};
+	updateScrollPosition();
+}
 
 proto.update = function (el) {
 	this.el = el;
@@ -876,7 +907,7 @@ proto.hide = function (nextState) {
 };
 
 proto.show = function (fromState, lastUrl) {
-	//
+	window.requestAnimationFrame(this.onShowed.bind(this));
 };
 
 module.exports = Error404;
@@ -918,6 +949,7 @@ proto.open = function (key, lastURL) {
 	this.pages[key].page.classList.add('is-visible');
 
 	if (lastURL) {
+		this.closeURL = lastURL;
 		this.closeButton.href = lastURL;
 	}
 };
@@ -987,6 +1019,7 @@ proto.hide = function (nextState) {
 
 proto.show = function (fromState, lastUrl) {
 	document.body.classList.add('is-darktheme');
+	window.requestAnimationFrame(this.onShowed.bind(this));
 };
 
 module.exports = Labs;
@@ -1355,6 +1388,7 @@ proto.enable = function () {
 };
 
 proto.disable = function () {
+	this.nav.hide();
 	this.el.removeEventListener('mouseover', this.onMouseOver);
 	this.el.removeEventListener('mouseout', this.onMouseOut);
 };

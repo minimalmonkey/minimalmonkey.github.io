@@ -32,6 +32,7 @@ proto.hide = function (nextState) {
 
 proto.show = function (fromState, lastUrl) {
 	document.body.classList.add('is-darktheme');
+	window.requestAnimationFrame(this.onShowed.bind(this));
 };
 
 module.exports = Labs;

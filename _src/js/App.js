@@ -22,6 +22,9 @@ var proto = App.prototype;
 proto.init = function (analytics) {
 	this.analytics = new Analytics('UA-54501731-1', 'minimalmonkey.github.io', 200);
 
+	this.logoButton = document.getElementById('siteheader-logo');
+	this.logoButton.addEventListener('click', this.onLogoButtonClicked.bind(this));
+
 	this.header = new Header();
 	this.panels = new Panels();
 	this.posts = new Posts();
@@ -74,6 +77,25 @@ proto.onNavigate = function (view, state, match, params) {
 	}
 	this.setView(view, state);
 	this.analytics.update(location.pathname);
+};
+
+proto.onLogoButtonClicked = function (evt) {
+	evt.preventDefault();
+	var path = '/';
+	switch (this.state) {
+		case 'panels' :
+			if (window.pageXOffset > 0) {
+				this.panels.scrollEvents.scrollToStart();
+				return;
+			}
+			path = '/lab/';
+			break;
+
+		case 'header' :
+			path = this.header.closeURL;
+			break;
+	}
+	this.router.navigate(path);
 };
 
 proto.setView = function (view, state) {

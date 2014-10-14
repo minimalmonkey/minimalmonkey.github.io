@@ -30,7 +30,7 @@ proto.hide = function (nextState) {
 };
 
 proto.show = function (fromState, lastUrl) {
-	//
+	window.requestAnimationFrame(this.onShowed.bind(this));
 };
 
 module.exports = Error404;

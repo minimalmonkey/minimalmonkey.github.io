@@ -34,6 +34,7 @@ proto.open = function (key, lastURL) {
 	this.pages[key].page.classList.add('is-visible');
 
 	if (lastURL) {
+		this.closeURL = lastURL;
 		this.closeButton.href = lastURL;
 	}
 };

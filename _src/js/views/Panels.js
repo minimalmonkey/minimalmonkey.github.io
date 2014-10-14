@@ -361,6 +361,7 @@ proto.enable = function () {
 };
 
 proto.disable = function () {
+	this.nav.hide();
 	this.el.removeEventListener('mouseover', this.onMouseOver);
 	this.el.removeEventListener('mouseout', this.onMouseOut);
 };
