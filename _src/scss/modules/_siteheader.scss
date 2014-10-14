@@ -34,6 +34,10 @@
 		.js .is-intro & {
 			transform: translate3d(0, -100%, 0);
 		}
+
+		.js .is-intro.is-header & {
+			transform: translate3d(0, 0, 0);
+		}
 	}
 }
 

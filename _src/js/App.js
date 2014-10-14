@@ -61,7 +61,8 @@ proto.init = function (analytics) {
 
 proto.onNavigate = function (view, state, match, params) {
 	if (state === 'header') {
-		this.header.open(match, this.state !== 'header' ? this.router.lastURL : false);
+		var lastURL = (this.state && this.state !== 'header') ? this.router.lastURL : false;
+		this.header.open(match, lastURL);
 	}
 	else if (this.state === 'header') {
 		this.header.close();

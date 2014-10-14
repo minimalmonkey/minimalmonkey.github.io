@@ -9,6 +9,7 @@ function Header () {
 	this.pageContent = document.getElementById('pagecontent');
 	this.closeButton = document.getElementById('siteheader-close');
 
+	this.closeURL = '/';
 	this.pages = {};
 	var pages = document.querySelectorAll('.siteheader-page');
 	var url;

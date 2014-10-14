@@ -606,7 +606,10 @@ body {
       font-size: 10px; }
       .js .is-intro .siteheader {
         -webkit-transform: translate3d(0, -100%, 0);
-                transform: translate3d(0, -100%, 0); } }
+                transform: translate3d(0, -100%, 0); }
+      .js .is-intro.is-header .siteheader {
+        -webkit-transform: translate3d(0, 0, 0);
+                transform: translate3d(0, 0, 0); } }
 
 .siteheader-headline {
   margin: 0.8em 0 0.7em;
