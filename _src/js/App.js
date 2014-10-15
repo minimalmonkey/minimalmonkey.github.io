@@ -1,6 +1,7 @@
 'use strict';
 
 var Analytics = require('./components/Analytics');
+var Breakpoints = require('./components/Breakpoints');
 var Error404 = require('./views/Error404');
 var Header = require('./views/Header');
 var Lab = require('./views/Lab');
@@ -21,6 +22,10 @@ var proto = App.prototype;
 
 proto.init = function (analytics) {
 	this.analytics = new Analytics('UA-54501731-1', 'minimalmonkey.github.io', 200);
+
+	Breakpoints.add('stacked', 0, 570);
+	Breakpoints.add('horizontal', 571, Infinity);
+	Breakpoints.enable();
 
 	this.logoButton = document.getElementById('siteheader-logo');
 	this.logoButton.addEventListener('click', this.onLogoButtonClicked.bind(this));
@@ -48,11 +53,9 @@ proto.init = function (analytics) {
 	this.router.add('/', this.onNavigate, this.panels, 'panels');
 	this.router.add('/lab/', this.onNavigate, this.lab, 'lab');
 	this.router.add('*post', this.onNavigate, this.posts, 'post');
-
 	this.router.match(location.pathname);
 
 	this.view.on('onintrocomplete', this.onIntroComplete);
-
 	window.requestAnimationFrame(function () {
 		document.body.classList.add('is-introtransition');
 		document.body.classList.remove('is-intro');
@@ -113,6 +116,7 @@ proto.setView = function (view, state) {
 };
 
 proto.onIntroComplete = function () {
+	this.view.off('onintrocomplete', this.onIntroComplete);
 	document.body.classList.remove('is-introtransition');
 };
 

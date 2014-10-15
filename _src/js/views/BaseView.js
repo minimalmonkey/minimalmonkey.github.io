@@ -3,6 +3,7 @@
 var loadPage = require('../components/loadPage');
 var transitionEndEvent = require('../utils/transitionEndEvent')();
 
+var Breakpoints = require('../components/Breakpoints');
 var EventEmitter = require('../components/EventEmitter');
 
 function BaseView() {}
@@ -11,6 +12,16 @@ var proto = BaseView.prototype = new EventEmitter();
 
 proto.loadSelectors = [];
 proto.pages = {};
+
+proto.bindBreakpointListeners = function () {
+	Breakpoints.on('in:stacked', this.onStackedBreakpoint.bind(this));
+	Breakpoints.on('in:horizontal', this.onHorizontalBreakpoint.bind(this));
+};
+
+proto.unbindBreakpointListeners = function () {
+	Breakpoints.off('in:stacked', this.onStackedBreakpoint.bind(this));
+	Breakpoints.off('in:horizontal', this.onHorizontalBreakpoint.bind(this));
+};
 
 proto.deeplinked = function () {
 	var elements = [];
@@ -71,6 +82,10 @@ proto.onLoaded = function () {
 		args: args
 	});
 };
+
+proto.onStackedBreakpoint = function (evt) {};
+
+proto.onHorizontalBreakpoint = function (evt) {};
 
 proto.enable = function () {};
 

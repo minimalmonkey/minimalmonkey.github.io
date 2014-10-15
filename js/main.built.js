@@ -4,6 +4,7 @@
 'use strict';
 
 var Analytics = require('./components/Analytics');
+var Breakpoints = require('./components/Breakpoints');
 var Error404 = require('./views/Error404');
 var Header = require('./views/Header');
 var Lab = require('./views/Lab');
@@ -24,6 +25,10 @@ var proto = App.prototype;
 
 proto.init = function (analytics) {
 	this.analytics = new Analytics('UA-54501731-1', 'minimalmonkey.github.io', 200);
+
+	Breakpoints.add('stacked', 0, 570);
+	Breakpoints.add('horizontal', 571, Infinity);
+	Breakpoints.enable();
 
 	this.logoButton = document.getElementById('siteheader-logo');
 	this.logoButton.addEventListener('click', this.onLogoButtonClicked.bind(this));
@@ -51,11 +56,9 @@ proto.init = function (analytics) {
 	this.router.add('/', this.onNavigate, this.panels, 'panels');
 	this.router.add('/lab/', this.onNavigate, this.lab, 'lab');
 	this.router.add('*post', this.onNavigate, this.posts, 'post');
-
 	this.router.match(location.pathname);
 
 	this.view.on('onintrocomplete', this.onIntroComplete);
-
 	window.requestAnimationFrame(function () {
 		document.body.classList.add('is-introtransition');
 		document.body.classList.remove('is-intro');
@@ -116,6 +119,7 @@ proto.setView = function (view, state) {
 };
 
 proto.onIntroComplete = function () {
+	this.view.off('onintrocomplete', this.onIntroComplete);
 	document.body.classList.remove('is-introtransition');
 };
 
@@ -156,7 +160,7 @@ proto.onViewLoaded = function (evt) {
 
 module.exports = App;
 
-},{"./components/Analytics":2,"./components/Router":4,"./views/Error404":19,"./views/Header":20,"./views/Lab":21,"./views/Panels":22,"./views/Posts":24}],2:[function(require,module,exports){
+},{"./components/Analytics":2,"./components/Breakpoints":3,"./components/Router":5,"./views/Error404":20,"./views/Header":21,"./views/Lab":22,"./views/Panels":23,"./views/Posts":25}],2:[function(require,module,exports){
 'use strict';
 
 var loadScript = require('../utils/loadScript');
@@ -192,7 +196,84 @@ proto.update = function (url) {
 
 module.exports = Analytics;
 
-},{"../utils/loadScript":12}],3:[function(require,module,exports){
+},{"../utils/loadScript":13}],3:[function(require,module,exports){
+'use strict';
+
+var throttleEvent = require('../utils/throttleEvent');
+
+var EventEmitter = require('../components/EventEmitter');
+
+function Breakpoints() {}
+
+var proto = Breakpoints.prototype = new EventEmitter();
+
+proto.add = function (name, from, to) {
+	this.points = this.points || {};
+	this.points[name] = {
+		from: from,
+		to: to
+	};
+};
+
+proto.remove = function (name) {
+	if (this.points && this.points[name]) {
+		this.points[name] = undefined;
+	}
+};
+
+proto.contains = function (name) {
+	return this.currentPoints && this.currentPoints.indexOf(name) > -1;
+};
+
+proto.onResized = function () {
+	var winWidth = window.innerWidth;
+	var current = [];
+
+	for (var point in this.points) {
+		if (this.points[point].from <= winWidth && this.points[point].to >= winWidth) {
+			current.push(point);
+		}
+	}
+
+	if (current.join() !== this.currentPoints.join()) {
+
+		var i = this.currentPoints.length;
+		while (i--) {
+			if (current.indexOf(this.currentPoints[i]) < 0) {
+				this.trigger('out:' + this.currentPoints[i]);
+			}
+		}
+
+		i = current.length;
+		while (i--) {
+			if (this.currentPoints.indexOf(current[i]) < 0) {
+				this.trigger('in:' + current[i]);
+			}
+		}
+
+		this.currentPoints = current;
+		this.trigger('update', {
+			points: this.currentPoints
+		});
+	}
+};
+
+proto.enable = function () {
+	this.currentPoints = [];
+	this.throttledResize = throttleEvent(this.onResized.bind(this), 50);
+	window.addEventListener('resize', this.throttledResize, false);
+	this.onResized();
+};
+
+proto.disable = function () {
+	window.removeEventListener('resize', this.throttledResize);
+};
+
+var instance = instance || new Breakpoints();
+
+module.exports = instance;
+
+},{"../components/EventEmitter":4,"../utils/throttleEvent":15}],4:[function(require,module,exports){
 'use strict';
 
 function EventEmitter() {}
@@ -245,7 +326,7 @@ proto.trigger = function (evt, obj) {
 
 module.exports = EventEmitter;
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 'use strict';
 
 var addEventListenerList = require('../utils/addEventListenerList');
@@ -363,7 +444,7 @@ proto.disable = function () {
 
 module.exports = Router;
 
-},{"../utils/addEventListenerList":9,"./routeToRegExp":7}],5:[function(require,module,exports){
+},{"../utils/addEventListenerList":10,"./routeToRegExp":8}],6:[function(require,module,exports){
 'use strict';
 
 var EASE = 0.175;
@@ -371,11 +452,9 @@ var EASE = 0.175;
 var throttleEvent = require('../utils/throttleEvent');
 
 function ScrollEvents (el) {
-	this.onScrolled = this.onScrolled.bind(this);
-	this.onResized = this.onResized.bind(this);
-	this.update(el);
-	this.enable();
 	this.points = [];
+	this.throttledScroll = throttleEvent(this.onScrolled.bind(this), 50);
+	this.throttledResize = throttleEvent(this.onResized.bind(this), 50);
 }
 
 var proto = ScrollEvents.prototype;
@@ -402,7 +481,7 @@ proto.animateScroll = function (tx) {
 		}
 	};
 	updateScrollPosition();
-}
+};
 
 proto.update = function (el) {
 	this.el = el;
@@ -456,10 +535,7 @@ proto.onResized = function (evt) {
 };
 
 proto.enable = function () {
-	this.throttledScroll = throttleEvent(this.onScrolled, 50);
 	window.addEventListener('scroll', this.throttledScroll, false);
-
-	this.throttledResize = throttleEvent(this.onResized, 50);
 	window.addEventListener('resize', this.throttledResize, false);
 	this.onResized();
 };
@@ -471,7 +547,7 @@ proto.disable = function () {
 
 module.exports = ScrollEvents;
 
-},{"../utils/throttleEvent":14}],6:[function(require,module,exports){
+},{"../utils/throttleEvent":15}],7:[function(require,module,exports){
 'use strict';
 
 module.exports = function loadPage (url, callback) {
@@ -509,7 +585,7 @@ module.exports = function loadPage (url, callback) {
 	req.send();
 };
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict';
 
 var optionalParam = /\((.*?)\)/g;
@@ -534,7 +610,7 @@ module.exports = function routeToRegExp (route) {
 	return new RegExp('^' + route + '(?:\\?([\\s\\S]*))?$');
 };
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 
 var loadScript = require('./utils/loadScript');
@@ -559,7 +635,7 @@ var init = function () {
 
 init();
 
-},{"./App":1,"./components/Analytics":2,"./utils/loadScript":12}],9:[function(require,module,exports){
+},{"./App":1,"./components/Analytics":2,"./utils/loadScript":13}],10:[function(require,module,exports){
 'use strict';
 
 module.exports = function addEventListenerList (list, type, listener, useCapture) {
@@ -569,7 +645,7 @@ module.exports = function addEventListenerList (list, type, listener, useCapture
 	}
 };
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 'use strict';
 
 module.exports = function createPageItem (id, type) {
@@ -580,7 +656,7 @@ module.exports = function createPageItem (id, type) {
 	return el;
 };
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 'use strict';
 
 /**
@@ -612,7 +688,7 @@ module.exports = function isMouseOut (evt) {
 	return true;
 };
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 'use strict';
 
 /**
@@ -657,7 +733,7 @@ module.exports = function loadScript (id, src, delay, dest) {
 	}, delay);
 };
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 'use strict';
 
 module.exports = function setColor (element, color) {
@@ -670,7 +746,7 @@ module.exports = function setColor (element, color) {
 	}
 };
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 'use strict';
 
 /**
@@ -696,7 +772,7 @@ module.exports = function throttleEvent (callback, delay) {
 	};
 };
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 'use strict';
 
 var transitionEnd;
@@ -725,7 +801,7 @@ module.exports = function transitionEndEvent () {
 	}
 };
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 'use strict';
 
 module.exports = function waitAnimationFrames (callback, howMany) {
@@ -746,12 +822,13 @@ module.exports = function waitAnimationFrames (callback, howMany) {
 	waitForNext();
 };
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 'use strict';
 
 var loadPage = require('../components/loadPage');
 var transitionEndEvent = require('../utils/transitionEndEvent')();
 
+var Breakpoints = require('../components/Breakpoints');
 var EventEmitter = require('../components/EventEmitter');
 
 function BaseView() {}
@@ -760,6 +837,16 @@ var proto = BaseView.prototype = new EventEmitter();
 
 proto.loadSelectors = [];
 proto.pages = {};
+
+proto.bindBreakpointListeners = function () {
+	Breakpoints.on('in:stacked', this.onStackedBreakpoint.bind(this));
+	Breakpoints.on('in:horizontal', this.onHorizontalBreakpoint.bind(this));
+};
+
+proto.unbindBreakpointListeners = function () {
+	Breakpoints.off('in:stacked', this.onStackedBreakpoint.bind(this));
+	Breakpoints.off('in:horizontal', this.onHorizontalBreakpoint.bind(this));
+};
 
 proto.deeplinked = function () {
 	var elements = [];
@@ -821,13 +908,17 @@ proto.onLoaded = function () {
 	});
 };
 
+proto.onStackedBreakpoint = function (evt) {};
+
+proto.onHorizontalBreakpoint = function (evt) {};
+
 proto.enable = function () {};
 
 proto.disable = function () {};
 
 module.exports = BaseView;
 
-},{"../components/EventEmitter":3,"../components/loadPage":6,"../utils/transitionEndEvent":15}],18:[function(require,module,exports){
+},{"../components/Breakpoints":3,"../components/EventEmitter":4,"../components/loadPage":7,"../utils/transitionEndEvent":16}],19:[function(require,module,exports){
 'use strict';
 
 var loadScript = require('../utils/loadScript');
@@ -875,7 +966,7 @@ proto.onClicked = function () {
 
 module.exports = Comments;
 
-},{"../utils/loadScript":12}],19:[function(require,module,exports){
+},{"../utils/loadScript":13}],20:[function(require,module,exports){
 'use strict';
 
 var BaseView = require('./BaseView');
@@ -913,7 +1004,7 @@ proto.show = function (fromState, lastUrl) {
 
 module.exports = Error404;
 
-},{"./BaseView":17}],20:[function(require,module,exports){
+},{"./BaseView":18}],21:[function(require,module,exports){
 'use strict';
 
 var transitionEndEvent = require('../utils/transitionEndEvent')();
@@ -986,7 +1077,7 @@ proto.getPageLinks = function () {
 
 module.exports = Header;
 
-},{"../utils/transitionEndEvent":15,"./BaseView":17}],21:[function(require,module,exports){
+},{"../utils/transitionEndEvent":16,"./BaseView":18}],22:[function(require,module,exports){
 'use strict';
 
 var BaseView = require('./BaseView');
@@ -1026,7 +1117,7 @@ proto.show = function (fromState, lastUrl) {
 
 module.exports = Labs;
 
-},{"./BaseView":17}],22:[function(require,module,exports){
+},{"./BaseView":18}],23:[function(require,module,exports){
 'use strict';
 
 var createPageItem = require('../utils/createPageItem');
@@ -1037,12 +1128,14 @@ var transitionEndEvent = require('../utils/transitionEndEvent')();
 var waitAnimationFrames = require('../utils/waitAnimationFrames');
 
 var BaseView = require('./BaseView');
+var Breakpoints = require('../components/Breakpoints');
 var PanelsNav = require('./PanelsNav');
 var ScrollEvents = require('../components/ScrollEvents');
 
 function Panels () {
 	this.el = document.getElementById('panels') || createPageItem('panels', 'div', 'pagecontent-item', 'is-hidden');
 	this.nav = new PanelsNav();
+	this.scrollEvents = new ScrollEvents(this.el);
 	this.panels = document.querySelectorAll('#panels .panel');
 	this.panels = Array.prototype.slice.call(this.panels);
 	this.panelsUrlMap = {};
@@ -1064,7 +1157,13 @@ function Panels () {
 	this.on('onloaded', this.onPanelsLoaded.bind(this));
 
 	if (document.body.classList.contains('is-panels', 'is-intro')) {
-		this.listenToTransitionEnd(this.panels[this.totalPanels - 1], this.onIntroComplete.bind(this));
+		if (Breakpoints.contains('horizontal')) {
+			this.listenToTransitionEnd(this.panels[this.totalPanels - 1], this.onIntroComplete.bind(this));
+		}
+		else {
+			// currently stacked view has no intro
+			this.onIntroComplete();
+		}
 		this.deeplinked();
 	}
 	else if (document.body.classList.contains('is-lab') || document.body.classList.contains('is-404')) {
@@ -1093,13 +1192,11 @@ proto.show = function (fromState, lastUrl) {
 proto.showFromPost = function (url) {
 	this.el.classList.remove('is-hidden');
 	this.transitionFromPost(url);
-	// this.enable();
 };
 
 proto.showFromBelow = function () {
 	this.el.classList.remove('is-hidden');
 	this.listenToTransitionEnd(this.getLastShownPanel(), this.onShowed);
-	// this.enable();
 	waitAnimationFrames(function () {
 		this.el.classList.remove('is-hidebelow');
 	}.bind(this), 2);
@@ -1228,6 +1325,7 @@ proto.setNav = function (nav) {
 };
 
 proto.onPanelsLoaded = function (evt) {
+
 	var panels = evt.args[0];
 	var nav = evt.args[1][0];
 
@@ -1237,14 +1335,12 @@ proto.onPanelsLoaded = function (evt) {
 	this.totalPanels = this.panels.length;
 	this.addPanels(index, true);
 
-	if (this.scrollEvents !== undefined) {
-		this.scrollEvents.addPoint(this.scrollEvents.widthMinusWindow + this.panels[0].offsetWidth);
-		this.el.addEventListener('reachedpoint', this.onScrolledToPoint, false);
+	this.scrollEvents.addPoint(this.scrollEvents.widthMinusWindow + this.panels[0].offsetWidth);
+	this.el.addEventListener('reachedpoint', this.onScrolledToPoint, false);
 
-		if (!this.allPanelsLoaded) {
-			this.scrollEvents.update(this.el);
-			this.el.addEventListener('reachedend', this.onScrolledToEnd, false);
-		}
+	if (!this.allPanelsLoaded) {
+		this.scrollEvents.update(this.el);
+		this.el.addEventListener('reachedend', this.onScrolledToEnd, false);
 	}
 };
 
@@ -1367,15 +1463,28 @@ proto.resetTransition = function () {
 	this.onMouseOut();
 };
 
+proto.onStackedBreakpoint = function (evt) {
+	this.scrollEvents.disable();
+	this.nav.show();
+};
+
+proto.onHorizontalBreakpoint = function (evt) {
+	this.scrollEvents.enable();
+	this.nav.hide();
+};
+
 proto.enable = function () {
 	this.el.addEventListener('mouseover', this.onMouseOver, false);
 	this.el.addEventListener('reachedend', this.onScrolledToEnd, false);
+	this.bindBreakpointListeners();
 	this.addPanels();
-	if (this.scrollEvents === undefined) {
-		this.scrollEvents = new ScrollEvents(this.el);
+	this.scrollEvents.update(this.el);
+
+	if (Breakpoints.contains('horizontal')) {
+		this.scrollEvents.enable();
 	}
 	else {
-		this.scrollEvents.update(this.el);
+		this.nav.show();
 	}
 
 	var onMouseMove = function (evt) {
@@ -1393,11 +1502,13 @@ proto.disable = function () {
 	this.nav.hide();
 	this.el.removeEventListener('mouseover', this.onMouseOver);
 	this.el.removeEventListener('mouseout', this.onMouseOut);
+	this.unbindBreakpointListeners();
+	this.scrollEvents.disable();
 };
 
 module.exports = Panels;
 
-},{"../components/ScrollEvents":5,"../components/loadPage":6,"../utils/createPageItem":10,"../utils/isMouseOut":11,"../utils/setColor":13,"../utils/transitionEndEvent":15,"../utils/waitAnimationFrames":16,"./BaseView":17,"./PanelsNav":23}],23:[function(require,module,exports){
+},{"../components/Breakpoints":3,"../components/ScrollEvents":6,"../components/loadPage":7,"../utils/createPageItem":11,"../utils/isMouseOut":12,"../utils/setColor":14,"../utils/transitionEndEvent":16,"../utils/waitAnimationFrames":17,"./BaseView":18,"./PanelsNav":24}],24:[function(require,module,exports){
 'use strict';
 
 var createPageItem = require('../utils/createPageItem');
@@ -1441,7 +1552,7 @@ proto.setPath = function (path) {
 
 module.exports = PanelsNav;
 
-},{"../utils/createPageItem":10}],24:[function(require,module,exports){
+},{"../utils/createPageItem":11}],25:[function(require,module,exports){
 'use strict';
 
 var createPageItem = require('../utils/createPageItem');
@@ -1693,4 +1804,4 @@ proto.onIntroEnded = function (evt) {
 
 module.exports = Posts;
 
-},{"../components/loadPage":6,"../utils/createPageItem":10,"../utils/setColor":13,"../utils/transitionEndEvent":15,"../utils/waitAnimationFrames":16,"./BaseView":17,"./Comments":18}]},{},[8]);
+},{"../components/loadPage":7,"../utils/createPageItem":11,"../utils/setColor":14,"../utils/transitionEndEvent":16,"../utils/waitAnimationFrames":17,"./BaseView":18,"./Comments":19}]},{},[9]);

@@ -8,12 +8,14 @@ var transitionEndEvent = require('../utils/transitionEndEvent')();
 var waitAnimationFrames = require('../utils/waitAnimationFrames');
 
 var BaseView = require('./BaseView');
+var Breakpoints = require('../components/Breakpoints');
 var PanelsNav = require('./PanelsNav');
 var ScrollEvents = require('../components/ScrollEvents');
 
 function Panels () {
 	this.el = document.getElementById('panels') || createPageItem('panels', 'div', 'pagecontent-item', 'is-hidden');
 	this.nav = new PanelsNav();
+	this.scrollEvents = new ScrollEvents(this.el);
 	this.panels = document.querySelectorAll('#panels .panel');
 	this.panels = Array.prototype.slice.call(this.panels);
 	this.panelsUrlMap = {};
@@ -35,7 +37,13 @@ function Panels () {
 	this.on('onloaded', this.onPanelsLoaded.bind(this));
 
 	if (document.body.classList.contains('is-panels', 'is-intro')) {
-		this.listenToTransitionEnd(this.panels[this.totalPanels - 1], this.onIntroComplete.bind(this));
+		if (Breakpoints.contains('horizontal')) {
+			this.listenToTransitionEnd(this.panels[this.totalPanels - 1], this.onIntroComplete.bind(this));
+		}
+		else {
+			// currently stacked view has no intro
+			this.onIntroComplete();
+		}
 		this.deeplinked();
 	}
 	else if (document.body.classList.contains('is-lab') || document.body.classList.contains('is-404')) {
@@ -64,13 +72,11 @@ proto.show = function (fromState, lastUrl) {
 proto.showFromPost = function (url) {
 	this.el.classList.remove('is-hidden');
 	this.transitionFromPost(url);
-	// this.enable();
 };
 
 proto.showFromBelow = function () {
 	this.el.classList.remove('is-hidden');
 	this.listenToTransitionEnd(this.getLastShownPanel(), this.onShowed);
-	// this.enable();
 	waitAnimationFrames(function () {
 		this.el.classList.remove('is-hidebelow');
 	}.bind(this), 2);
@@ -199,6 +205,7 @@ proto.setNav = function (nav) {
 };
 
 proto.onPanelsLoaded = function (evt) {
+
 	var panels = evt.args[0];
 	var nav = evt.args[1][0];
 
@@ -208,14 +215,12 @@ proto.onPanelsLoaded = function (evt) {
 	this.totalPanels = this.panels.length;
 	this.addPanels(index, true);
 
-	if (this.scrollEvents !== undefined) {
-		this.scrollEvents.addPoint(this.scrollEvents.widthMinusWindow + this.panels[0].offsetWidth);
-		this.el.addEventListener('reachedpoint', this.onScrolledToPoint, false);
+	this.scrollEvents.addPoint(this.scrollEvents.widthMinusWindow + this.panels[0].offsetWidth);
+	this.el.addEventListener('reachedpoint', this.onScrolledToPoint, false);
 
-		if (!this.allPanelsLoaded) {
-			this.scrollEvents.update(this.el);
-			this.el.addEventListener('reachedend', this.onScrolledToEnd, false);
-		}
+	if (!this.allPanelsLoaded) {
+		this.scrollEvents.update(this.el);
+		this.el.addEventListener('reachedend', this.onScrolledToEnd, false);
 	}
 };
 
@@ -338,15 +343,28 @@ proto.resetTransition = function () {
 	this.onMouseOut();
 };
 
+proto.onStackedBreakpoint = function (evt) {
+	this.scrollEvents.disable();
+	this.nav.show();
+};
+
+proto.onHorizontalBreakpoint = function (evt) {
+	this.scrollEvents.enable();
+	this.nav.hide();
+};
+
 proto.enable = function () {
 	this.el.addEventListener('mouseover', this.onMouseOver, false);
 	this.el.addEventListener('reachedend', this.onScrolledToEnd, false);
+	this.bindBreakpointListeners();
 	this.addPanels();
-	if (this.scrollEvents === undefined) {
-		this.scrollEvents = new ScrollEvents(this.el);
+	this.scrollEvents.update(this.el);
+
+	if (Breakpoints.contains('horizontal')) {
+		this.scrollEvents.enable();
 	}
 	else {
-		this.scrollEvents.update(this.el);
+		this.nav.show();
 	}
 
 	var onMouseMove = function (evt) {
@@ -364,6 +382,8 @@ proto.disable = function () {
 	this.nav.hide();
 	this.el.removeEventListener('mouseover', this.onMouseOver);
 	this.el.removeEventListener('mouseout', this.onMouseOut);
+	this.unbindBreakpointListeners();
+	this.scrollEvents.disable();
 };
 
 module.exports = Panels;

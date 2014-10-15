@@ -5,11 +5,9 @@ var EASE = 0.175;
 var throttleEvent = require('../utils/throttleEvent');
 
 function ScrollEvents (el) {
-	this.onScrolled = this.onScrolled.bind(this);
-	this.onResized = this.onResized.bind(this);
-	this.update(el);
-	this.enable();
 	this.points = [];
+	this.throttledScroll = throttleEvent(this.onScrolled.bind(this), 50);
+	this.throttledResize = throttleEvent(this.onResized.bind(this), 50);
 }
 
 var proto = ScrollEvents.prototype;
@@ -36,7 +34,7 @@ proto.animateScroll = function (tx) {
 		}
 	};
 	updateScrollPosition();
-}
+};
 
 proto.update = function (el) {
 	this.el = el;
@@ -90,10 +88,7 @@ proto.onResized = function (evt) {
 };
 
 proto.enable = function () {
-	this.throttledScroll = throttleEvent(this.onScrolled, 50);
 	window.addEventListener('scroll', this.throttledScroll, false);
-
-	this.throttledResize = throttleEvent(this.onResized, 50);
 	window.addEventListener('resize', this.throttledResize, false);
 	this.onResized();
 };
