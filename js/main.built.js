@@ -1162,7 +1162,7 @@ function Panels () {
 		}
 		else {
 			// currently stacked view has no intro
-			this.onIntroComplete();
+			waitAnimationFrames(this.onIntroComplete.bind(this), 2);
 		}
 		this.deeplinked();
 	}
@@ -1204,7 +1204,7 @@ proto.showFromBelow = function () {
 
 proto.hideBelow = function () {
 	setColor(document.body);
-	document.body.classList.add('is-transition-panelsbelow'); // TODO: should probably remove this when transition is done no? Maybe in app
+	document.body.classList.add('is-transition-panelsbelow'); // TODO: check this is removed in app
 	this.el.classList.add('is-hidebelow');
 };
 
@@ -1321,6 +1321,9 @@ proto.setNav = function (nav) {
 	}
 	else {
 		this.allPanelsLoaded = true;
+		if (Breakpoints.contains('stacked')) {
+			this.nav.hide();
+		}
 	}
 };
 
@@ -1344,10 +1347,14 @@ proto.onPanelsLoaded = function (evt) {
 	}
 };
 
-proto.onScrolledToEnd = function (evt) {
-	this.el.removeEventListener('reachedend', this.onScrolledToEnd);
+proto.loadMorePanels = function () {
 	this.nav.setLoading(true);
 	this.load(this.nav.getPath());
+};
+
+proto.onScrolledToEnd = function (evt) {
+	this.el.removeEventListener('reachedend', this.onScrolledToEnd);
+	this.loadMorePanels();
 };
 
 proto.onScrolledToPoint = function (evt) {
@@ -1362,9 +1369,14 @@ proto.onScrolledToPoint = function (evt) {
 proto.onNavClicked = function (evt) {
 	evt.preventDefault();
 	if (!this.nav.getLoading()) {
-		this.scrollEvents.scrollToPoint(0);
-		this.onScrolledToPoint();
-		this.nav.el.removeEventListener('click', this.onNavClicked);
+		if (Breakpoints.contains('horizontal')) {
+			this.scrollEvents.scrollToPoint(0);
+			this.onScrolledToPoint();
+			this.nav.el.removeEventListener('click', this.onNavClicked);
+		}
+		else if (Breakpoints.contains('stacked')) {
+			this.loadMorePanels();
+		}
 	}
 };
 
@@ -1465,12 +1477,18 @@ proto.resetTransition = function () {
 
 proto.onStackedBreakpoint = function (evt) {
 	this.scrollEvents.disable();
-	this.nav.show();
+	if (!this.allPanelsLoaded) {
+		this.nav.show();
+		this.nav.el.addEventListener('click', this.onNavClicked, false);
+	}
 };
 
 proto.onHorizontalBreakpoint = function (evt) {
-	this.scrollEvents.enable();
+	if (!this.allPanelsLoaded) {
+		this.scrollEvents.enable();
+	}
 	this.nav.hide();
+	this.nav.el.removeEventListener('click', this.onNavClicked);
 };
 
 proto.enable = function () {
@@ -1481,10 +1499,10 @@ proto.enable = function () {
 	this.scrollEvents.update(this.el);
 
 	if (Breakpoints.contains('horizontal')) {
-		this.scrollEvents.enable();
+		this.onHorizontalBreakpoint();
 	}
 	else {
-		this.nav.show();
+		this.onStackedBreakpoint();
 	}
 
 	var onMouseMove = function (evt) {
@@ -1499,9 +1517,10 @@ proto.enable = function () {
 };
 
 proto.disable = function () {
-	this.nav.hide();
 	this.el.removeEventListener('mouseover', this.onMouseOver);
 	this.el.removeEventListener('mouseout', this.onMouseOut);
+	this.nav.hide();
+	this.nav.el.removeEventListener('click', this.onNavClicked);
 	this.unbindBreakpointListeners();
 	this.scrollEvents.disable();
 };
