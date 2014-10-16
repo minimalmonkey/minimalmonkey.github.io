@@ -71,7 +71,22 @@ proto.show = function (fromState, lastUrl) {
 
 proto.showFromPost = function (url) {
 	this.el.classList.remove('is-hidden');
-	this.transitionFromPost(url);
+	var panelObj = this.panelsUrlMap[url];
+	if (panelObj) {
+		this.transitionFromPost(panelObj);
+	}
+	else {
+		this.fadeInTransition();
+	}
+};
+
+proto.fadeInTransition = function () {
+	this.el.classList.add('is-fadeout');
+	waitAnimationFrames(function () {
+		document.body.classList.add('is-transition-fade');
+		this.el.classList.remove('is-fadeout');
+		this.listenToTransitionEnd(this.el, this.onShowed);
+	}.bind(this), 2);
 };
 
 proto.showFromBelow = function () {
@@ -288,8 +303,7 @@ proto.transitionToPost = function () {
 	this.listenToTransitionEnd(listenTo, this.onHidden);
 };
 
-proto.transitionFromPost = function (url) {
-	var panelObj = this.panelsUrlMap[url];
+proto.transitionFromPost = function (panelObj) {
 	var midPoint = window.innerWidth * 0.5;
 	var left = panelObj.panel.offsetLeft + (this.panels[0].offsetWidth * 0.5);
 	var scrollLeft = Math.round(left - midPoint);

@@ -11,6 +11,14 @@
 		display: none;
 	}
 
+	&.is-fadeout {
+		opacity: 0;
+	}
+
+	.is-transition-fade & {
+		transition: opacity 0.4s;
+	}
+
 	@media (min-width: $bp-stack-width) {
 		display: flex;
 		position: absolute;

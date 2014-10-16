@@ -825,6 +825,11 @@ body {
   min-height: 460px; }
   .panels.is-hidden {
     display: none; }
+  .panels.is-fadeout {
+    opacity: 0; }
+  .is-transition-fade .panels {
+    -webkit-transition: opacity 0.4s;
+            transition: opacity 0.4s; }
   @media (min-width: 570px) {
     .panels {
       display: -webkit-flex;
