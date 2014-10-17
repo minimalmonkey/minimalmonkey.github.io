@@ -23,6 +23,7 @@ proto.remove = function (name) {
 };
 
 proto.contains = function (name) {
+	// TODO: don't like use of indexOf here - use an object instead
 	return this.currentPoints && this.currentPoints.indexOf(name) > -1;
 };
 

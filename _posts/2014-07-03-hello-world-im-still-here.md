@@ -1,6 +1,7 @@
 ---
 layout:      post
-title:       "Hello World, I’m still here"
+title:       "Hello World, I’m still here"
+short_title: "Hello World, I’m still here"
 summary:     "Wow it’s been over a year since my last blog post so here’s a quick post to say hello"
 date:        2014-07-03 00:00:00
 color:       purple

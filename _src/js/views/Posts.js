@@ -7,6 +7,7 @@ var transitionEndEvent = require('../utils/transitionEndEvent')();
 var waitAnimationFrames = require('../utils/waitAnimationFrames');
 
 var BaseView = require('./BaseView');
+var Breakpoints = require('../components/Breakpoints');
 var Comments = require('./Comments');
 
 function Posts (options) {
@@ -32,7 +33,13 @@ function Posts (options) {
 	this.on('onshowed', this.onShow.bind(this)); // maybe store and remove?
 
 	if (document.body.classList.contains('is-post', 'is-intro')) {
-		this.listenToTransitionEnd(this.el, this.onIntroComplete.bind(this));
+		if (Breakpoints.contains('horizontal')) {
+			this.listenToTransitionEnd(this.el, this.onIntroComplete.bind(this));
+		}
+		else {
+			// currently stacked view has no intro
+			waitAnimationFrames(this.onIntroComplete.bind(this), 2);
+		}
 		this.deeplinked();
 
 		this.onPostLoaded({
@@ -68,6 +75,7 @@ proto.onPostLoaded = function(evt) {
 };
 
 proto.show = function(fromState, lastUrl) {
+	window.scrollTo(0, 0);
 	switch (fromState) {
 		case 'panels' :
 			this.showPost(location.pathname);

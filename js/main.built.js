@@ -6,6 +6,7 @@
 var Analytics = require('./components/Analytics');
 var Breakpoints = require('./components/Breakpoints');
 var Error404 = require('./views/Error404');
+var FeatureDetect = require('./utils/FeatureDetect');
 var Header = require('./views/Header');
 var Lab = require('./views/Lab');
 var Panels = require('./views/Panels');
@@ -25,6 +26,11 @@ var proto = App.prototype;
 
 proto.init = function (analytics) {
 	this.analytics = new Analytics('UA-54501731-1', 'minimalmonkey.github.io', 200);
+
+	if (FeatureDetect.touch()) {
+		document.documentElement.classList.remove('no-touch');
+		document.documentElement.classList.add('touch');
+	}
 
 	Breakpoints.add('stacked', 0, 570);
 	Breakpoints.add('horizontal', 571, Infinity);
@@ -160,7 +166,7 @@ proto.onViewLoaded = function (evt) {
 
 module.exports = App;
 
-},{"./components/Analytics":2,"./components/Breakpoints":3,"./components/Router":5,"./views/Error404":20,"./views/Header":21,"./views/Lab":22,"./views/Panels":23,"./views/Posts":25}],2:[function(require,module,exports){
+},{"./components/Analytics":2,"./components/Breakpoints":3,"./components/Router":5,"./utils/FeatureDetect":10,"./views/Error404":21,"./views/Header":22,"./views/Lab":23,"./views/Panels":24,"./views/Posts":26}],2:[function(require,module,exports){
 'use strict';
 
 var loadScript = require('../utils/loadScript');
@@ -196,7 +202,7 @@ proto.update = function (url) {
 
 module.exports = Analytics;
 
-},{"../utils/loadScript":13}],3:[function(require,module,exports){
+},{"../utils/loadScript":14}],3:[function(require,module,exports){
 'use strict';
 
 var throttleEvent = require('../utils/throttleEvent');
@@ -222,6 +228,7 @@ proto.remove = function (name) {
 };
 
 proto.contains = function (name) {
+	// TODO: don't like use of indexOf here - use an object instead
 	return this.currentPoints && this.currentPoints.indexOf(name) > -1;
 };
 
@@ -273,7 +280,7 @@ var instance = instance || new Breakpoints();
 
 module.exports = instance;
 
-},{"../components/EventEmitter":4,"../utils/throttleEvent":15}],4:[function(require,module,exports){
+},{"../components/EventEmitter":4,"../utils/throttleEvent":16}],4:[function(require,module,exports){
 'use strict';
 
 function EventEmitter() {}
@@ -444,7 +451,7 @@ proto.disable = function () {
 
 module.exports = Router;
 
-},{"../utils/addEventListenerList":10,"./routeToRegExp":8}],6:[function(require,module,exports){
+},{"../utils/addEventListenerList":11,"./routeToRegExp":8}],6:[function(require,module,exports){
 'use strict';
 
 var EASE = 0.175;
@@ -547,7 +554,7 @@ proto.disable = function () {
 
 module.exports = ScrollEvents;
 
-},{"../utils/throttleEvent":15}],7:[function(require,module,exports){
+},{"../utils/throttleEvent":16}],7:[function(require,module,exports){
 'use strict';
 
 module.exports = function loadPage (url, callback) {
@@ -635,7 +642,18 @@ var init = function () {
 
 init();
 
-},{"./App":1,"./components/Analytics":2,"./utils/loadScript":13}],10:[function(require,module,exports){
+},{"./App":1,"./components/Analytics":2,"./utils/loadScript":14}],10:[function(require,module,exports){
+'use strict';
+
+function FeatureDetect() {}
+
+FeatureDetect.touch = function () {
+	return 'ontouchstart' in window || 'onmsgesturechange' in window;
+};
+
+module.exports = FeatureDetect;
+
+},{}],11:[function(require,module,exports){
 'use strict';
 
 module.exports = function addEventListenerList (list, type, listener, useCapture) {
@@ -645,7 +663,7 @@ module.exports = function addEventListenerList (list, type, listener, useCapture
 	}
 };
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 'use strict';
 
 module.exports = function createPageItem (id, type) {
@@ -656,7 +674,7 @@ module.exports = function createPageItem (id, type) {
 	return el;
 };
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 'use strict';
 
 /**
@@ -688,7 +706,7 @@ module.exports = function isMouseOut (evt) {
 	return true;
 };
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 'use strict';
 
 /**
@@ -733,7 +751,7 @@ module.exports = function loadScript (id, src, delay, dest) {
 	}, delay);
 };
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 'use strict';
 
 module.exports = function setColor (element, color) {
@@ -746,7 +764,7 @@ module.exports = function setColor (element, color) {
 	}
 };
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 'use strict';
 
 /**
@@ -772,7 +790,7 @@ module.exports = function throttleEvent (callback, delay) {
 	};
 };
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 'use strict';
 
 var transitionEnd;
@@ -801,7 +819,7 @@ module.exports = function transitionEndEvent () {
 	}
 };
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 'use strict';
 
 module.exports = function waitAnimationFrames (callback, howMany) {
@@ -822,7 +840,7 @@ module.exports = function waitAnimationFrames (callback, howMany) {
 	waitForNext();
 };
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 'use strict';
 
 var loadPage = require('../components/loadPage');
@@ -839,13 +857,19 @@ proto.loadSelectors = [];
 proto.pages = {};
 
 proto.bindBreakpointListeners = function () {
-	Breakpoints.on('in:stacked', this.onStackedBreakpoint.bind(this));
-	Breakpoints.on('in:horizontal', this.onHorizontalBreakpoint.bind(this));
+	if (!this.boundBreakpoints) {
+		// hmmm don't really like this, think of a better way
+		this.boundBreakpoints = true;
+		this.onStackedBreakpoint = this.onStackedBreakpoint.bind(this);
+		this.onHorizontalBreakpoint = this.onHorizontalBreakpoint.bind(this);
+	}
+	Breakpoints.on('in:stacked', this.onStackedBreakpoint);
+	Breakpoints.on('in:horizontal', this.onHorizontalBreakpoint);
 };
 
 proto.unbindBreakpointListeners = function () {
-	Breakpoints.off('in:stacked', this.onStackedBreakpoint.bind(this));
-	Breakpoints.off('in:horizontal', this.onHorizontalBreakpoint.bind(this));
+	Breakpoints.off('in:stacked', this.onStackedBreakpoint);
+	Breakpoints.off('in:horizontal', this.onHorizontalBreakpoint);
 };
 
 proto.deeplinked = function () {
@@ -918,7 +942,7 @@ proto.disable = function () {};
 
 module.exports = BaseView;
 
-},{"../components/Breakpoints":3,"../components/EventEmitter":4,"../components/loadPage":7,"../utils/transitionEndEvent":16}],19:[function(require,module,exports){
+},{"../components/Breakpoints":3,"../components/EventEmitter":4,"../components/loadPage":7,"../utils/transitionEndEvent":17}],20:[function(require,module,exports){
 'use strict';
 
 var loadScript = require('../utils/loadScript');
@@ -966,7 +990,7 @@ proto.onClicked = function () {
 
 module.exports = Comments;
 
-},{"../utils/loadScript":13}],20:[function(require,module,exports){
+},{"../utils/loadScript":14}],21:[function(require,module,exports){
 'use strict';
 
 var BaseView = require('./BaseView');
@@ -1004,7 +1028,7 @@ proto.show = function (fromState, lastUrl) {
 
 module.exports = Error404;
 
-},{"./BaseView":18}],21:[function(require,module,exports){
+},{"./BaseView":19}],22:[function(require,module,exports){
 'use strict';
 
 var transitionEndEvent = require('../utils/transitionEndEvent')();
@@ -1077,7 +1101,7 @@ proto.getPageLinks = function () {
 
 module.exports = Header;
 
-},{"../utils/transitionEndEvent":16,"./BaseView":18}],22:[function(require,module,exports){
+},{"../utils/transitionEndEvent":17,"./BaseView":19}],23:[function(require,module,exports){
 'use strict';
 
 var BaseView = require('./BaseView');
@@ -1117,7 +1141,7 @@ proto.show = function (fromState, lastUrl) {
 
 module.exports = Labs;
 
-},{"./BaseView":18}],23:[function(require,module,exports){
+},{"./BaseView":19}],24:[function(require,module,exports){
 'use strict';
 
 var createPageItem = require('../utils/createPageItem');
@@ -1192,20 +1216,36 @@ proto.show = function (fromState, lastUrl) {
 proto.showFromPost = function (url) {
 	this.el.classList.remove('is-hidden');
 	var panelObj = this.panelsUrlMap[url];
-	if (panelObj) {
+	if (panelObj && Breakpoints.contains('horizontal')) {
 		this.transitionFromPost(panelObj);
 	}
 	else {
+		document.body.classList.remove('is-transition-topanelsfrompost');
 		this.fadeInTransition();
 	}
 };
 
 proto.fadeInTransition = function () {
+	if (Breakpoints.contains('stacked')) {
+		window.scrollTo(0, this.storedScrollY || 0);
+	}
+
 	this.el.classList.add('is-fadeout');
+
 	waitAnimationFrames(function () {
 		document.body.classList.add('is-transition-fade');
 		this.el.classList.remove('is-fadeout');
 		this.listenToTransitionEnd(this.el, this.onShowed);
+	}.bind(this), 2);
+};
+
+proto.fadeOutTransition = function () {
+	this.storedScrollY = window.pageYOffset;
+	document.body.classList.add('is-transition-fade');
+
+	waitAnimationFrames(function () {
+		this.el.classList.add('is-fadeout');
+		this.listenToTransitionEnd(this.el, this.onHidden);
 	}.bind(this), 2);
 };
 
@@ -1237,7 +1277,7 @@ proto.hide = function (nextState) {
 			break;
 
 		default :
-			this.disable();
+			this.disable(); // do you need disable here ?
 			this.el.classList.add('is-hidden');
 			this.onScrolledToPoint();
 	}
@@ -1418,9 +1458,14 @@ proto.transitionToPost = function () {
 	document.body.classList.add('is-transition-topostfrompanels');
 	setColor(document.body, color);
 
-	this.transformed = this.nudgeSiblingPanels(this.currentIndex, 25); // 25 is half the expand width - maybe make this dynamic?
-	var listenTo = this.transformed[0];
-	this.listenToTransitionEnd(listenTo, this.onHidden);
+	if (Breakpoints.contains('horizontal')) {
+		this.transformed = this.nudgeSiblingPanels(this.currentIndex, 25); // 25 is half the expand width - maybe make this dynamic?
+		var listenTo = this.transformed[0];
+		this.listenToTransitionEnd(listenTo, this.onHidden);
+	}
+	else {
+		this.fadeOutTransition();
+	}
 };
 
 proto.transitionFromPost = function (panelObj) {
@@ -1481,12 +1526,14 @@ proto.nudgeSiblingPanels = function (index, expandWidth) {
 };
 
 proto.resetTransition = function () {
-	var i = this.transformed.length;
-	while (i--) {
-		this.transformed[i].style.cssText = '';
+	if (this.transformed) {
+		var i = this.transformed.length;
+		while (i--) {
+			this.transformed[i].style.cssText = '';
+		}
+		this.transformed = undefined;
+		this.onMouseOut();
 	}
-	this.transformed = undefined;
-	this.onMouseOut();
 };
 
 proto.onStackedBreakpoint = function (evt) {
@@ -1533,6 +1580,7 @@ proto.enable = function () {
 proto.disable = function () {
 	this.el.removeEventListener('mouseover', this.onMouseOver);
 	this.el.removeEventListener('mouseout', this.onMouseOut);
+	this.el.classList.remove('is-fadeout');
 	this.nav.hide();
 	this.nav.el.removeEventListener('click', this.onNavClicked);
 	this.unbindBreakpointListeners();
@@ -1541,7 +1589,7 @@ proto.disable = function () {
 
 module.exports = Panels;
 
-},{"../components/Breakpoints":3,"../components/ScrollEvents":6,"../components/loadPage":7,"../utils/createPageItem":11,"../utils/isMouseOut":12,"../utils/setColor":14,"../utils/transitionEndEvent":16,"../utils/waitAnimationFrames":17,"./BaseView":18,"./PanelsNav":24}],24:[function(require,module,exports){
+},{"../components/Breakpoints":3,"../components/ScrollEvents":6,"../components/loadPage":7,"../utils/createPageItem":12,"../utils/isMouseOut":13,"../utils/setColor":15,"../utils/transitionEndEvent":17,"../utils/waitAnimationFrames":18,"./BaseView":19,"./PanelsNav":25}],25:[function(require,module,exports){
 'use strict';
 
 var createPageItem = require('../utils/createPageItem');
@@ -1585,7 +1633,7 @@ proto.setPath = function (path) {
 
 module.exports = PanelsNav;
 
-},{"../utils/createPageItem":11}],25:[function(require,module,exports){
+},{"../utils/createPageItem":12}],26:[function(require,module,exports){
 'use strict';
 
 var createPageItem = require('../utils/createPageItem');
@@ -1595,6 +1643,7 @@ var transitionEndEvent = require('../utils/transitionEndEvent')();
 var waitAnimationFrames = require('../utils/waitAnimationFrames');
 
 var BaseView = require('./BaseView');
+var Breakpoints = require('../components/Breakpoints');
 var Comments = require('./Comments');
 
 function Posts (options) {
@@ -1620,7 +1669,13 @@ function Posts (options) {
 	this.on('onshowed', this.onShow.bind(this)); // maybe store and remove?
 
 	if (document.body.classList.contains('is-post', 'is-intro')) {
-		this.listenToTransitionEnd(this.el, this.onIntroComplete.bind(this));
+		if (Breakpoints.contains('horizontal')) {
+			this.listenToTransitionEnd(this.el, this.onIntroComplete.bind(this));
+		}
+		else {
+			// currently stacked view has no intro
+			waitAnimationFrames(this.onIntroComplete.bind(this), 2);
+		}
 		this.deeplinked();
 
 		this.onPostLoaded({
@@ -1656,6 +1711,7 @@ proto.onPostLoaded = function(evt) {
 };
 
 proto.show = function(fromState, lastUrl) {
+	window.scrollTo(0, 0);
 	switch (fromState) {
 		case 'panels' :
 			this.showPost(location.pathname);
@@ -1837,4 +1893,4 @@ proto.onIntroEnded = function (evt) {
 
 module.exports = Posts;
 
-},{"../components/loadPage":7,"../utils/createPageItem":11,"../utils/setColor":14,"../utils/transitionEndEvent":16,"../utils/waitAnimationFrames":17,"./BaseView":18,"./Comments":19}]},{},[9]);
+},{"../components/Breakpoints":3,"../components/loadPage":7,"../utils/createPageItem":12,"../utils/setColor":15,"../utils/transitionEndEvent":17,"../utils/waitAnimationFrames":18,"./BaseView":19,"./Comments":20}]},{},[9]);

@@ -3,6 +3,7 @@
 var Analytics = require('./components/Analytics');
 var Breakpoints = require('./components/Breakpoints');
 var Error404 = require('./views/Error404');
+var FeatureDetect = require('./utils/FeatureDetect');
 var Header = require('./views/Header');
 var Lab = require('./views/Lab');
 var Panels = require('./views/Panels');
@@ -22,6 +23,11 @@ var proto = App.prototype;
 
 proto.init = function (analytics) {
 	this.analytics = new Analytics('UA-54501731-1', 'minimalmonkey.github.io', 200);
+
+	if (FeatureDetect.touch()) {
+		document.documentElement.classList.remove('no-touch');
+		document.documentElement.classList.add('touch');
+	}
 
 	Breakpoints.add('stacked', 0, 570);
 	Breakpoints.add('horizontal', 571, Infinity);

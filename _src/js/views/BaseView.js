@@ -14,13 +14,19 @@ proto.loadSelectors = [];
 proto.pages = {};
 
 proto.bindBreakpointListeners = function () {
-	Breakpoints.on('in:stacked', this.onStackedBreakpoint.bind(this));
-	Breakpoints.on('in:horizontal', this.onHorizontalBreakpoint.bind(this));
+	if (!this.boundBreakpoints) {
+		// hmmm don't really like this, think of a better way
+		this.boundBreakpoints = true;
+		this.onStackedBreakpoint = this.onStackedBreakpoint.bind(this);
+		this.onHorizontalBreakpoint = this.onHorizontalBreakpoint.bind(this);
+	}
+	Breakpoints.on('in:stacked', this.onStackedBreakpoint);
+	Breakpoints.on('in:horizontal', this.onHorizontalBreakpoint);
 };
 
 proto.unbindBreakpointListeners = function () {
-	Breakpoints.off('in:stacked', this.onStackedBreakpoint.bind(this));
-	Breakpoints.off('in:horizontal', this.onHorizontalBreakpoint.bind(this));
+	Breakpoints.off('in:stacked', this.onStackedBreakpoint);
+	Breakpoints.off('in:horizontal', this.onHorizontalBreakpoint);
 };
 
 proto.deeplinked = function () {

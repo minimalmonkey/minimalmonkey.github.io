@@ -5,6 +5,7 @@ $panel-expand-scale: 50 / 320;
 .panel {
 	display: block;
 	position: relative;
+	overflow: hidden;
 	width: 100%;
 	color: white;
 	text-decoration: none;
@@ -37,48 +38,49 @@ $panel-expand-scale: 50 / 320;
 		transform-origin: 0 0;
 	}
 
-	&.is-expanded {
-		&:before,
-		&:after {
-			opacity: 0;
-			transform: scaleX(1 + $panel-expand-scale) translate3d(0, 0, 0);
-		}
-	}
-
-	&.is-shrunk-left {
-		&:after {
-			transform: scaleX(1 - $panel-expand-scale) translate3d(0, 0, 0);
-		}
-
-		.is-transition-topostfrompanels & {
-			width: $panel-width - ($panel-width * $panel-expand-scale * 0.5);
-			margin-right: $panel-width * $panel-expand-scale * 0.5;
-
-			&:after {
-				transform: scaleX(1) translate3d(0, 0, 0);
-				transition: none;
-			}
-		}
-	}
-
-	&.is-shrunk-right {
-		&:before {
-			transform: scaleX(1 - $panel-expand-scale) translate3d(0, 0, 0);
-		}
-
-		.is-transition-topostfrompanels & {
-			width: $panel-width - ($panel-width * $panel-expand-scale * 0.5);
-			margin-left: $panel-width * $panel-expand-scale * 0.5;
-
-			&:before {
-				transform: scaleX(1) translate3d(0, 0, 0);
-				transition: none;
-			}
-		}
-	}
-
 	@media (min-width: $bp-stack-width) {
+		overflow: visible;
 		width: $panel-width;
+
+		&.is-expanded {
+			&:before,
+			&:after {
+				opacity: 0;
+				transform: scaleX(1 + $panel-expand-scale) translate3d(0, 0, 0);
+			}
+		}
+
+		&.is-shrunk-left {
+			&:after {
+				transform: scaleX(1 - $panel-expand-scale) translate3d(0, 0, 0);
+			}
+
+			.is-transition-topostfrompanels & {
+				width: $panel-width - ($panel-width * $panel-expand-scale * 0.5);
+				margin-right: $panel-width * $panel-expand-scale * 0.5;
+
+				&:after {
+					transform: scaleX(1) translate3d(0, 0, 0);
+					transition: none;
+				}
+			}
+		}
+
+		&.is-shrunk-right {
+			&:before {
+				transform: scaleX(1 - $panel-expand-scale) translate3d(0, 0, 0);
+			}
+
+			.is-transition-topostfrompanels & {
+				width: $panel-width - ($panel-width * $panel-expand-scale * 0.5);
+				margin-left: $panel-width * $panel-expand-scale * 0.5;
+
+				&:before {
+					transform: scaleX(1) translate3d(0, 0, 0);
+					transition: none;
+				}
+			}
+		}
 
 		.is-introtransition &,
 		.is-transition-panelsbelow & {
@@ -122,16 +124,6 @@ $panel-expand-scale: 50 / 320;
 	background-color: inherit;
 	transition: opacity 0.3s;
 
-	@media (min-width: $bp-stack-width) {
-		padding: 47px 40px 0;
-		font-size: 10px;
-
-		&:before,
-		&:after {
-			content: "";
-		}
-	}
-
 	&:before,
 	&:after {
 		position: absolute;
@@ -166,21 +158,39 @@ $panel-expand-scale: 50 / 320;
 		}
 	}
 
-	.is-transition-topostfrompanels .is-expanded & {
-		opacity: 0;
+	.no-touch & {
+		padding-bottom: 100px;
+
+		@media (min-width: $bp-stack-width) {
+			padding-bottom: 0;
+		}
 	}
 
-	.is-transition-topanelsfrompost .is-transition-panel & {
-		opacity: 0;
-		transition: none;
-	}
+	@media (min-width: $bp-stack-width) {
+		padding: 47px 40px 0;
+		font-size: 10px;
 
-	.is-transition-topostfrompanels .is-shrunk-left & {
-		padding-right: 40px - ($panel-width * $panel-expand-scale * 0.5);
-	}
+		&:before,
+		&:after {
+			content: "";
+		}
 
-	.is-transition-topostfrompanels .is-shrunk-right & {
-		padding-left: 40px - ($panel-width * $panel-expand-scale * 0.5);
+		.is-transition-topostfrompanels .is-expanded & {
+			opacity: 0;
+		}
+
+		.is-transition-topanelsfrompost .is-transition-panel & {
+			opacity: 0;
+			transition: none;
+		}
+
+		.is-transition-topostfrompanels .is-shrunk-left & {
+			padding-right: 40px - ($panel-width * $panel-expand-scale * 0.5);
+		}
+
+		.is-transition-topostfrompanels .is-shrunk-right & {
+			padding-left: 40px - ($panel-width * $panel-expand-scale * 0.5);
+		}
 	}
 }
 
@@ -242,25 +252,31 @@ $panel-expand-scale: 50 / 320;
 	&:before {
 		left: 0;
 		transform-origin: 100% 0;
-
-		.is-shrunk-right & {
-			transform: scaleX(1 - $panel-expand-scale) translate3d(0, 100%, 0);
-		}
 	}
 
 	&:after {
 		left: 50%;
 		transform-origin: 0 0;
+	}
 
-		.is-shrunk-left & {
-			transform: scaleX(1 - $panel-expand-scale) translate3d(0, 100%, 0);
+	.no-touch & {
+		&:before,
+		&:after {
+			content: "";
 		}
 	}
 
 	@media (min-width: $bp-stack-width) {
-		&:before,
+		&:before {
+			.is-shrunk-right & {
+				transform: scaleX(1 - $panel-expand-scale) translate3d(0, 100%, 0);
+			}
+		}
+
 		&:after {
-			content: "";
+			.is-shrunk-left & {
+				transform: scaleX(1 - $panel-expand-scale) translate3d(0, 100%, 0);
+			}
 		}
 	}
 }

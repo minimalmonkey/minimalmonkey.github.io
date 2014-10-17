@@ -72,20 +72,36 @@ proto.show = function (fromState, lastUrl) {
 proto.showFromPost = function (url) {
 	this.el.classList.remove('is-hidden');
 	var panelObj = this.panelsUrlMap[url];
-	if (panelObj) {
+	if (panelObj && Breakpoints.contains('horizontal')) {
 		this.transitionFromPost(panelObj);
 	}
 	else {
+		document.body.classList.remove('is-transition-topanelsfrompost');
 		this.fadeInTransition();
 	}
 };
 
 proto.fadeInTransition = function () {
+	if (Breakpoints.contains('stacked')) {
+		window.scrollTo(0, this.storedScrollY || 0);
+	}
+
 	this.el.classList.add('is-fadeout');
+
 	waitAnimationFrames(function () {
 		document.body.classList.add('is-transition-fade');
 		this.el.classList.remove('is-fadeout');
 		this.listenToTransitionEnd(this.el, this.onShowed);
+	}.bind(this), 2);
+};
+
+proto.fadeOutTransition = function () {
+	this.storedScrollY = window.pageYOffset;
+	document.body.classList.add('is-transition-fade');
+
+	waitAnimationFrames(function () {
+		this.el.classList.add('is-fadeout');
+		this.listenToTransitionEnd(this.el, this.onHidden);
 	}.bind(this), 2);
 };
 
@@ -117,7 +133,7 @@ proto.hide = function (nextState) {
 			break;
 
 		default :
-			this.disable();
+			this.disable(); // do you need disable here ?
 			this.el.classList.add('is-hidden');
 			this.onScrolledToPoint();
 	}
@@ -298,9 +314,14 @@ proto.transitionToPost = function () {
 	document.body.classList.add('is-transition-topostfrompanels');
 	setColor(document.body, color);
 
-	this.transformed = this.nudgeSiblingPanels(this.currentIndex, 25); // 25 is half the expand width - maybe make this dynamic?
-	var listenTo = this.transformed[0];
-	this.listenToTransitionEnd(listenTo, this.onHidden);
+	if (Breakpoints.contains('horizontal')) {
+		this.transformed = this.nudgeSiblingPanels(this.currentIndex, 25); // 25 is half the expand width - maybe make this dynamic?
+		var listenTo = this.transformed[0];
+		this.listenToTransitionEnd(listenTo, this.onHidden);
+	}
+	else {
+		this.fadeOutTransition();
+	}
 };
 
 proto.transitionFromPost = function (panelObj) {
@@ -361,12 +382,14 @@ proto.nudgeSiblingPanels = function (index, expandWidth) {
 };
 
 proto.resetTransition = function () {
-	var i = this.transformed.length;
-	while (i--) {
-		this.transformed[i].style.cssText = '';
+	if (this.transformed) {
+		var i = this.transformed.length;
+		while (i--) {
+			this.transformed[i].style.cssText = '';
+		}
+		this.transformed = undefined;
+		this.onMouseOut();
 	}
-	this.transformed = undefined;
-	this.onMouseOut();
 };
 
 proto.onStackedBreakpoint = function (evt) {
@@ -413,6 +436,7 @@ proto.enable = function () {
 proto.disable = function () {
 	this.el.removeEventListener('mouseover', this.onMouseOver);
 	this.el.removeEventListener('mouseout', this.onMouseOut);
+	this.el.classList.remove('is-fadeout');
 	this.nav.hide();
 	this.nav.el.removeEventListener('click', this.onNavClicked);
 	this.unbindBreakpointListeners();

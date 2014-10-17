@@ -12,6 +12,7 @@ html {
 	transition-timing-function: ease-out;
 	-webkit-font-smoothing: antialiased;
 	font-smoothing: antialiased;
+	-webkit-tap-highlight-color: transparent; // putting this here for now but should probably (maybe?) be per element
 }
 
 @include selection {
@@ -40,11 +41,13 @@ body {
 		}
 	}
 
-	&.is-post {
-		transition: background 0.3s;
-	}
-
 	&.is-darktheme {
 		background-color: #222;
+	}
+
+	@media (min-width: $bp-stack-width) {
+		&.is-post {
+			transition: background 0.3s;
+		}
 	}
 }
