@@ -32,8 +32,6 @@ proto.init = function (analytics) {
 		document.documentElement.classList.add('touch');
 	}
 
-	Breakpoints.add('stacked', 0, 570);
-	Breakpoints.add('horizontal', 571, Infinity);
 	Breakpoints.enable();
 
 	this.logoButton = document.getElementById('siteheader-logo');
@@ -209,12 +207,26 @@ var throttleEvent = require('../utils/throttleEvent');
 
 var EventEmitter = require('../components/EventEmitter');
 
-function Breakpoints() {}
+function Breakpoints() {
+	this.points = {};
+	this.generateFromJSON();
+}
 
 var proto = Breakpoints.prototype = new EventEmitter();
 
+proto.generateFromJSON = function () {
+	var str = window.getComputedStyle(document.querySelector('html'), '::after').getPropertyValue('content');
+	str = str.substr(1, str.length-2);
+	var json = JSON.parse(str);
+
+	// TODO: add an `add` mathod that takes an object and do the loop there rather than here
+	for (var name in json) {
+		this.add(name, json[name].from, json[name].to);
+	}
+};
+
 proto.add = function (name, from, to) {
-	this.points = this.points || {};
+	this[name.toUpperCase()] = name; // TODO: check that doesn't already exist
 	this.points[name] = {
 		from: from,
 		to: to
@@ -222,7 +234,8 @@ proto.add = function (name, from, to) {
 };
 
 proto.remove = function (name) {
-	if (this.points && this.points[name]) {
+	if (this.points[name]) {
+		this[name.toUpperCase()] = undefined;
 		this.points[name] = undefined;
 	}
 };
@@ -241,6 +254,8 @@ proto.onResized = function () {
 			current.push(point);
 		}
 	}
+
+	// TODO: use objects and JSON.stringify
 
 	if (current.join() !== this.currentPoints.join()) {
 
@@ -276,9 +291,7 @@ proto.disable = function () {
 	window.removeEventListener('resize', this.throttledResize);
 };
 
-var instance = instance || new Breakpoints();
-
-module.exports = instance;
+module.exports = new Breakpoints();
 
 },{"../components/EventEmitter":4,"../utils/throttleEvent":16}],4:[function(require,module,exports){
 'use strict';
@@ -863,13 +876,13 @@ proto.bindBreakpointListeners = function () {
 		this.onStackedBreakpoint = this.onStackedBreakpoint.bind(this);
 		this.onHorizontalBreakpoint = this.onHorizontalBreakpoint.bind(this);
 	}
-	Breakpoints.on('in:stacked', this.onStackedBreakpoint);
-	Breakpoints.on('in:horizontal', this.onHorizontalBreakpoint);
+	Breakpoints.on('in:' + Breakpoints.STACKED, this.onStackedBreakpoint);
+	Breakpoints.on('in:' + Breakpoints.HORIZONTAL, this.onHorizontalBreakpoint);
 };
 
 proto.unbindBreakpointListeners = function () {
-	Breakpoints.off('in:stacked', this.onStackedBreakpoint);
-	Breakpoints.off('in:horizontal', this.onHorizontalBreakpoint);
+	Breakpoints.off('in:' + Breakpoints.STACKED, this.onStackedBreakpoint);
+	Breakpoints.off('in:' + Breakpoints.HORIZONTAL, this.onHorizontalBreakpoint);
 };
 
 proto.deeplinked = function () {
@@ -1181,7 +1194,7 @@ function Panels () {
 	this.on('onloaded', this.onPanelsLoaded.bind(this));
 
 	if (document.body.classList.contains('is-panels', 'is-intro')) {
-		if (Breakpoints.contains('horizontal')) {
+		if (Breakpoints.contains(Breakpoints.HORIZONTAL)) {
 			this.listenToTransitionEnd(this.panels[this.totalPanels - 1], this.onIntroComplete.bind(this));
 		}
 		else {
@@ -1216,7 +1229,7 @@ proto.show = function (fromState, lastUrl) {
 proto.showFromPost = function (url) {
 	this.el.classList.remove('is-hidden');
 	var panelObj = this.panelsUrlMap[url];
-	if (panelObj && Breakpoints.contains('horizontal')) {
+	if (panelObj && Breakpoints.contains(Breakpoints.HORIZONTAL)) {
 		this.transitionFromPost(panelObj);
 	}
 	else {
@@ -1226,7 +1239,7 @@ proto.showFromPost = function (url) {
 };
 
 proto.fadeInTransition = function () {
-	if (Breakpoints.contains('stacked')) {
+	if (Breakpoints.contains(Breakpoints.STACKED)) {
 		window.scrollTo(0, this.storedScrollY || 0);
 	}
 
@@ -1376,7 +1389,7 @@ proto.setNav = function (nav) {
 	}
 	else {
 		this.allPanelsLoaded = true;
-		if (Breakpoints.contains('stacked')) {
+		if (Breakpoints.contains(Breakpoints.STACKED)) {
 			this.nav.hide();
 		}
 	}
@@ -1424,12 +1437,12 @@ proto.onScrolledToPoint = function (evt) {
 proto.onNavClicked = function (evt) {
 	evt.preventDefault();
 	if (!this.nav.getLoading()) {
-		if (Breakpoints.contains('horizontal')) {
+		if (Breakpoints.contains(Breakpoints.HORIZONTAL)) {
 			this.scrollEvents.scrollToPoint(0);
 			this.onScrolledToPoint();
 			this.nav.el.removeEventListener('click', this.onNavClicked);
 		}
-		else if (Breakpoints.contains('stacked')) {
+		else if (Breakpoints.contains(Breakpoints.STACKED)) {
 			this.loadMorePanels();
 		}
 	}
@@ -1458,7 +1471,7 @@ proto.transitionToPost = function () {
 	document.body.classList.add('is-transition-topostfrompanels');
 	setColor(document.body, color);
 
-	if (Breakpoints.contains('horizontal')) {
+	if (Breakpoints.contains(Breakpoints.HORIZONTAL)) {
 		this.transformed = this.nudgeSiblingPanels(this.currentIndex, 25); // 25 is half the expand width - maybe make this dynamic?
 		var listenTo = this.transformed[0];
 		this.listenToTransitionEnd(listenTo, this.onHidden);
@@ -1559,7 +1572,7 @@ proto.enable = function () {
 	this.addPanels();
 	this.scrollEvents.update(this.el);
 
-	if (Breakpoints.contains('horizontal')) {
+	if (Breakpoints.contains(Breakpoints.HORIZONTAL)) {
 		this.onHorizontalBreakpoint();
 	}
 	else {

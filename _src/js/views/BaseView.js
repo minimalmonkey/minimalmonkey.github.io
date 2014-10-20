@@ -20,13 +20,13 @@ proto.bindBreakpointListeners = function () {
 		this.onStackedBreakpoint = this.onStackedBreakpoint.bind(this);
 		this.onHorizontalBreakpoint = this.onHorizontalBreakpoint.bind(this);
 	}
-	Breakpoints.on('in:stacked', this.onStackedBreakpoint);
-	Breakpoints.on('in:horizontal', this.onHorizontalBreakpoint);
+	Breakpoints.on('in:' + Breakpoints.STACKED, this.onStackedBreakpoint);
+	Breakpoints.on('in:' + Breakpoints.HORIZONTAL, this.onHorizontalBreakpoint);
 };
 
 proto.unbindBreakpointListeners = function () {
-	Breakpoints.off('in:stacked', this.onStackedBreakpoint);
-	Breakpoints.off('in:horizontal', this.onHorizontalBreakpoint);
+	Breakpoints.off('in:' + Breakpoints.STACKED, this.onStackedBreakpoint);
+	Breakpoints.off('in:' + Breakpoints.HORIZONTAL, this.onHorizontalBreakpoint);
 };
 
 proto.deeplinked = function () {

@@ -1,3 +1,4 @@
+// TODO: rename to `get-color`
 @function getcolor($name) {
 	@return map-get($colors, $name);
 }

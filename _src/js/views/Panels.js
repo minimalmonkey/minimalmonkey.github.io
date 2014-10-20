@@ -37,7 +37,7 @@ function Panels () {
 	this.on('onloaded', this.onPanelsLoaded.bind(this));
 
 	if (document.body.classList.contains('is-panels', 'is-intro')) {
-		if (Breakpoints.contains('horizontal')) {
+		if (Breakpoints.contains(Breakpoints.HORIZONTAL)) {
 			this.listenToTransitionEnd(this.panels[this.totalPanels - 1], this.onIntroComplete.bind(this));
 		}
 		else {
@@ -72,7 +72,7 @@ proto.show = function (fromState, lastUrl) {
 proto.showFromPost = function (url) {
 	this.el.classList.remove('is-hidden');
 	var panelObj = this.panelsUrlMap[url];
-	if (panelObj && Breakpoints.contains('horizontal')) {
+	if (panelObj && Breakpoints.contains(Breakpoints.HORIZONTAL)) {
 		this.transitionFromPost(panelObj);
 	}
 	else {
@@ -82,7 +82,7 @@ proto.showFromPost = function (url) {
 };
 
 proto.fadeInTransition = function () {
-	if (Breakpoints.contains('stacked')) {
+	if (Breakpoints.contains(Breakpoints.STACKED)) {
 		window.scrollTo(0, this.storedScrollY || 0);
 	}
 
@@ -232,7 +232,7 @@ proto.setNav = function (nav) {
 	}
 	else {
 		this.allPanelsLoaded = true;
-		if (Breakpoints.contains('stacked')) {
+		if (Breakpoints.contains(Breakpoints.STACKED)) {
 			this.nav.hide();
 		}
 	}
@@ -280,12 +280,12 @@ proto.onScrolledToPoint = function (evt) {
 proto.onNavClicked = function (evt) {
 	evt.preventDefault();
 	if (!this.nav.getLoading()) {
-		if (Breakpoints.contains('horizontal')) {
+		if (Breakpoints.contains(Breakpoints.HORIZONTAL)) {
 			this.scrollEvents.scrollToPoint(0);
 			this.onScrolledToPoint();
 			this.nav.el.removeEventListener('click', this.onNavClicked);
 		}
-		else if (Breakpoints.contains('stacked')) {
+		else if (Breakpoints.contains(Breakpoints.STACKED)) {
 			this.loadMorePanels();
 		}
 	}
@@ -314,7 +314,7 @@ proto.transitionToPost = function () {
 	document.body.classList.add('is-transition-topostfrompanels');
 	setColor(document.body, color);
 
-	if (Breakpoints.contains('horizontal')) {
+	if (Breakpoints.contains(Breakpoints.HORIZONTAL)) {
 		this.transformed = this.nudgeSiblingPanels(this.currentIndex, 25); // 25 is half the expand width - maybe make this dynamic?
 		var listenTo = this.transformed[0];
 		this.listenToTransitionEnd(listenTo, this.onHidden);
@@ -415,7 +415,7 @@ proto.enable = function () {
 	this.addPanels();
 	this.scrollEvents.update(this.el);
 
-	if (Breakpoints.contains('horizontal')) {
+	if (Breakpoints.contains(Breakpoints.HORIZONTAL)) {
 		this.onHorizontalBreakpoint();
 	}
 	else {

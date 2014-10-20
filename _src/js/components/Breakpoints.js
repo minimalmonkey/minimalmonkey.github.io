@@ -4,12 +4,26 @@ var throttleEvent = require('../utils/throttleEvent');
 
 var EventEmitter = require('../components/EventEmitter');
 
-function Breakpoints() {}
+function Breakpoints() {
+	this.points = {};
+	this.generateFromJSON();
+}
 
 var proto = Breakpoints.prototype = new EventEmitter();
 
+proto.generateFromJSON = function () {
+	var str = window.getComputedStyle(document.querySelector('html'), '::after').getPropertyValue('content');
+	str = str.substr(1, str.length-2);
+	var json = JSON.parse(str);
+
+	// TODO: add an `add` mathod that takes an object and do the loop there rather than here
+	for (var name in json) {
+		this.add(name, json[name].from, json[name].to);
+	}
+};
+
 proto.add = function (name, from, to) {
-	this.points = this.points || {};
+	this[name.toUpperCase()] = name; // TODO: check that doesn't already exist
 	this.points[name] = {
 		from: from,
 		to: to
@@ -17,7 +31,8 @@ proto.add = function (name, from, to) {
 };
 
 proto.remove = function (name) {
-	if (this.points && this.points[name]) {
+	if (this.points[name]) {
+		this[name.toUpperCase()] = undefined;
 		this.points[name] = undefined;
 	}
 };
@@ -36,6 +51,8 @@ proto.onResized = function () {
 			current.push(point);
 		}
 	}
+
+	// TODO: use objects and JSON.stringify
 
 	if (current.join() !== this.currentPoints.join()) {
 
@@ -71,6 +88,4 @@ proto.disable = function () {
 	window.removeEventListener('resize', this.throttledResize);
 };
 
-var instance = instance || new Breakpoints();
-
-module.exports = instance;
+module.exports = new Breakpoints();

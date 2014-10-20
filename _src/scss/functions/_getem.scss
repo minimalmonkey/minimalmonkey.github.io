@@ -1,3 +1,4 @@
+// TODO: rename to `get-em`
 @function getem($size, $parent:10px) {
 	@return #{($size / $parent)}em;
 }

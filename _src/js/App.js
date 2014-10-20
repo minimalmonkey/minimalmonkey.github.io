@@ -29,8 +29,6 @@ proto.init = function (analytics) {
 		document.documentElement.classList.add('touch');
 	}
 
-	Breakpoints.add('stacked', 0, 570);
-	Breakpoints.add('horizontal', 571, Infinity);
 	Breakpoints.enable();
 
 	this.logoButton = document.getElementById('siteheader-logo');
