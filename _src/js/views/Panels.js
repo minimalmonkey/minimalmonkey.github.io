@@ -322,8 +322,10 @@ proto.transitionToPost = function () {
 		return;
 	}
 	setColor(document.body, panel.dataset.color);
-	this.currentIndex = this.panels.indexOf(panel);
 	if (Breakpoints.contains(Breakpoints.HORIZONTAL)) {
+		if (this.currentIndex < 0) {
+			this.onPanelMouseOver(this.panels.indexOf(panel));
+		}
 		this.transformed = this.nudgeSiblingPanels(this.currentIndex, 25); // 25 is half the expand width - maybe make this dynamic?
 		var listenTo = this.transformed[0];
 		this.listenToTransitionEnd(listenTo, this.onHidden);
