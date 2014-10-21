@@ -8,6 +8,7 @@ var waitAnimationFrames = require('../utils/waitAnimationFrames');
 
 var BaseView = require('./BaseView');
 var Breakpoints = require('../components/Breakpoints');
+var ColorDictionary = require('../components/ColorDictionary');
 var Comments = require('./Comments');
 
 function Posts (options) {
@@ -65,6 +66,8 @@ proto.onPostLoaded = function(evt) {
 		next: navNext.classList.contains('is-hidden') ? false : navNext.pathname,
 		previous: navPrevious.classList.contains('is-hidden') ? false : navPrevious.pathname
 	};
+
+	ColorDictionary.add(url, currentPost.color);
 
 	if (url === this.nextNav.pathname) {
 		setColor(this.nextNav, currentPost.color);
@@ -217,6 +220,10 @@ proto.showPost = function (url) {
 	this.el.classList.remove('is-hidden');
 	this.listenToTransitionEnd(this.el, this.onShowed);
 	this.setNavHref(currentPost);
+
+	if (document.body.dataset.color !== currentPost.color) {
+		setColor(document.body, currentPost.color);
+	}
 };
 
 proto.onShow = function () {

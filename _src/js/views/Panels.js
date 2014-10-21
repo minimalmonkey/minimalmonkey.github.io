@@ -9,6 +9,7 @@ var waitAnimationFrames = require('../utils/waitAnimationFrames');
 
 var BaseView = require('./BaseView');
 var Breakpoints = require('../components/Breakpoints');
+var ColorDictionary = require('../components/ColorDictionary');
 var PanelsNav = require('./PanelsNav');
 var ScrollEvents = require('../components/ScrollEvents');
 
@@ -291,11 +292,6 @@ proto.onNavClicked = function (evt) {
 	}
 };
 
-proto.getCurrentColor = function (url) {
-	var panel = this.currentIndex ? this.panels[this.currentIndex] : this.panelsUrlMap[url].panel;
-	return panel.dataset.color;
-};
-
 proto.getLastShownPanel = function () {
 	var panel = this.panels[0];
 	var winWidth = window.innerWidth;
@@ -309,11 +305,24 @@ proto.getLastShownPanel = function () {
 	return panel;
 };
 
-proto.transitionToPost = function () {
-	var color = this.getCurrentColor(location.pathname);
-	document.body.classList.add('is-transition-topostfrompanels');
-	setColor(document.body, color);
+proto.getPanelFromURL = function (url) {
+	var panelObj = this.panelsUrlMap[url];
+	if (panelObj) {
+		return panelObj.panel;
+	}
+	return undefined;
+};
 
+proto.transitionToPost = function () {
+	document.body.classList.add('is-transition-topostfrompanels');
+	var panel = this.panels[this.currentIndex] || this.getPanelFromURL(location.pathname);
+	if (panel === undefined) {
+		setColor(document.body, ColorDictionary.get(location.pathname));
+		this.fadeOutTransition();
+		return;
+	}
+	setColor(document.body, panel.dataset.color);
+	this.currentIndex = this.panels.indexOf(panel);
 	if (Breakpoints.contains(Breakpoints.HORIZONTAL)) {
 		this.transformed = this.nudgeSiblingPanels(this.currentIndex, 25); // 25 is half the expand width - maybe make this dynamic?
 		var listenTo = this.transformed[0];
