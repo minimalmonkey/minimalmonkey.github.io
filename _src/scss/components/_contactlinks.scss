@@ -1,14 +1,14 @@
 $contact-link-transition-duration: 0.35s;
 
 .contactlinks {
-	font-size: getem(36px);
+	font-size: convert-to-em(36px);
 }
 
 .contactlinks-link {
 	width: 1em;
 	height: 1em;
 	margin: 0.14em 0.154em 0;
-	margin: getem(5px, 36px) getem(5.6px, 36px) 0;
+	margin: convert-to-em(5px, 36px) convert-to-em(5.6px, 36px) 0;
 	font-family: 'icons';
 	line-height: 1em;
 	color: #cfcfcf;
@@ -57,7 +57,7 @@ $contact-link-transition-duration: 0.35s;
 	transition: transform $contact-link-transition-duration;
 
 	.contactlinks-twitter & {
-		font-size: getem(16px, 36px);
+		font-size: convert-to-em(16px, 36px);
 
 		&:after {
 			color: $color-twitter;
@@ -65,7 +65,7 @@ $contact-link-transition-duration: 0.35s;
 	}
 
 	.contactlinks-linkedin & {
-		font-size: getem(19px, 36px);
+		font-size: convert-to-em(19px, 36px);
 
 		&:after {
 			color: $color-linkedin;
@@ -73,7 +73,7 @@ $contact-link-transition-duration: 0.35s;
 	}
 
 	.contactlinks-email & {
-		font-size: getem(19px, 36px);
+		font-size: convert-to-em(19px, 36px);
 
 		&:after {
 			color: $color-email;
@@ -81,7 +81,7 @@ $contact-link-transition-duration: 0.35s;
 	}
 
 	.contactlinks-codepen & {
-		font-size: getem(20.5px, 36px);
+		font-size: convert-to-em(20.5px, 36px);
 
 		&:after {
 			color: $color-codepen;

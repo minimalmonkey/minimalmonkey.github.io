@@ -52,7 +52,7 @@
 		transition: transform $header-open-duration;
 	}
 
-	@media (min-width: $bp-post-nav) {
+	@include breakpoint-mediaquery(post-nav) {
 		display: block;
 	}
 }

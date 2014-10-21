@@ -1,0 +1,3 @@
+@function convert-to-em($size, $parent:10px) {
+	@return #{($size / $parent)}em;
+}

@@ -18,7 +18,7 @@
 		text-decoration: none;
 	}
 
-	@media (min-width: $bp-post-content-padding) {
+	@include breakpoint-mediaquery(post-padding) {
 		padding: 9px 0 15px;
 	}
 }

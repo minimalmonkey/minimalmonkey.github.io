@@ -38,7 +38,7 @@ $panel-expand-scale: 50 / 320;
 		transform-origin: 0 0;
 	}
 
-	@media (min-width: $bp-stack-width) {
+	@include breakpoint-mediaquery(horizontal) {
 		overflow: visible;
 		width: $panel-width;
 
@@ -161,12 +161,12 @@ $panel-expand-scale: 50 / 320;
 	.no-touch & {
 		padding-bottom: 100px;
 
-		@media (min-width: $bp-stack-width) {
+		@include breakpoint-mediaquery(horizontal) {
 			padding-bottom: 0;
 		}
 	}
 
-	@media (min-width: $bp-stack-width) {
+	@include breakpoint-mediaquery(horizontal) {
 		padding: 47px 40px 0;
 		font-size: 10px;
 
@@ -206,17 +206,17 @@ $panel-expand-scale: 50 / 320;
 	position: relative;
 	z-index: 2;
 	margin: 0 0 25px;
-	font-size: getem(45px);
+	font-size: convert-to-em(45px);
 	line-height: 1;
 }
 
 .panel-summary {
 	position: relative;
 	z-index: 2;
-	font-size: getem(15px);
+	font-size: convert-to-em(15px);
 	line-height: 1.55;
 
-	@media (min-width: $bp-stack-width) {
+	@include breakpoint-mediaquery(horizontal) {
 		opacity: 0.5;
 		transition: opacity $panel-expand-duration;
 
@@ -266,7 +266,7 @@ $panel-expand-scale: 50 / 320;
 		}
 	}
 
-	@media (min-width: $bp-stack-width) {
+	@include breakpoint-mediaquery(horizontal) {
 		&:before {
 			.is-shrunk-right & {
 				transform: scaleX(1 - $panel-expand-scale) translate3d(0, 100%, 0);
@@ -299,7 +299,7 @@ $panel-expand-scale: 50 / 320;
 		content: "v";
 	}
 
-	@media (min-width: $bp-stack-width) {
+	@include breakpoint-mediaquery(horizontal) {
 		left: 40px;
 	}
 }

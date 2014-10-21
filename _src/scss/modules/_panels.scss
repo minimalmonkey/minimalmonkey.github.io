@@ -19,7 +19,7 @@
 		transition: opacity 0.4s;
 	}
 
-	@media (min-width: $bp-stack-width) {
+	@include breakpoint-mediaquery(horizontal) {
 		display: flex;
 		position: absolute;
 		top: $site-nav-height;

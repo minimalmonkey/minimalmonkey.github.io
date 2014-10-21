@@ -52,7 +52,7 @@ $margin: ($site-nav-height - $size) * 0.5;
 		}
 	}
 
-	@media (min-width: $bp-stack-width) {
+	@include breakpoint-mediaquery(horizontal) {
 		display: block;
 	}
 }

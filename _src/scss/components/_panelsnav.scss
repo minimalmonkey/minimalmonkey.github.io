@@ -69,7 +69,7 @@
 		display: none;
 	}
 
-	@media (min-width: $bp-stack-width) {
+	@include breakpoint-mediaquery(horizontal) {
 		position: fixed;
 		width: 53px;
 		right: 0;

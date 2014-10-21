@@ -1,55 +1,20 @@
-// media query break points
-$bp-stack-width: 570px;
-$bp-post-content-padding: 660px;
-$bp-show-post-borders: 980px;
-$bp-post-nav: 1060px;
-
 $breakpoints: (
 	stacked: (
-		to: 570
+		to: 569
 	),
 	horizontal: (
-		from: 571
+		from: 570
 	),
-	foo: (
-		from: 500,
-		to: 800
+	post-padding: (
+		from: 660,
+		silent: true
 	),
-	luds: (
-		from: 700,
-		to: 1000
+	post-borders: (
+		from: 980,
+		silent: true
+	),
+	post-nav: (
+		from: 1060,
+		silent: true
 	)
 );
-
-@function get-breakpoint($name) {
-	@return map-get($breakpoints, $name);
-}
-
-@function get-breakpoint-mediaquery($name) {
-}
-
-@function get-breakpoint-json($name) {
-	$bp: get-breakpoint($name);
-	$from: map-get($bp, from);
-	$to: map-get($bp, to);
-	@if type-of($from) != "number" {
-		$from: 0;
-	}
-	@if type-of($to) != "number" {
-		$to: "Infinity";
-	}
-	@return '"#{$name}":{"from":"#{$from}","to":"#{$to}"}';
-}
-
-@function get-breakpoints-json() {
-	$json: "{";
-	@each $name, $bp in $breakpoints {
-		$json: $json + get-breakpoint-json($name) + ",";
-	}
-	@return str-slice($json, 0, str-length($json) - 1) + "}";
-}
-
-html:after {
-	display: none;
-	content: '#{get-breakpoints-json()}';
-}

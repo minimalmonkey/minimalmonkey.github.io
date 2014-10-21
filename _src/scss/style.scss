@@ -5,8 +5,9 @@
 		"constants/transitions";
 
 // functions
-@import "functions/getcolor",
-		"functions/getem";
+@import "functions/breakpoints",
+		"functions/converttoem",
+		"functions/getcolor";
 
 // mixins
 @import "mixins/debugbox",

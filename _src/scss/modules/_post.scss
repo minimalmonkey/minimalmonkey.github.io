@@ -55,14 +55,14 @@
 		right: -5px;
 	}
 
-	@media (min-width: $bp-show-post-borders) {
+	@include breakpoint-mediaquery(post-borders) {
 		&:before,
 		&:after {
 			content: '';
 		}
 	}
 
-	@media (min-width: $bp-stack-width) {
+	@include breakpoint-mediaquery(horizontal) {
 		.js .is-intro & {
 			opacity: 0;
 			transform: translateY(200px);

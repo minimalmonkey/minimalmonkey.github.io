@@ -28,7 +28,7 @@
 		}
 	}
 
-	@media (min-width: $bp-stack-width) {
+	@include breakpoint-mediaquery(horizontal) {
 		font-size: 10px;
 
 		.js .is-intro & {
@@ -42,9 +42,9 @@
 }
 
 .siteheader-headline {
-	margin: getem(8px) 0 getem(7px);
-	color: getcolor(red);
-	font-size: getem(36px);
+	margin: convert-to-em(8px) 0 convert-to-em(7px);
+	color: get-color(red);
+	font-size: convert-to-em(36px);
 }
 
 .siteheader-page {
@@ -53,16 +53,16 @@
 	overflow: hidden;
 	width: 0;
 	max-width: 700px;
-	padding: 0 getem(10px);
+	padding: 0 convert-to-em(10px);
 	margin: 0 auto;
 	opacity: 0;
-	font-size: getem(18px);
+	font-size: convert-to-em(18px);
 	line-height: 1.4;
 	color: #696969;
 	transition: width 0 linear 0.3s, opacity 0.3s;
 
 	p {
-		margin: getem(8px) 0 getem(14px);
+		margin: convert-to-em(8px) 0 convert-to-em(14px);
 	}
 
 	&.is-visible {

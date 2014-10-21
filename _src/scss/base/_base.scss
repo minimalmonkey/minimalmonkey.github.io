@@ -5,6 +5,11 @@ body {
 
 html {
 	box-sizing: border-box;
+
+	&:after {
+		display: none;
+		content: '#{breakpoints-json()}';
+	}
 }
 
 *, *:before, *:after {
@@ -17,7 +22,7 @@ html {
 
 @include selection {
 	color: white;
-	background: getcolor(purple);
+	background: get-color(purple);
 }
 
 body {
@@ -45,7 +50,7 @@ body {
 		background-color: #222;
 	}
 
-	@media (min-width: $bp-stack-width) {
+	@include breakpoint-mediaquery(horizontal) {
 		&.is-post {
 			transition: background 0.3s;
 		}

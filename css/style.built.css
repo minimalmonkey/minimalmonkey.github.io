@@ -1,9 +1,5 @@
 /* BUILT FILE DO NOT EDIT */
 
-html:after {
-  display: none;
-  content: '{"stacked":{"from":"0","to":"570"},"horizontal":{"from":"571","to":"Infinity"},"foo":{"from":"500","to":"800"},"luds":{"from":"700","to":"1000"}}'; }
-
 article,
 aside,
 details,
@@ -177,6 +173,9 @@ body {
 
 html {
   box-sizing: border-box; }
+  html:after {
+    display: none;
+    content: '{"stacked":{"from":"0","to":"569"},"horizontal":{"from":"570","to":"Infinity"}}'; }
 
 *, *:before, *:after {
   box-sizing: inherit;

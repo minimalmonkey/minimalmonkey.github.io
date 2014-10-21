@@ -6,7 +6,7 @@
 	text-transform: uppercase;
 
 	&.is-selected {
-		border-bottom: 1px solid getcolor(navy);
+		border-bottom: 1px solid get-color(navy);
 		transition: border-bottom 0.3s;
 
 		.is-darktheme & {
@@ -17,7 +17,7 @@
 
 .sitenavlink-label {
 	&:after {
-		color: getcolor(navy);
+		color: get-color(navy);
 
 		.is-darktheme & {
 			color: white;

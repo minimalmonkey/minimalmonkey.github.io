@@ -3,7 +3,7 @@
 	padding: 9px 3% 35px;
 	margin: 0 auto;
 
-	@media (min-width: $bp-post-content-padding) {
+	@include breakpoint-mediaquery(post-padding) {
 		padding: 0 0 65px;
 	}
 }
