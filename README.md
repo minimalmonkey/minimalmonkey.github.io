@@ -4,7 +4,13 @@
 
 Hello, my name is [Stephen Burgess](https://twitter.com/minimalmonkey) and this repo contains the source code for my site [www.minimalmonkey.com](http://minimalmonkey.github.io/)
 
+*NOTE: The site is not yet finished and is very much work in progress.*
+
 ![Responsive site shown on multiple devices](images/welcome-minimal-monkey/responsive.jpg)
+
+### Contributing
+
+This code is a sort of portfolio to show what I can do. Therefore, I'm not accepting pull requests for the site as I want to keep the code mostly mine. You can folk the repo and do as you want and I'd really appreciate you reporting any bugs you find [here](issues).
 
 ### Credits
 
