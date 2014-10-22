@@ -16,7 +16,7 @@ gulp.task('sass', function () {
 	gulp.src('./_src/scss/style.scss')
 		.pipe(sass())
 		.pipe(rename({suffix: '.built'}))
-		.pipe(header('/* BUILT FILE DO NOT EDIT */\n\n'))
+		.pipe(header('/**\n * BUILT FILE DO NOT EDIT\n * src: https://github.com/minimalmonkey/minimalmonkey.github.io/tree/master/_src/scss\n */\n\n'))
 		.pipe(prefix("last 1 version", "> 1%", "ie 8", "ie 7"))
         .pipe(gulp.dest('./css/'));
 });

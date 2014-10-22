@@ -19,7 +19,7 @@ gulp.task('browserify', function() {
 		.pipe(browserified)
 		.pipe(rename({suffix: '.built'}))
 		// .pipe(uglify())
-		.pipe(header('/* BUILT FILE DO NOT EDIT */\n\n'))
+		.pipe(header('/**\n * BUILT FILE DO NOT EDIT\n * src: https://github.com/minimalmonkey/minimalmonkey.github.io/tree/master/_src/js\n */\n\n'))
 		.pipe(gulp.dest('./js/'));
 });
 

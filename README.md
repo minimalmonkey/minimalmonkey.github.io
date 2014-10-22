@@ -10,7 +10,7 @@ Hello, my name is [Stephen Burgess](https://twitter.com/minimalmonkey) and this 
 
 ### Contributing
 
-This code is a sort of portfolio to show what I can do. Therefore, I'm not accepting pull requests for the site as I want to keep the code mostly mine. You can folk the repo and do as you want and I'd really appreciate you reporting any bugs you find [here](issues).
+This code is a sort of portfolio to show what I can do. Therefore, I'm not accepting pull requests for the site as I want to keep the code mostly mine. You can folk the repo and do as you want and I'd really appreciate you reporting any bugs you find [here](https://github.com/minimalmonkey/minimalmonkey.github.io/issues).
 
 ### Credits
 
