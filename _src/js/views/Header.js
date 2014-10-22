@@ -12,14 +12,15 @@ function Header () {
 	this.closeURL = '/';
 	this.pages = {};
 	var pages = document.querySelectorAll('.siteheader-page');
-	var url;
+	var url, page;
 	var i = pages.length;
 	while (i--) {
 		url = pages[i].id.split('-')[0];
-		this.pages['/' + url + '/'] = {
+		page = this.pages['/' + url + '/'] = {
 			nav: document.querySelector('.sitenav a[href*="' + url + '"]'),
 			page: pages[i]
 		};
+		page.nav.dataset.url = page.nav.href;
 	}
 
 	this.listenToTransitionEnd(this.el, this.onIntroComplete.bind(this));
@@ -38,6 +39,8 @@ proto.open = function (key, lastURL) {
 		this.closeURL = lastURL;
 		this.closeButton.href = lastURL;
 	}
+
+	this.pages[key].nav.href = this.closeURL;
 };
 
 proto.close = function () {
@@ -50,6 +53,7 @@ proto.hideCurrent = function () {
 	var currentNav = document.querySelector('.sitenavlink.is-selected');
 	if (currentNav) {
 		currentNav.classList.remove('is-selected');
+		currentNav.href = currentNav.dataset.url;
 	}
 
 	var currentPage = document.querySelector('.siteheader-page.is-visible');
