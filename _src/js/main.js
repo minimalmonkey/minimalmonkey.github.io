@@ -17,7 +17,7 @@ var init = function () {
 		externalsDelay = 0;
 	}
 
-	// loadScript('twitter-wjs', '//platform.twitter.com/widgets.js', externalsDelay);
+	loadScript('twitter-wjs', '//platform.twitter.com/widgets.js', externalsDelay);
 };
 
 init();
