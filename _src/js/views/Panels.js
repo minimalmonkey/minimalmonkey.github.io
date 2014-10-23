@@ -70,15 +70,23 @@ proto.show = function (fromState, lastUrl) {
 	}
 };
 
-proto.showFromPost = function (url) {
-	this.el.classList.remove('is-hidden');
-	var panelObj = this.panelsUrlMap[url];
-	if (panelObj && Breakpoints.contains(Breakpoints.HORIZONTAL)) {
-		this.transitionFromPost(panelObj);
-	}
-	else {
-		document.body.classList.remove('is-transition-topanelsfrompost');
-		this.fadeInTransition();
+proto.hide = function (nextState) {
+	switch (nextState) {
+		case 'post' :
+			this.transitionToPost();
+			this.on('onhidden', this.onHiddenToPost);
+			break;
+
+		case 'lab' :
+		case '404' :
+			this.hideBelow();
+			window.requestAnimationFrame(this.onHidden.bind(this));
+			break;
+
+		default :
+			this.disable(); // do you need disable here ?
+			this.el.classList.add('is-hidden');
+			this.onScrolledToPoint();
 	}
 };
 
@@ -120,23 +128,15 @@ proto.hideBelow = function () {
 	this.el.classList.add('is-hidebelow');
 };
 
-proto.hide = function (nextState) {
-	switch (nextState) {
-		case 'post' :
-			this.transitionToPost();
-			this.on('onhidden', this.onHiddenToPost);
-			break;
-
-		case 'lab' :
-		case '404' :
-			this.hideBelow();
-			window.requestAnimationFrame(this.onHidden.bind(this));
-			break;
-
-		default :
-			this.disable(); // do you need disable here ?
-			this.el.classList.add('is-hidden');
-			this.onScrolledToPoint();
+proto.showFromPost = function (url) {
+	this.el.classList.remove('is-hidden');
+	var panelObj = this.panelsUrlMap[url];
+	if (panelObj && Breakpoints.contains(Breakpoints.HORIZONTAL)) {
+		this.transitionFromPost(panelObj);
+	}
+	else {
+		document.body.classList.remove('is-transition-topanelsfrompost');
+		this.fadeInTransition();
 	}
 };
 

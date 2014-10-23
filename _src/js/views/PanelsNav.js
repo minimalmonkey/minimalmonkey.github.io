@@ -8,6 +8,14 @@ function PanelsNav () {
 
 var proto = PanelsNav.prototype;
 
+proto.show = function () {
+	this.el.classList.remove('is-hidden');
+};
+
+proto.hide = function () {
+	this.el.classList.add('is-hidden');
+};
+
 proto.getLoading = function () {
 	return this.loading;
 };
@@ -21,14 +29,6 @@ proto.setLoading = function (loading) {
 	else {
 		this.el.classList.remove('is-loading');
 	}
-};
-
-proto.show = function () {
-	this.el.classList.remove('is-hidden');
-};
-
-proto.hide = function () {
-	this.el.classList.add('is-hidden');
 };
 
 proto.getPath = function () {

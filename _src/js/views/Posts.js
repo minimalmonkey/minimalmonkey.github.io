@@ -23,7 +23,6 @@ function Posts (options) {
 		'.post-nav-previous'
 	];
 
-	this.onHideTransitionEnd = this.onHideTransitionEnd.bind(this);
 	this.onSlideOffTransitionEnd = this.onSlideOffTransitionEnd.bind(this);
 	this.onSlideOnTransitionEnd = this.onSlideOnTransitionEnd.bind(this);
 
@@ -42,6 +41,7 @@ function Posts (options) {
 			waitAnimationFrames(this.onIntroComplete.bind(this), 2);
 		}
 		this.deeplinked();
+		this.comments.refresh();
 
 		this.onPostLoaded({
 			url: location.pathname,
@@ -53,29 +53,6 @@ function Posts (options) {
 }
 
 var proto = Posts.prototype = new BaseView();
-
-proto.onPostLoaded = function(evt) {
-	var url = evt.url;
-	var post = evt.args[0][0];
-	var navNext = evt.args[1][0];
-	var navPrevious = evt.args[2][0];
-	var currentPost = this.posts[url] = {
-		post: post,
-		html: post.innerHTML,
-		color: post.dataset.color,
-		next: navNext.classList.contains('is-hidden') ? false : navNext.pathname,
-		previous: navPrevious.classList.contains('is-hidden') ? false : navPrevious.pathname
-	};
-
-	ColorDictionary.add(url, currentPost.color);
-
-	if (url === this.nextNav.pathname) {
-		setColor(this.nextNav, currentPost.color);
-	}
-	else if (url === this.previousNav.pathname) {
-		setColor(this.previousNav, currentPost.color);
-	}
-};
 
 proto.show = function(fromState, lastUrl) {
 	window.scrollTo(0, 0);
@@ -102,6 +79,18 @@ proto.hide = function (nextState) {
 	}
 };
 
+proto.showPost = function (url) {
+	var currentPost = this.posts[url];
+	this.el.innerHTML = currentPost.html;
+	this.el.classList.remove('is-hidden');
+	this.listenToTransitionEnd(this.el, this.onShowed);
+	this.setNavHref(currentPost);
+
+	if (document.body.dataset.color !== currentPost.color) {
+		setColor(document.body, currentPost.color);
+	}
+};
+
 proto.hidePost = function () {
 	this.listenToTransitionEnd(this.el, this.onHidden);
 	this.el.classList.add('is-hidden');
@@ -114,9 +103,8 @@ proto.update = function (url) {
 	this.slide(url);
 };
 
-
-// maybe just put all this in update ??
 proto.slide = function (url) {
+	// maybe just put all this in update ??
 	this.slideOff(url);
 
 	if (this.posts[url]) {
@@ -214,25 +202,32 @@ proto.setNavHref = function (post) {
 	this.loadSiblingPosts();
 };
 
-proto.showPost = function (url) {
-	var currentPost = this.posts[url];
-	this.el.innerHTML = currentPost.html;
-	this.el.classList.remove('is-hidden');
-	this.listenToTransitionEnd(this.el, this.onShowed);
-	this.setNavHref(currentPost);
-
-	if (document.body.dataset.color !== currentPost.color) {
-		setColor(document.body, currentPost.color);
-	}
-};
-
 proto.onShow = function () {
 	this.closeNav.classList.remove('is-hidden');
+	this.comments.refresh();
 };
 
-proto.onHideTransitionEnd = function () {
-	this.el.removeEventListener(transitionEndEvent, this.onHideTransitionEnd);
-	this.watcher.complete();
+proto.onPostLoaded = function(evt) {
+	var url = evt.url;
+	var post = evt.args[0][0];
+	var navNext = evt.args[1][0];
+	var navPrevious = evt.args[2][0];
+	var currentPost = this.posts[url] = {
+		post: post,
+		html: post.innerHTML,
+		color: post.dataset.color,
+		next: navNext.classList.contains('is-hidden') ? false : navNext.pathname,
+		previous: navPrevious.classList.contains('is-hidden') ? false : navPrevious.pathname
+	};
+
+	ColorDictionary.add(url, currentPost.color);
+
+	if (url === this.nextNav.pathname) {
+		setColor(this.nextNav, currentPost.color);
+	}
+	else if (url === this.previousNav.pathname) {
+		setColor(this.previousNav, currentPost.color);
+	}
 };
 
 proto.onSlideOffTransitionEnd = function () {
@@ -254,12 +249,6 @@ proto.onSlideOffTransitionEnd = function () {
 proto.onSlideOnTransitionEnd = function () {
 	this.el.removeEventListener(transitionEndEvent, this.onSlideOnTransitionEnd);
 	this.closeNav.classList.remove('is-hidden');
-};
-
-proto.onIntroEnded = function (evt) {
-	this.el.removeEventListener(transitionEndEvent, this.onIntroEnded);
-	this.introWatcher.complete();
-	this.comments.refresh();
 };
 
 module.exports = Posts;
