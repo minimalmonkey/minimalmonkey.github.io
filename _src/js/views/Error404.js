@@ -3,6 +3,8 @@
 var BaseView = require('./BaseView');
 
 function Error404 () {
+	this.el = document.getElementById('error404');
+
 	if (document.body.classList.contains('is-404', 'is-intro')) {
 		// doesn't have an intro at the moment so listen to siteheader instead
 		this.listenToTransitionEnd(document.getElementById('siteheader'), this.onIntroComplete.bind(this));
@@ -20,6 +22,7 @@ proto.hide = function (nextState) {
 	switch (nextState) {
 		case 'panels' :
 			// TODO: add delay then remove whatever view we have here
+			this.el.classList.add('is-hidden');
 			document.body.classList.add('is-transition-panelsbelow');
 			window.requestAnimationFrame(this.onHidden.bind(this));
 			break;
@@ -30,6 +33,7 @@ proto.hide = function (nextState) {
 };
 
 proto.show = function (fromState, lastUrl) {
+	this.el.classList.remove('is-hidden');
 	window.requestAnimationFrame(this.onShowed.bind(this));
 };
 

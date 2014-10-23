@@ -4,6 +4,16 @@
 	right: 0;
 	bottom: 0;
 	left: 0;
+
+	&.is-hidden {
+		display: none;
+
+		.is-transition-panelsbelow & {
+			display: block;
+			opacity: 0;
+			transition: opacity 0.35s;
+		}
+	}
 }
 
 .error404-header {

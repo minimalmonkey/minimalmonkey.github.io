@@ -44,7 +44,6 @@ proto.init = function (analytics) {
 	this.panels = new Panels();
 	this.posts = new Posts();
 	this.lab = new Lab();
-	this.error404 = new Error404();
 
 	this.router = new Router([
 		this.panels.el
@@ -57,7 +56,7 @@ proto.init = function (analytics) {
 	}
 
 	if (document.body.classList.contains('is-404')) {
-		this.router.add(location.pathname, this.onNavigate, this.error404, '404');
+		this.router.add(location.pathname, this.onNavigate, new Error404(), '404');
 	}
 
 	this.router.add('/', this.onNavigate, this.panels, 'panels');
@@ -1028,6 +1027,8 @@ module.exports = Comments;
 var BaseView = require('./BaseView');
 
 function Error404 () {
+	this.el = document.getElementById('error404');
+
 	if (document.body.classList.contains('is-404', 'is-intro')) {
 		// doesn't have an intro at the moment so listen to siteheader instead
 		this.listenToTransitionEnd(document.getElementById('siteheader'), this.onIntroComplete.bind(this));
@@ -1045,6 +1046,7 @@ proto.hide = function (nextState) {
 	switch (nextState) {
 		case 'panels' :
 			// TODO: add delay then remove whatever view we have here
+			this.el.classList.add('is-hidden');
 			document.body.classList.add('is-transition-panelsbelow');
 			window.requestAnimationFrame(this.onHidden.bind(this));
 			break;
@@ -1055,6 +1057,7 @@ proto.hide = function (nextState) {
 };
 
 proto.show = function (fromState, lastUrl) {
+	this.el.classList.remove('is-hidden');
 	window.requestAnimationFrame(this.onShowed.bind(this));
 };
 

@@ -38,7 +38,6 @@ proto.init = function (analytics) {
 	this.panels = new Panels();
 	this.posts = new Posts();
 	this.lab = new Lab();
-	this.error404 = new Error404();
 
 	this.router = new Router([
 		this.panels.el
@@ -51,7 +50,7 @@ proto.init = function (analytics) {
 	}
 
 	if (document.body.classList.contains('is-404')) {
-		this.router.add(location.pathname, this.onNavigate, this.error404, '404');
+		this.router.add(location.pathname, this.onNavigate, new Error404(), '404');
 	}
 
 	this.router.add('/', this.onNavigate, this.panels, 'panels');
