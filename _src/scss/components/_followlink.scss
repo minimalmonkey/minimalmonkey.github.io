@@ -21,7 +21,6 @@ $margin: ($site-nav-height - $size) * 0.5;
 
 	.sitenavlink {
 		height: 22px !important; // TODO: investigate why this is needed (why twitter adds wrong height with js)
-		text-transform: lowercase;
 	}
 
 	.no-js & {
