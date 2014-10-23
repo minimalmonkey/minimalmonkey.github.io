@@ -8,7 +8,7 @@
 		font-size: 40px;
 	}
 
-	@media (min-width: $bp-post-content-padding) {
+	@include breakpoint-mediaquery(post-padding) {
 		padding: 28px 0 5px;
 	}
 }

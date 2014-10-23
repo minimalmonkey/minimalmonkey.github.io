@@ -1,5 +1,19 @@
 @each $color, $hex in $colors {
 	.color-#{$color} {
 		background: #{$hex};
+
+		@include selection {
+			background: #{$hex};
+		}
+
+		.panels {
+			background: #{$hex};
+		}
+
+		#disqus_thread {
+			a {
+				color: #{$hex};
+			}
+		}
 	}
 }

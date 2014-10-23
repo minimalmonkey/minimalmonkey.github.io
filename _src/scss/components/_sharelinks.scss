@@ -1,0 +1,14 @@
+.sharelinks {
+	display: block;
+	margin-top: 20px;
+
+	.no-js & {
+		display: none;
+	}
+
+	@include breakpoint-mediaquery(horizontal) {
+		float: right;
+		width: auto;
+		margin-top: 0;
+	}
+}

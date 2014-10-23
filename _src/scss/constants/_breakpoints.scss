@@ -1,0 +1,20 @@
+$breakpoints: (
+	stacked: (
+		to: 569
+	),
+	horizontal: (
+		from: 570
+	),
+	post-padding: (
+		from: 660,
+		silent: true
+	),
+	post-borders: (
+		from: 980,
+		silent: true
+	),
+	post-nav: (
+		from: 1060,
+		silent: true
+	)
+);

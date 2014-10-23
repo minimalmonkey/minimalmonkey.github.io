@@ -19,6 +19,10 @@ $margin: ($site-nav-height - $size) * 0.5;
 	transform: translate3d(100%, 0, 0);
 	transition: transform 0.5s;
 
+	.sitenavlink {
+		height: 22px !important; // TODO: investigate why this is needed (why twitter adds wrong height with js)
+	}
+
 	.no-js & {
 		padding-top: 11px;
 		font-weight: 600;
@@ -47,7 +51,7 @@ $margin: ($site-nav-height - $size) * 0.5;
 		}
 	}
 
-	@media (min-width: $bp-stack-width) {
+	@include breakpoint-mediaquery(horizontal) {
 		display: block;
 	}
 }

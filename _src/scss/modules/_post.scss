@@ -4,11 +4,40 @@
 	margin: 0 auto;
 	color: #2d2d2d;
 	background: #fff;
-	transition: opacity 0.35s ease-in-out 0.1s, transform 0.35s ease-in-out 0.1s;
+	transform: translate3d(0, 0, 0);
+	transform-origin: 50% 0;
+	transition: opacity 0.4s, transform 0.4s;
 
-	.js .is-intro & {
+	.is-introtransition & {
+		transition: opacity 0.35s ease-in-out 0.1s, transform 0.35s ease-in-out 0.1s;
+	}
+
+	&.is-hidden {
+		display: none;
+
+		.is-transition-topostfrompanels &,
+		.is-transition-topanelsfrompost & {
+			display: block;
+			opacity: 0;
+			transform: translate3d(0, 200px, 0);
+		}
+	}
+
+	.is-slideoff & {
 		opacity: 0;
-		transform: translateY(200px);
+		user-select: none;
+	}
+
+	.is-slideoff.is-notransitions & {
+		transition: none;
+	}
+
+	.is-slideoff-left & {
+		transform: translate3d(-100%, 0, 0);
+	}
+
+	.is-slideoff-right & {
+		transform: translate3d(100%, 0, 0);
 	}
 
 	&:before,
@@ -26,10 +55,17 @@
 		right: -5px;
 	}
 
-	@media (min-width: $bp-show-post-borders) {
+	@include breakpoint-mediaquery(post-borders) {
 		&:before,
 		&:after {
 			content: '';
+		}
+	}
+
+	@include breakpoint-mediaquery(horizontal) {
+		.js .is-intro & {
+			opacity: 0;
+			transform: translateY(200px);
 		}
 	}
 }

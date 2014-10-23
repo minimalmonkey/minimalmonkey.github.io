@@ -22,7 +22,11 @@ module.exports = function loadPage (url, callback) {
 					elements[i] = fragment.querySelectorAll(selectors[i]);
 				}
 
-				callback.apply(this, elements.length ? elements : [this.responseText]);
+				callback.apply(this, elements.length ? [url].concat(elements) : [url, this.responseText]);
+				// temp - simulate slow / random load time
+				// setTimeout(function () {
+				// 	callback.apply(this, elements.length ? [url].concat(elements) : [url, this.responseText]);
+				// }.bind(this), 200 + (Math.random() * 500));
 			}
 		}
 	};

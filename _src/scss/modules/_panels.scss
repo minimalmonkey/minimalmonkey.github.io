@@ -1,15 +1,27 @@
 .panels {
 	display: block;
 	position: relative;
-	top: $site-nav-height;
 	bottom: 0;
 	overflow: hidden;
 	width: auto;
 	min-width: 100%;
 	min-height: 460px;
 
-	@media (min-width: $bp-stack-width) {
+	&.is-hidden {
+		display: none;
+	}
+
+	&.is-fadeout {
+		opacity: 0;
+	}
+
+	.is-transition-fade & {
+		transition: opacity 0.4s;
+	}
+
+	@include breakpoint-mediaquery(horizontal) {
 		display: flex;
 		position: absolute;
+		top: $site-nav-height;
 	}
 }

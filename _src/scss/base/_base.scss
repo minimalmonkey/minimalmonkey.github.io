@@ -5,6 +5,11 @@ body {
 
 html {
 	box-sizing: border-box;
+
+	&:after {
+		display: none;
+		content: '#{breakpoints-json()}';
+	}
 }
 
 *, *:before, *:after {
@@ -12,10 +17,42 @@ html {
 	transition-timing-function: ease-out;
 	-webkit-font-smoothing: antialiased;
 	font-smoothing: antialiased;
+	-webkit-tap-highlight-color: transparent; // putting this here for now but should probably (maybe?) be per element
+}
+
+@include selection {
+	color: white;
+	background: get-color(purple);
 }
 
 body {
 	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	margin: 0;
 	padding: 0;
+
+	&.is-muted {
+		overflow: hidden;
+		width: 100%;
+		height: 100%;
+
+		&:after {
+			position: fixed;
+			z-index: 100;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			left: 0;
+			content: "";
+		}
+	}
+
+	&.is-darktheme {
+		background-color: #222;
+	}
+
+	@include breakpoint-mediaquery(horizontal) {
+		&.is-post {
+			transition: background 0.3s;
+		}
+	}
 }

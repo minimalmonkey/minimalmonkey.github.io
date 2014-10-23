@@ -1,18 +1,24 @@
-<header class="siteheader{% if page.type != 'headerpage' %} is-collapsed{% endif %}">
+<header id="siteheader" class="siteheader{% if page.type != 'headerpage' %} is-collapsed{% endif %}">
 
 	<nav class="sitenav">
 
+		{% if site.bug_report %}
+		<div class="bugreport">
+			<a class="bugreport-link sitenavlink" href="{{ site.bug_report }}">Report a bug</a>
+		</div>
+		{% endif %}
+
 		<div class="sitenav-section sitenav-leftsection">
-			<a class="slidelink sitenavlink{% if page.permalink == '/about/' %} is-selected{% endif %}" href="{{ site.baseurl }}/about/">
-				<span class="slidelink-label sitenavlink-label" data-label="About">About</span>
+			<a class="slidelink sitenavlink headernavlink{% if page.permalink == '/about/' %} is-selected{% endif %}" href="{{ site.baseurl }}/about/" data-router>
+				<span class="slidelink-label headernavlink-label" data-label="About">About</span>
 			</a>
 		</div><div class="sitenav-section sitenav-rightsection">
-			<a class="slidelink sitenavlink{% if page.permalink == '/contact/' %} is-selected{% endif %}" href="{{ site.baseurl }}/contact/">
-				<span class="slidelink-label sitenavlink-label" data-label="Contact">Contact</span>
+			<a class="slidelink sitenavlink headernavlink{% if page.permalink == '/contact/' %} is-selected{% endif %}" href="{{ site.baseurl }}/contact/" data-router>
+				<span class="slidelink-label headernavlink-label" data-label="Contact">Contact</span>
 			</a>
 		</div>
 
-		<a class="sitenavlink-logo" href="{{ site.baseurl }}/" aria-label="Home"></a>
+		<a id="siteheader-logo" class="headernavlink-logo" href="{{ site.baseurl }}/" aria-label="Home"></a>
 
 		{% if site.twitter_username %}
 		<div class="follow-link">
@@ -25,11 +31,11 @@
 
 	<h1 class="siteheader-headline">{{ site.tagline }}</h1>
 
-	<div class="siteheader-page{% if page.permalink != '/about/' %} is-hidden{% endif %}">
+	<div id="about-page" class="siteheader-page{% if page.permalink == '/about/' %} is-visible{% endif %}">
 		{% include about.html %}
 	</div>
 
-	<div class="siteheader-page{% if page.permalink != '/contact/' %} is-hidden{% endif %}">
+	<div id="contact-page" class="siteheader-page{% if page.permalink == '/contact/' %} is-visible{% endif %}">
 		{% include contact.html %}
 	</div>
 

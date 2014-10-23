@@ -1,23 +1,18 @@
-$contact-links-color-grey:     #cfcfcf;
-$contact-links-color-twitter:  #32abdf;
-$contact-links-color-linkedin: #1875b2;
-$contact-links-color-email:    #e24e4b;
-$contact-links-color-codepen:  #72616e;
 $contact-link-transition-duration: 0.35s;
 
 .contactlinks {
-	font-size: getem(36px);
+	font-size: convert-to-em(36px);
 }
 
 .contactlinks-link {
 	width: 1em;
 	height: 1em;
 	margin: 0.14em 0.154em 0;
-	margin: getem(5px, 36px) getem(5.6px, 36px) 0;
+	margin: convert-to-em(5px, 36px) convert-to-em(5.6px, 36px) 0;
 	font-family: 'icons';
 	line-height: 1em;
-	color: $contact-links-color-grey;
-	border: 2px solid $contact-links-color-grey;
+	color: #cfcfcf;
+	border: 2px solid #cfcfcf;
 	border-radius: 1em;
 	transform: translate3d(0, 0, 0);
 	transition: border $contact-link-transition-duration;
@@ -28,7 +23,7 @@ $contact-link-transition-duration: 0.35s;
 	padding-left: 0.01em;
 
 	&:hover {
-		border: 2px solid $contact-links-color-twitter;
+		border: 2px solid $color-twitter;
 	}
 }
 
@@ -37,7 +32,7 @@ $contact-link-transition-duration: 0.35s;
 	line-height: 0.9em;
 
 	&:hover {
-		border: 2px solid $contact-links-color-linkedin;
+		border: 2px solid $color-linkedin;
 	}
 }
 
@@ -46,7 +41,7 @@ $contact-link-transition-duration: 0.35s;
 	line-height: 0.9em;
 
 	&:hover {
-		border: 2px solid $contact-links-color-email;
+		border: 2px solid $color-email;
 	}
 }
 
@@ -54,7 +49,7 @@ $contact-link-transition-duration: 0.35s;
 	line-height: 0.92em;
 
 	&:hover {
-		border: 2px solid $contact-links-color-codepen;
+		border: 2px solid $color-codepen;
 	}
 }
 
@@ -62,34 +57,34 @@ $contact-link-transition-duration: 0.35s;
 	transition: transform $contact-link-transition-duration;
 
 	.contactlinks-twitter & {
-		font-size: getem(16px, 36px);
+		font-size: convert-to-em(16px, 36px);
 
 		&:after {
-			color: $contact-links-color-twitter;
+			color: $color-twitter;
 		}
 	}
 
 	.contactlinks-linkedin & {
-		font-size: getem(19px, 36px);
+		font-size: convert-to-em(19px, 36px);
 
 		&:after {
-			color: $contact-links-color-linkedin;
+			color: $color-linkedin;
 		}
 	}
 
 	.contactlinks-email & {
-		font-size: getem(19px, 36px);
+		font-size: convert-to-em(19px, 36px);
 
 		&:after {
-			color: $contact-links-color-email;
+			color: $color-email;
 		}
 	}
 
 	.contactlinks-codepen & {
-		font-size: getem(20.5px, 36px);
+		font-size: convert-to-em(20.5px, 36px);
 
 		&:after {
-			color: $contact-links-color-codepen;
+			color: $color-codepen;
 		}
 	}
 }

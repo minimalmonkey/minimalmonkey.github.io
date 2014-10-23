@@ -1,5 +1,3 @@
-$slide-link-transition-duration: 0.3s;
-
 .slidelink {
 	display: inline-block;
 	position: relative;
@@ -10,7 +8,7 @@ $slide-link-transition-duration: 0.3s;
 .slidelink-label {
 	display: inline-block;
 	position: relative;
-	transition: transform $slide-link-transition-duration;
+	transition: transform 0.3s;
 	vertical-align: middle;
 
 	.slidelink:hover &,

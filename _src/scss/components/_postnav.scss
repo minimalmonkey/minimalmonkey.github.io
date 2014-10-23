@@ -1,15 +1,16 @@
 .post-nav {
 	display: none;
 	position: fixed;
+	z-index: 2;
 	width: 50px;
 	height: 100%;
 	top: 0;
 	background: rgba(0, 0, 0, 0.23);
 	transform: translate3d(0, 0, 0);
-	transition: transform 0.5s ease-out 0.1s;
+	transition: transform 0.3s ease-out;
 
-	@media (min-width: $bp-post-nav) {
-		display: block;
+	.is-introtransition & {
+		transition: transform 0.3s ease-out 0.2s;
 	}
 
 	&:before {
@@ -21,13 +22,13 @@
 		background: inherit;
 		content: "";
 		transform: translate3d(0, 0, 0);
-		transition: transform 0.3s;
+		transition: background 0.3s, transform 0.3s;
 	}
 
 	&:after {
 		position: absolute;
 		top: 50%;
-		left: -5px;
+		left: -5px; // this needs to change
 		width: 50px;
 		height: 66px;
 		margin-top: -33px + ($site-nav-height / 2);
@@ -47,14 +48,22 @@
 		}
 	}
 
-	.is-muted & {
-		transform: translate3d(0, $site-header-height - $site-nav-height, 0);
+	.is-disabled & {
+		transition: transform $header-open-duration;
+	}
+
+	@include breakpoint-mediaquery(post-nav) {
+		display: block;
 	}
 }
 
 .post-nav-next {
 	left: 0;
 	transform: translate3d(-100%, 0, 0);
+
+	.is-disabled & {
+		transform: translate3d(-100%, $site-header-height - $site-nav-height, 0);
+	}
 
 	&:hover {
 		&:before {
@@ -71,8 +80,8 @@
 	&.is-hidden {
 		transform: translate3d(-200%, 0, 0);
 
-		.is-muted & {
-			transform: translate3d(-100%, $site-header-height - $site-nav-height, 0);
+		.is-disabled & {
+			transform: translate3d(-200%, $site-header-height - $site-nav-height, 0);
 		}
 	}
 }
@@ -80,6 +89,10 @@
 .post-nav-previous {
 	right: 0;
 	transform: translate3d(100%, 0, 0);
+
+	.is-disabled & {
+		transform: translate3d(100%, $site-header-height - $site-nav-height, 0);
+	}
 
 	&:hover {
 		&:before {
@@ -96,8 +109,8 @@
 	&.is-hidden {
 		transform: translate3d(200%, 0, 0);
 
-		.is-muted & {
-			transform: translate3d(100%, $site-header-height - $site-nav-height, 0);
+		.is-disabled & {
+			transform: translate3d(200%, $site-header-height - $site-nav-height, 0);
 		}
 	}
 }
@@ -119,11 +132,15 @@
 	border: 1px solid #ccc;
 	border-radius: 38px;
 	transform: rotate(0deg) translate3d(0, 0, 0);
-	transition: border 0.3s, color 0.3s, opacity 0.35s ease-in-out 0.1s, transform 0.35s ease-in-out 0.1s;
+	transition: border 0.3s, color 0.3s, opacity 0.35s, transform 0.3s;
 
 	.js .is-intro & {
 		opacity: 0;
 		transform: translateY(200px);
+	}
+
+	.is-introtransition & {
+		transition: opacity 0.35s ease-in-out 0.1s, transform 0.35s ease-in-out 0.1s;
 	}
 
 	&:hover {
@@ -134,10 +151,30 @@
 
 	&.is-hidden {
 		display: none;
+
+		.is-post &,
+		.is-transition-topostfrompanels &,
+		.is-transition-topanelsfrompost & {
+			display: block;
+			opacity: 0;
+		}
+
+		.is-transition-topanelsfrompost & {
+			transform: translateY(200px);
+		}
+
+		.is-slideoff & {
+			transition: none;
+		}
+
+		.is-transition-topostfrompanels & {
+			transform: rotate(-180deg) translate3d(0, 0, 0);
+		}
 	}
 
-	.is-muted & {
+	.is-disabled & {
 		transform: translate3d(0, $site-header-height - $site-nav-height, 0);
+		transition: transform $header-open-duration;
 	}
 
 	@media (min-width: 770px) {

@@ -9,64 +9,92 @@
 	text-align: center;
 	background-color: #fcfcfc;
 	transform: translate3d(0, 0, 0);
+	transition: background-color $header-open-duration, height $header-open-duration;
 
-	.is-panels & {
-		transition: transform 0.35s ease-in-out 0.3s;
+	.is-introtransition & {
+		transition: transform 0.4s ease-in-out 0.1s;
 	}
 
-	.is-post & {
-		transition: transform 0.35s ease-in-out 0.05s;
+	.is-darktheme & {
+		background-color: #000;
 	}
 
 	&.is-collapsed {
 		height: $site-nav-height;
 		background-color: #f3f3f3;
+
+		.is-darktheme & {
+			background-color: #111;
+		}
 	}
 
-	.js .is-intro & {
-		transform: translate3d(0, -100%, 0);
-	}
-
-	@media (min-width: $bp-stack-width) {
+	@include breakpoint-mediaquery(horizontal) {
 		font-size: 10px;
+
+		.js .is-intro & {
+			transform: translate3d(0, -100%, 0);
+		}
+
+		.js .is-intro.is-header & {
+			transform: translate3d(0, 0, 0);
+		}
 	}
 }
 
 .siteheader-headline {
-	margin: getem(8px) 0 getem(7px);
-	color: getcolor(red);
-	font-size: getem(36px);
+	margin: convert-to-em(8px) 0 convert-to-em(7px);
+	color: get-color(red);
+	font-size: convert-to-em(36px);
 }
 
 .siteheader-page {
+	display: block;
+	position: absolute;
+	overflow: hidden;
+	width: 0;
 	max-width: 700px;
-	padding: 0 getem(10px);
+	padding: 0 convert-to-em(10px);
 	margin: 0 auto;
-	font-size: getem(18px);
+	opacity: 0;
+	font-size: convert-to-em(18px);
 	line-height: 1.4;
 	color: #696969;
+	transition: width 0 linear 0.3s, opacity 0.3s;
 
 	p {
-		margin: getem(8px) 0 getem(14px);
+		margin: convert-to-em(8px) 0 convert-to-em(14px);
 	}
 
-	&.is-hidden {
-		display: none;
+	&.is-visible {
+		width: 100%;
+		opacity: 1;
+		transition: width 0 linear 0, opacity 0.3s;
+	}
+
+	.is-darktheme & {
+		color: #cfcfcf;
+	}
+
+	@media (min-width: 700px) {
+		left: 50%;
+		margin-left: -350px;
 	}
 }
 
 .siteheader-close {
-	.is-muted & {
-		display: block;
-		position: absolute;
-		z-index: 10;
-		top: $site-header-height;
+	display: block;
+	position: absolute;
+	z-index: 10;
+	top: $site-nav-height;
+	left: 0;
+	background: #000;
+	opacity: 0;
+	transition: opacity 0.3s;
+
+	.is-disabled & {
 		right: 0;
 		bottom: 0;
-		left: 0;
-		background: #000;
 		opacity: 0.6;
-		transition: opacity 0.3s;
 
 		&:hover {
 			opacity: 0.4;

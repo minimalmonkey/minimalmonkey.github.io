@@ -1,14 +1,25 @@
 'use strict';
 
-var gulp = require('gulp');
-var watch = require('gulp-watch');
 var browserify = require('browserify');
-var source = require('vinyl-source-stream');
+var gulp = require('gulp');
+var header = require('gulp-header');
+var rename = require('gulp-rename');
+var transform = require('vinyl-transform');
+var uglify = require('gulp-uglify');
+var watch = require('gulp-watch');
 
 gulp.task('browserify', function() {
-	return browserify('./_src/js/app.js')
-		.bundle()
-		.pipe(source('app.js'))
+
+	var browserified = transform(function(filename) {
+		var b = browserify(filename);
+		return b.bundle();
+	});
+
+	return gulp.src(['./_src/js/main.js'])
+		.pipe(browserified)
+		.pipe(rename({suffix: '.built'}))
+		// .pipe(uglify())
+		.pipe(header('/**\n * BUILT FILE DO NOT EDIT\n * src: https://github.com/minimalmonkey/minimalmonkey.github.io/tree/master/_src/js\n */\n\n'))
 		.pipe(gulp.dest('./js/'));
 });
 

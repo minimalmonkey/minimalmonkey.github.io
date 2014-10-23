@@ -60,10 +60,16 @@
 	}
 
 	&.is-hidden {
+		.js & {
+			display: none;
+		}
+	}
+
+	.no-js .is-header & {
 		display: none;
 	}
 
-	@media (min-width: $bp-stack-width) {
+	@include breakpoint-mediaquery(horizontal) {
 		position: fixed;
 		width: 53px;
 		right: 0;
@@ -89,8 +95,10 @@
 		}
 
 		&.is-hidden {
-			display: block;
-			transform: translateX(100%);
+			.js & {
+				display: block;
+				transform: translateX(100%);
+			}
 		}
 	}
 }

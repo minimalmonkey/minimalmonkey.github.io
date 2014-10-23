@@ -1,18 +1,12 @@
 'use strict';
 
-function PanelsNav (options) {
+var createPageItem = require('../utils/createPageItem');
 
-	this.el = document.getElementById(options.id);
-	if (this.hasEl()) {
-		this.hide();
-	}
+function PanelsNav () {
+	this.el = document.getElementById('panels-nav') || createPageItem('panels-nav', 'a', 'is-hidden');
 }
 
 var proto = PanelsNav.prototype;
-
-proto.hasEl = function () {
-	return this.el !== null;
-};
 
 proto.getLoading = function () {
 	return this.loading;

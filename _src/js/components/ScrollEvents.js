@@ -1,32 +1,39 @@
 'use strict';
 
+var EASE = 0.175;
+
 var throttleEvent = require('../utils/throttleEvent');
 
 function ScrollEvents (el) {
-	this.onScrolled = this.onScrolled.bind(this);
-	this.onResized = this.onResized.bind(this);
-	this.update(el);
-	this.enable();
 	this.points = [];
+	this.throttledScroll = throttleEvent(this.onScrolled.bind(this), 50);
+	this.throttledResize = throttleEvent(this.onResized.bind(this), 50);
 }
 
 var proto = ScrollEvents.prototype;
 
 proto.scrollToPoint = function (index) {
 	if (this.points[index]) {
-		var tx = this.points[index];
-		var animateScroll = function () {
-			var px = window.pageXOffset;
-			var lx = window.pageXOffset;
-			var vx = (tx - px) * 0.175;
-			px += vx;
-			window.scrollTo(px, window.pageYOffset);
-			if (~~px != lx) {
-				window.requestAnimationFrame(animateScroll);
-			}
-		};
-		animateScroll();
+		this.animateScroll(this.points[index]);
 	}
+};
+
+proto.scrollToStart = function () {
+	this.animateScroll(0);
+};
+
+proto.animateScroll = function (tx) {
+	var updateScrollPosition = function () {
+		var px = window.pageXOffset;
+		var lx = window.pageXOffset;
+		var vx = (tx - px) * EASE;
+		px += vx;
+		window.scrollTo(px, window.pageYOffset);
+		if (~~px != lx) {
+			window.requestAnimationFrame(updateScrollPosition);
+		}
+	};
+	updateScrollPosition();
 };
 
 proto.update = function (el) {
@@ -81,10 +88,7 @@ proto.onResized = function (evt) {
 };
 
 proto.enable = function () {
-	this.throttledScroll = throttleEvent(this.onScrolled, 50);
 	window.addEventListener('scroll', this.throttledScroll, false);
-
-	this.throttledResize = throttleEvent(this.onResized, 50);
 	window.addEventListener('resize', this.throttledResize, false);
 	this.onResized();
 };

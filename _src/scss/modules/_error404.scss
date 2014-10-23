@@ -1,0 +1,29 @@
+.error404 {
+	position: absolute;
+	top: $site-nav-height;
+	right: 0;
+	bottom: 0;
+	left: 0;
+
+	&.is-hidden {
+		display: none;
+
+		.is-transition-panelsbelow & {
+			display: block;
+			opacity: 0;
+			transition: opacity 0.35s;
+		}
+	}
+}
+
+.error404-header {
+	position: absolute;
+	top: 47%;
+	left: 50%;
+	margin: 0;
+	color: #eee;
+	font-size: 130px;
+	font-weight: 200;
+	transform-origin: 50%;
+	transform: translateX(-50%) translateY(-50%);
+}

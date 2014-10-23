@@ -1,0 +1,14 @@
+.postfooter {
+	max-width: 640px;
+	padding: 9px 3% 35px;
+	margin: 0 auto;
+
+	@include breakpoint-mediaquery(post-padding) {
+		padding: 0 0 65px;
+	}
+}
+
+.postfooter-date {
+	font-weight: 600;
+	line-height: 35px;
+}
