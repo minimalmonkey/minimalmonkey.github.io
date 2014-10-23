@@ -28,4 +28,4 @@ Original designs by [Tobias van Schneider](https://twitter.com/schneidertobias)
 
 ### License
 
-This software is released under the [MIT license](LICENSE). Go ahead and use it! Have fun. I hope it helps some people learn stuff. Feel free to link back to my [site](http://minimalmonkey.com/), follow me on the [twitters](https://twitter.com/minimalmonkey) (it'll make me feel popular) or if you're really generous buy me a [beer](http://25.media.tumblr.com/bc8dc63e3714bc7dfa694f31195cccfd/tumblr_mkuttrDdLz1s0zc1wo1_500.jpg). Likewise, you can do none of those things, whatever floats your element.
+This software is released under the [MIT license](LICENSE). Go ahead and use it! Have fun. I hope it helps some people learn stuff. Feel free to link back to my [site](http://minimalmonkey.com/), follow me on [twitter](https://twitter.com/minimalmonkey) (it'll make me feel popular) or if you're really generous buy me a [beer](http://25.media.tumblr.com/bc8dc63e3714bc7dfa694f31195cccfd/tumblr_mkuttrDdLz1s0zc1wo1_500.jpg). Likewise, you can do none of those things, whatever floats your element.
