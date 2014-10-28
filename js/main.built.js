@@ -64,11 +64,13 @@ proto.init = function (analytics) {
 	this.router.add('*post', this.onNavigate, this.posts, 'post');
 	this.router.match(location.pathname);
 
-	this.view.on('onintrocomplete', this.onIntroComplete);
-	window.requestAnimationFrame(function () {
-		document.body.classList.add('is-introtransition');
-		document.body.classList.remove('is-intro');
-	});
+	if (document.body.classList.contains('is-intro')) {
+		this.view.on('onintrocomplete', this.onIntroComplete);
+		window.requestAnimationFrame(function () {
+			document.body.classList.add('is-introtransition');
+			document.body.classList.remove('is-intro');
+		});
+	}
 };
 
 proto.onNavigate = function (view, state, match, params) {
@@ -1030,8 +1032,8 @@ function Error404 () {
 	this.el = document.getElementById('error404');
 
 	if (document.body.classList.contains('is-404', 'is-intro')) {
-		// doesn't have an intro at the moment so listen to siteheader instead
-		this.listenToTransitionEnd(document.getElementById('siteheader'), this.onIntroComplete.bind(this));
+		// doesn't have an intro at the moment so listen to sitenav instead
+		this.listenToTransitionEnd(document.getElementById('sitenav'), this.onIntroComplete.bind(this));
 	}
 }
 
@@ -1072,7 +1074,6 @@ var BaseView = require('./BaseView');
 
 function Header () {
 	this.el = document.getElementById('siteheader');
-	this.pageContent = document.getElementById('pagecontent');
 	this.closeButton = document.getElementById('siteheader-close');
 
 	this.closeURL = '/';
@@ -1088,15 +1089,11 @@ function Header () {
 		};
 		page.nav.dataset.url = page.nav.href;
 	}
-
-	this.listenToTransitionEnd(this.el, this.onIntroComplete.bind(this));
 }
 
 var proto = Header.prototype = new BaseView();
 
 proto.open = function (key, lastURL) {
-	this.el.classList.remove('is-collapsed');
-	this.pageContent.classList.add('is-disabled');
 	this.hideCurrent();
 	this.pages[key].nav.classList.add('is-selected');
 	this.pages[key].page.classList.add('is-visible');
@@ -1110,8 +1107,6 @@ proto.open = function (key, lastURL) {
 };
 
 proto.close = function () {
-	this.el.classList.add('is-collapsed');
-	this.pageContent.classList.remove('is-disabled');
 	this.hideCurrent();
 };
 
@@ -1147,8 +1142,8 @@ var BaseView = require('./BaseView');
 
 function Labs () {
 	if (document.body.classList.contains('is-lab', 'is-intro')) {
-		// doesn't have an intro at the moment so listen to siteheader instead
-		this.listenToTransitionEnd(document.getElementById('siteheader'), this.onIntroComplete.bind(this));
+		// doesn't have an intro at the moment so listen to sitenav instead
+		this.listenToTransitionEnd(document.getElementById('sitenav'), this.onIntroComplete.bind(this));
 	}
 }
 
@@ -1220,7 +1215,7 @@ function Panels () {
 
 	this.on('onloaded', this.onPanelsLoaded.bind(this));
 
-	if (document.body.classList.contains('is-panels', 'is-intro')) {
+	if (document.body.classList.contains('is-panels')) {
 		if (Breakpoints.contains(Breakpoints.HORIZONTAL)) {
 			this.listenToTransitionEnd(this.panels[this.totalPanels - 1], this.onIntroComplete.bind(this));
 		}
@@ -1718,7 +1713,7 @@ function Posts (options) {
 	this.on('onloaded', this.onPostLoaded.bind(this));
 	this.on('onshowed', this.onShow.bind(this)); // maybe store and remove?
 
-	if (document.body.classList.contains('is-post', 'is-intro')) {
+	if (document.body.classList.contains('is-post')) {
 		if (Breakpoints.contains('horizontal')) {
 			this.listenToTransitionEnd(this.el, this.onIntroComplete.bind(this));
 		}

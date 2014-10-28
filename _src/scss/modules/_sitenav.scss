@@ -1,11 +1,39 @@
 .sitenav {
-	position: relative;
-	z-index: 11;
+	position: fixed;
+	z-index: 12;
 	overflow: hidden;
 	width: 100%;
 	height: $site-nav-height;
 	font-size: 12px;
 	font-weight: 600;
+	background-color: $color-header;
+	transition: background-color $header-open-duration;
+
+	.is-introtransition & {
+		transition: transform 0.4s ease-in-out 0.1s;
+	}
+
+	.is-header & {
+		background-color: $color-headeropen;
+	}
+
+	.is-darktheme & {
+		background-color: $color-dark-header;
+	}
+
+	.is-header.is-darktheme & {
+		background-color: $color-dark-headeropen;
+	}
+
+	@include breakpoint-mediaquery(horizontal) {
+		.js .is-intro & {
+			transform: translate3d(0, -100%, 0);
+		}
+
+		.js .is-intro.is-header & {
+			transform: translate3d(0, 0, 0);
+		}
+	}
 }
 
 .sitenav-section {

@@ -6,7 +6,6 @@ var BaseView = require('./BaseView');
 
 function Header () {
 	this.el = document.getElementById('siteheader');
-	this.pageContent = document.getElementById('pagecontent');
 	this.closeButton = document.getElementById('siteheader-close');
 
 	this.closeURL = '/';
@@ -22,15 +21,11 @@ function Header () {
 		};
 		page.nav.dataset.url = page.nav.href;
 	}
-
-	this.listenToTransitionEnd(this.el, this.onIntroComplete.bind(this));
 }
 
 var proto = Header.prototype = new BaseView();
 
 proto.open = function (key, lastURL) {
-	this.el.classList.remove('is-collapsed');
-	this.pageContent.classList.add('is-disabled');
 	this.hideCurrent();
 	this.pages[key].nav.classList.add('is-selected');
 	this.pages[key].page.classList.add('is-visible');
@@ -44,8 +39,6 @@ proto.open = function (key, lastURL) {
 };
 
 proto.close = function () {
-	this.el.classList.add('is-collapsed');
-	this.pageContent.classList.remove('is-disabled');
 	this.hideCurrent();
 };
 

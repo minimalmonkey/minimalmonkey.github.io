@@ -58,11 +58,13 @@ proto.init = function (analytics) {
 	this.router.add('*post', this.onNavigate, this.posts, 'post');
 	this.router.match(location.pathname);
 
-	this.view.on('onintrocomplete', this.onIntroComplete);
-	window.requestAnimationFrame(function () {
-		document.body.classList.add('is-introtransition');
-		document.body.classList.remove('is-intro');
-	});
+	if (document.body.classList.contains('is-intro')) {
+		this.view.on('onintrocomplete', this.onIntroComplete);
+		window.requestAnimationFrame(function () {
+			document.body.classList.add('is-introtransition');
+			document.body.classList.remove('is-intro');
+		});
+	}
 };
 
 proto.onNavigate = function (view, state, match, params) {

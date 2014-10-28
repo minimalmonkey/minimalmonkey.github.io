@@ -37,7 +37,7 @@ function Panels () {
 
 	this.on('onloaded', this.onPanelsLoaded.bind(this));
 
-	if (document.body.classList.contains('is-panels', 'is-intro')) {
+	if (document.body.classList.contains('is-panels')) {
 		if (Breakpoints.contains(Breakpoints.HORIZONTAL)) {
 			this.listenToTransitionEnd(this.panels[this.totalPanels - 1], this.onIntroComplete.bind(this));
 		}

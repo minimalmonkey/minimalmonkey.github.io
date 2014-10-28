@@ -32,7 +32,7 @@ function Posts (options) {
 	this.on('onloaded', this.onPostLoaded.bind(this));
 	this.on('onshowed', this.onShow.bind(this)); // maybe store and remove?
 
-	if (document.body.classList.contains('is-post', 'is-intro')) {
+	if (document.body.classList.contains('is-post')) {
 		if (Breakpoints.contains('horizontal')) {
 			this.listenToTransitionEnd(this.el, this.onIntroComplete.bind(this));
 		}

@@ -4,40 +4,34 @@
 	z-index: 11;
 	overflow: hidden;
 	width: 100%;
-	height: $site-header-height;
+	height: $site-header-height - $site-nav-height;
+	margin-top: $site-nav-height;
 	font-size: 8px;
 	text-align: center;
-	background-color: #fcfcfc;
-	transform: translate3d(0, 0, 0);
-	transition: background-color $header-open-duration, height $header-open-duration;
+	background-color: $color-header;
+	transform: translate3d(0, -($site-header-height - $site-nav-height), 0);
+	transition: background-color $header-open-duration, transform $header-open-duration;
 
+	.is-intro &,
 	.is-introtransition & {
-		transition: transform 0.4s ease-in-out 0.1s;
+		display: none;
+	}
+
+	.is-header & {
+		background-color: $color-headeropen;
+		transform: translate3d(0, 0, 0);
 	}
 
 	.is-darktheme & {
-		background-color: #000;
+		background-color: $color-dark-header;
 	}
 
-	&.is-collapsed {
-		height: $site-nav-height;
-		background-color: #f3f3f3;
-
-		.is-darktheme & {
-			background-color: #111;
-		}
+	.is-header.is-darktheme & {
+		background-color: $color-dark-headeropen;
 	}
 
 	@include breakpoint-mediaquery(horizontal) {
 		font-size: 10px;
-
-		.js .is-intro & {
-			transform: translate3d(0, -100%, 0);
-		}
-
-		.js .is-intro.is-header & {
-			transform: translate3d(0, 0, 0);
-		}
 	}
 }
 
@@ -45,6 +39,12 @@
 	margin: convert-to-em(8px) 0 convert-to-em(7px);
 	color: get-color(red);
 	font-size: convert-to-em(36px);
+	transform: translateY($site-header-height - $site-nav-height);
+	transition: transform $header-open-duration;
+
+	.is-header & {
+		transform: translateY(0);
+	}
 }
 
 .siteheader-page {
@@ -59,7 +59,8 @@
 	font-size: convert-to-em(18px);
 	line-height: 1.4;
 	color: #696969;
-	transition: width 0 linear 0.3s, opacity 0.3s;
+	transform: translateY($site-header-height - $site-nav-height);
+	transition: width 0 linear 0.3s, opacity 0.3s, transform $header-open-duration;
 
 	p {
 		margin: convert-to-em(8px) 0 convert-to-em(14px);
@@ -68,7 +69,11 @@
 	&.is-visible {
 		width: 100%;
 		opacity: 1;
-		transition: width 0 linear 0, opacity 0.3s;
+		transition: width 0 linear 0, opacity 0.3s, transform $header-open-duration;
+	}
+
+	.is-header & {
+		transform: translateY(0);
 	}
 
 	.is-darktheme & {
@@ -83,18 +88,20 @@
 
 .siteheader-close {
 	display: block;
-	position: absolute;
+	position: fixed;
 	z-index: 10;
 	top: $site-nav-height;
+	bottom: 0;
 	left: 0;
+	width: 0;
 	background: #000;
 	opacity: 0;
-	transition: opacity 0.3s;
+	transition: width 0 linear 0.3s, opacity 0.3s;
 
-	.is-disabled & {
-		right: 0;
-		bottom: 0;
+	.is-header & {
+		width: 100%;
 		opacity: 0.6;
+		transition: width 0, opacity 0.3s;
 
 		&:hover {
 			opacity: 0.4;

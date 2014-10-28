@@ -1,20 +1,15 @@
 .pagecontent {
-	overflow: hidden;
+	position: relative;
+	z-index: 2;
 	min-height: 100%;
 	padding-top: $site-nav-height;
-
-	&.is-disabled {
-		position: relative;
-		overflow: hidden;
-		height: 100%;
-	}
 }
 
 .pagecontent-item {
 	transform: translate3d(0, 0, 0);
 	transition: transform $header-open-duration;
 
-	.is-disabled & {
+	.is-header & {
 		transform: translate3d(0, $site-header-height - $site-nav-height, 0);
 		transition: transform $header-open-duration;
 	}

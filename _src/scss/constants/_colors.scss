@@ -8,9 +8,15 @@ $colors: (
 	red:    #e54b4b
 );
 
-$color-twitter:   #32abdf;
-$color-linkedin:  #1875b2;
-$color-email:     #e24e4b;
-$color-codepen:   #72616e;
-$color-facebook:  #3b5998;
-$color-pinterest: #c92228;
+$color-twitter:    #32abdf;
+$color-linkedin:   #1875b2;
+$color-email:      #e24e4b;
+$color-codepen:    #72616e;
+$color-facebook:   #3b5998;
+$color-pinterest:  #c92228;
+$color-header:     #f3f3f3;
+$color-headeropen: #fcfcfc;
+
+// dark theme
+$color-dark-header:     #111;
+$color-dark-headeropen: #000;

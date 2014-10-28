@@ -4,8 +4,8 @@ var BaseView = require('./BaseView');
 
 function Labs () {
 	if (document.body.classList.contains('is-lab', 'is-intro')) {
-		// doesn't have an intro at the moment so listen to siteheader instead
-		this.listenToTransitionEnd(document.getElementById('siteheader'), this.onIntroComplete.bind(this));
+		// doesn't have an intro at the moment so listen to sitenav instead
+		this.listenToTransitionEnd(document.getElementById('sitenav'), this.onIntroComplete.bind(this));
 	}
 }
 
