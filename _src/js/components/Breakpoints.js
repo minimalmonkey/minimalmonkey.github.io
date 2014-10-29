@@ -16,6 +16,7 @@ proto._generateFromJSON = function () {
 	var str = window.getComputedStyle(document.querySelector('html'), '::after').getPropertyValue('content');
 	if (str) {
 		str = str.substr(1, str.length-2);
+		str = decodeURI(encodeURI(str).replace(/%5C/g, ''));
 		var json = JSON.parse(str);
 		this.addFromObject(json);
 	}
@@ -30,8 +31,8 @@ proto.addFromObject = function (obj) {
 proto.add = function (name, from, to) {
 	this[name.toUpperCase()] = name;
 	this._points[name] = {
-		from: from,
-		to: to
+		from: Number(from),
+		to: Number(to)
 	};
 };
 

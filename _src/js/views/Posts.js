@@ -70,8 +70,7 @@ proto.hide = function (nextState) {
 	switch (nextState) {
 		case 'panels' :
 			document.body.classList.add('is-transition-topanelsfrompost');
-			this.hidePost();
-			// this.on('onhidden', this.onHiddenToPanels);
+			waitAnimationFrames(this.hidePost.bind(this), 2);
 			break;
 
 		default :
