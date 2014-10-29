@@ -426,6 +426,10 @@ proto.enable = function () {
 	this.addPanels();
 	this.scrollEvents.update(this.el);
 
+	waitAnimationFrames(function () {
+		setColor(document.body);
+	}, 2);
+
 	if (Breakpoints.contains(Breakpoints.HORIZONTAL)) {
 		this.onHorizontalBreakpoint();
 	}

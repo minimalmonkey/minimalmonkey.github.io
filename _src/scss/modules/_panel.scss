@@ -208,6 +208,7 @@ $panel-expand-scale: 50 / 320;
 	margin: 0 0 25px;
 	font-size: convert-to-em(45px);
 	line-height: 1;
+	transform: translate3d(0, 0, 0); // TODO: resolved flickering when header closes. figure out compositing issues and remove this.
 }
 
 .panel-summary {
