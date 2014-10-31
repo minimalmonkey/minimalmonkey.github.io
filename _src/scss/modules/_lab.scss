@@ -1,0 +1,16 @@
+.lab {
+	margin-top: -($site-nav-height);
+
+	&.is-hidden {
+		display: none;
+
+		.is-panels.is-transition-panelsbelow & {
+			display: block;
+		}
+	}
+
+	canvas {
+		display: block;
+		background-color: $color-dark-body;
+	}
+}

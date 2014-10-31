@@ -5,7 +5,7 @@ var BaseView = require('./BaseView');
 function Error404 () {
 	this.el = document.getElementById('error404');
 
-	if (document.body.classList.contains('is-404', 'is-intro')) {
+	if (document.body.classList.contains('is-404')) {
 		// doesn't have an intro at the moment so listen to sitenav instead
 		this.listenToTransitionEnd(document.getElementById('sitenav'), this.onIntroComplete.bind(this));
 	}

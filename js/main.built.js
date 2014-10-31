@@ -118,6 +118,7 @@ proto.setView = function (view, state) {
 		return;
 	}
 	this.view = view;
+	this.view.prepare();
 	if (this.state) {
 		this.lastState = this.state;
 		document.body.classList.remove('is-' + this.state);
@@ -168,7 +169,7 @@ proto.onViewLoaded = function (evt) {
 
 module.exports = App;
 
-},{"./components/Analytics":2,"./components/Breakpoints":3,"./components/Router":6,"./utils/FeatureDetect":11,"./views/Error404":22,"./views/Header":23,"./views/Lab":24,"./views/Panels":25,"./views/Posts":27}],2:[function(require,module,exports){
+},{"./components/Analytics":2,"./components/Breakpoints":3,"./components/Router":7,"./utils/FeatureDetect":14,"./views/Error404":25,"./views/Header":26,"./views/Lab":27,"./views/Panels":28,"./views/Posts":30}],2:[function(require,module,exports){
 'use strict';
 
 var loadScript = require('../utils/loadScript');
@@ -204,7 +205,7 @@ proto.update = function (url) {
 
 module.exports = Analytics;
 
-},{"../utils/loadScript":15}],3:[function(require,module,exports){
+},{"../utils/loadScript":18}],3:[function(require,module,exports){
 'use strict';
 
 var throttleEvent = require('../utils/throttleEvent');
@@ -288,7 +289,7 @@ proto.disable = function () {
 
 module.exports = new Breakpoints();
 
-},{"../components/EventEmitter":5,"../utils/throttleEvent":17}],4:[function(require,module,exports){
+},{"../components/EventEmitter":5,"../utils/throttleEvent":20}],4:[function(require,module,exports){
 'use strict';
 
 function ColorDictionary () {
@@ -361,6 +362,50 @@ proto.trigger = function (evt, obj) {
 module.exports = EventEmitter;
 
 },{}],6:[function(require,module,exports){
+'use strict';
+
+function MouseTracker (el) {
+	this._el = el;
+	this._onMouseOver = this._onMouseOver.bind(this);
+	this._onMouseOut = this._onMouseOut.bind(this);
+	this._onMouseMove = this._onMouseMove.bind(this);
+}
+
+var proto = MouseTracker.prototype;
+
+proto._onMouseOver = function (evt) {
+	this.isOver = true;
+	this._onMouseMove(evt);
+	this._el.removeEventListener('mouseover', this._onMouseOver);
+	this._el.addEventListener('mouseout', this._onMouseOut, false);
+	this._el.addEventListener('mousemove', this._onMouseMove, false);
+};
+
+proto._onMouseOut = function (evt) {
+	this.isOver = false;
+	this._el.removeEventListener('mouseout', this._onMouseOut);
+	this._el.removeEventListener('mousemove', this._onMouseMove);
+	this._el.addEventListener('mouseover', this._onMouseOver, false);
+};
+
+proto._onMouseMove = function (evt) {
+	this.x = evt.pageX;
+	this.y = evt.pageY;
+};
+
+proto.enable = function () {
+	this._el.addEventListener('mouseover', this._onMouseOver, false);
+};
+
+proto.disable = function () {
+	this._el.removeEventListener('mouseover', this._onMouseOver);
+	this._el.removeEventListener('mouseout', this._onMouseOut);
+	this._el.removeEventListener('mousemove', this._onMouseMove);
+};
+
+module.exports = MouseTracker;
+
+},{}],7:[function(require,module,exports){
 'use strict';
 
 var addEventListenerList = require('../utils/addEventListenerList');
@@ -478,7 +523,7 @@ proto.disable = function () {
 
 module.exports = Router;
 
-},{"../utils/addEventListenerList":12,"./routeToRegExp":9}],7:[function(require,module,exports){
+},{"../utils/addEventListenerList":15,"./routeToRegExp":10}],8:[function(require,module,exports){
 'use strict';
 
 var EASE = 0.175;
@@ -581,7 +626,7 @@ proto.disable = function () {
 
 module.exports = ScrollEvents;
 
-},{"../utils/throttleEvent":17}],8:[function(require,module,exports){
+},{"../utils/throttleEvent":20}],9:[function(require,module,exports){
 'use strict';
 
 module.exports = function loadPage (url, callback) {
@@ -619,7 +664,7 @@ module.exports = function loadPage (url, callback) {
 	req.send();
 };
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 'use strict';
 
 var optionalParam = /\((.*?)\)/g;
@@ -644,7 +689,217 @@ module.exports = function routeToRegExp (route) {
 	return new RegExp('^' + route + '(?:\\?([\\s\\S]*))?$');
 };
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
+'use strict';
+
+var throttleEvent = require('../utils/throttleEvent');
+
+function BaseLab () {}
+
+var proto = BaseLab.prototype;
+
+proto.resize = function () {};
+proto.update = function () {};
+
+proto._clearCanvas = function () {
+	if (this.context) {
+		this.context.clearRect(0, 0, this.width, this.height);
+	}
+};
+
+proto._onAnimationFrame = function () {
+	if (this.active) {
+		if (this.canvas) {
+			this._clearCanvas();
+		}
+		this.update();
+		window.requestAnimationFrame(this._onAnimationFrame.bind(this));
+	}
+};
+
+proto._onResize = function (evt) {
+	this.width = window.innerWidth;
+	this.height = window.innerHeight;
+	this.resize();
+
+	if (this.canvas) {
+		this.canvas.width = this.width;
+		this.canvas.height = this.height;
+	}
+};
+
+proto.enable = function () {
+	this._throttledResize = throttleEvent(this._onResize.bind(this), 50);
+	window.addEventListener('resize', this._throttledResize, false);
+	this._onResize();
+	this.active = true;
+	this.resize();
+	this.update();
+	window.requestAnimationFrame(this._onAnimationFrame.bind(this));
+};
+
+proto.disable = function () {
+	this.active = false;
+	window.removeEventListener('resize', this._throttledResize);
+};
+
+module.exports = BaseLab;
+
+},{"../utils/throttleEvent":20}],12:[function(require,module,exports){
+'use strict';
+
+var THRESHOLD = 0.1;
+
+var BaseLab = require('./BaseLab');
+var MouseTracker = require('../components/MouseTracker');
+
+function Greyscale (canvas) {
+	this.canvas = canvas;
+	this.context = canvas.getContext('2d');
+	this.mouseTracker = new MouseTracker(canvas);
+}
+
+var proto = Greyscale.prototype = new BaseLab();
+
+proto.generate = function (space) {
+	this.point = [];
+	var wd = Math.ceil(this.width / space);
+	var ht = Math.ceil(this.height / space);
+	var layout = [];
+	var p, w, h, i, j, l, c, g;
+
+	for(w = 0; w <= wd; w++) {
+		layout[w] = [];
+
+		for(h = 0; h <= ht; h++) {
+			p = {};
+			p.x = p.ox = space * w;
+			p.y = p.oy = space * h;
+
+			this.point[this.point.length] = p;
+
+			layout[w][h] = p;
+		}
+	}
+
+	this.points = [];
+	for(i = 0; i < layout.length-1; i++) {
+		l = layout[i].length-1;
+		for(j = 0; j < l; j++) {
+			p = {};
+			p.tl = layout[i][j];
+			p.tr = layout[i][j+1];
+			p.br = layout[i+1][j+1];
+			p.bl = layout[i+1][j];
+			c = 8 + Math.round(Math.random() * 30);
+			g = c + 15;
+			p.color1 = ['rgb(' + c, c, c + ')'].join(',');
+			p.color2 = ['rgb(' + g, g, g + ')'].join(',');
+			this.points[this.points.length] = p;
+		}
+	}
+};
+
+proto.resize = function () {
+	var space = 40;
+	this.maxDist = Math.ceil(space * 5);
+	this.generate(space);
+};
+
+proto.update = function () {
+	var i = this.point.length;
+	while(i--) {
+		this.calculate(this.point[i]);
+	}
+	this.render();
+};
+
+proto.calculate = function (p) {
+	var easing;
+	var dx = this.mouseTracker.x - p.ox;
+	var dy = this.mouseTracker.y - p.oy;
+	var dist = Math.sqrt(dx * dx + dy * dy);
+
+	if(dist === 0 || (dist > this.maxDist && p.x === p.ox && p.y === p.oy)) {
+		return;
+	}
+
+	var tx, ty;
+
+	if(dist <= this.maxDist && this.mouseTracker.isOver) {
+		var ratio = dy / dist;
+		var ang = Math.asin(ratio) * 180 / Math.PI;
+
+		if(this.mouseTracker.x < p.ox) {
+			ang = 180 - ang;
+		}
+
+		ang = 270 - ang;
+
+		var sin = Math.sin(ang / 180 * Math.PI);
+		var cos = Math.cos(ang / 180 * Math.PI);
+		var radius = this.maxDist - ((this.maxDist / dist - 1) * 8);
+		radius = Math.max(this.maxDist * 0.25, radius);
+
+		tx = this.mouseTracker.x + (sin * radius);
+		ty = this.mouseTracker.y + (cos * radius);
+
+		easing = 0.07;
+	}
+	else {
+		tx = p.ox;
+		ty = p.oy;
+		easing = 0.03;
+	}
+
+	if(p.x != tx) {
+		var vx = (tx - p.x) * easing;
+		p.x += vx;
+	}
+	if(p.y != ty) {
+		var vy = (ty - p.y) * easing;
+		p.y += vy;
+	}
+	if(Math.abs(p.x - tx) < THRESHOLD) {
+		p.x = tx;
+	}
+	if(Math.abs(p.y - ty) < THRESHOLD) {
+		p.y = ty;
+	}
+};
+
+proto.render = function () {
+	var p, i = this.points.length;
+	while(i--) {
+		p = this.points[i];
+		var grd = this.context.createLinearGradient(p.tl.x, p.tl.y, p.br.x, p.br.y);
+		grd.addColorStop(0, p.color1);
+		grd.addColorStop(1, p.color2);
+		this.context.fillStyle = grd;
+		this.context.beginPath();
+		this.context.moveTo(p.tl.x, p.tl.y);
+		this.context.lineTo(p.tr.x, p.tr.y);
+		this.context.lineTo(p.br.x, p.br.y);
+		this.context.lineTo(p.bl.x, p.bl.y);
+		this.context.lineTo(p.tl.x, p.tl.y);
+		this.context.closePath();
+		this.context.fill();
+	}
+};
+
+proto.enable = function () {
+	this.mouseTracker.enable();
+	BaseLab.prototype.enable.call(this);
+};
+
+proto.disable = function () {
+	this.mouseTracker.disable();
+	BaseLab.prototype.disable.call(this);
+};
+
+module.exports = Greyscale;
+
+},{"../components/MouseTracker":6,"./BaseLab":11}],13:[function(require,module,exports){
 'use strict';
 
 var loadScript = require('./utils/loadScript');
@@ -669,7 +924,7 @@ var init = function () {
 
 init();
 
-},{"./App":1,"./components/Analytics":2,"./utils/loadScript":15}],11:[function(require,module,exports){
+},{"./App":1,"./components/Analytics":2,"./utils/loadScript":18}],14:[function(require,module,exports){
 'use strict';
 
 function FeatureDetect() {}
@@ -680,7 +935,7 @@ FeatureDetect.touch = function () {
 
 module.exports = FeatureDetect;
 
-},{}],12:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 'use strict';
 
 module.exports = function addEventListenerList (list, type, listener, useCapture) {
@@ -690,7 +945,7 @@ module.exports = function addEventListenerList (list, type, listener, useCapture
 	}
 };
 
-},{}],13:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 'use strict';
 
 module.exports = function createPageItem (id, type) {
@@ -701,7 +956,7 @@ module.exports = function createPageItem (id, type) {
 	return el;
 };
 
-},{}],14:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 'use strict';
 
 /**
@@ -733,7 +988,7 @@ module.exports = function isMouseOut (evt) {
 	return true;
 };
 
-},{}],15:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 'use strict';
 
 /**
@@ -778,7 +1033,7 @@ module.exports = function loadScript (id, src, delay, dest) {
 	}, delay);
 };
 
-},{}],16:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 'use strict';
 
 module.exports = function setColor (element, color) {
@@ -798,7 +1053,7 @@ module.exports = function setColor (element, color) {
 	}
 };
 
-},{}],17:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 'use strict';
 
 /**
@@ -824,7 +1079,7 @@ module.exports = function throttleEvent (callback, delay) {
 	};
 };
 
-},{}],18:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 'use strict';
 
 var transitionEnd;
@@ -853,7 +1108,7 @@ module.exports = function transitionEndEvent () {
 	}
 };
 
-},{}],19:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 'use strict';
 
 module.exports = function waitAnimationFrames (callback, howMany) {
@@ -874,7 +1129,7 @@ module.exports = function waitAnimationFrames (callback, howMany) {
 	waitForNext();
 };
 
-},{}],20:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 'use strict';
 
 var loadPage = require('../components/loadPage');
@@ -917,8 +1172,9 @@ proto.deeplinked = function () {
 
 proto.update = function (url) {};
 
-proto.show = function (fromState, lastUrl) {};
+proto.prepare = function () {};
 
+proto.show = function (fromState, lastUrl) {};
 proto.hide = function (nextState) {};
 
 proto.load = function (url) {
@@ -967,16 +1223,14 @@ proto.onLoaded = function () {
 };
 
 proto.onStackedBreakpoint = function (evt) {};
-
 proto.onHorizontalBreakpoint = function (evt) {};
 
 proto.enable = function () {};
-
 proto.disable = function () {};
 
 module.exports = BaseView;
 
-},{"../components/Breakpoints":3,"../components/EventEmitter":5,"../components/loadPage":8,"../utils/transitionEndEvent":18}],21:[function(require,module,exports){
+},{"../components/Breakpoints":3,"../components/EventEmitter":5,"../components/loadPage":9,"../utils/transitionEndEvent":21}],24:[function(require,module,exports){
 'use strict';
 
 var loadScript = require('../utils/loadScript');
@@ -1024,7 +1278,7 @@ proto.onClicked = function () {
 
 module.exports = Comments;
 
-},{"../utils/loadScript":15}],22:[function(require,module,exports){
+},{"../utils/loadScript":18}],25:[function(require,module,exports){
 'use strict';
 
 var BaseView = require('./BaseView');
@@ -1032,7 +1286,7 @@ var BaseView = require('./BaseView');
 function Error404 () {
 	this.el = document.getElementById('error404');
 
-	if (document.body.classList.contains('is-404', 'is-intro')) {
+	if (document.body.classList.contains('is-404')) {
 		// doesn't have an intro at the moment so listen to sitenav instead
 		this.listenToTransitionEnd(document.getElementById('sitenav'), this.onIntroComplete.bind(this));
 	}
@@ -1066,7 +1320,7 @@ proto.show = function (fromState, lastUrl) {
 
 module.exports = Error404;
 
-},{"./BaseView":20}],23:[function(require,module,exports){
+},{"./BaseView":23}],26:[function(require,module,exports){
 'use strict';
 
 var transitionEndEvent = require('../utils/transitionEndEvent')();
@@ -1136,19 +1390,35 @@ proto.getPageLinks = function () {
 
 module.exports = Header;
 
-},{"../utils/transitionEndEvent":18,"./BaseView":20}],24:[function(require,module,exports){
+},{"../utils/transitionEndEvent":21,"./BaseView":23}],27:[function(require,module,exports){
 'use strict';
 
+var createPageItem = require('../utils/createPageItem');
+var waitAnimationFrames = require('../utils/waitAnimationFrames');
+
 var BaseView = require('./BaseView');
+var Greyscale = require('../lab/Greyscale');
 
 function Labs () {
-	if (document.body.classList.contains('is-lab', 'is-intro')) {
+	this.el = document.getElementById('lab') || createPageItem('lab', 'div', 'pagecontent-item', 'is-hidden');
+	this.canvas = document.createElement('canvas');
+	this.el.appendChild(this.canvas);
+	this.greyscale = new Greyscale(this.canvas);
+
+	if (document.body.classList.contains('is-lab')) {
 		// doesn't have an intro at the moment so listen to sitenav instead
 		this.listenToTransitionEnd(document.getElementById('sitenav'), this.onIntroComplete.bind(this));
+		this.greyscale.enable();
 	}
 }
 
 var proto = Labs.prototype = new BaseView();
+
+proto.prepare = function () {
+	document.body.classList.add('is-darktheme');
+	this.el.classList.remove('is-hidden');
+	this.greyscale.enable();
+};
 
 proto.hasPage = function (url) {
 	// override and always return true until real labs page exists
@@ -1170,13 +1440,21 @@ proto.hide = function (nextState) {
 };
 
 proto.show = function (fromState, lastUrl) {
-	document.body.classList.add('is-darktheme');
 	window.requestAnimationFrame(this.onShowed.bind(this));
+};
+
+proto.enable = function () {
+	//
+};
+
+proto.disable = function () {
+	this.el.classList.add('is-hidden');
+	this.greyscale.disable();
 };
 
 module.exports = Labs;
 
-},{"./BaseView":20}],25:[function(require,module,exports){
+},{"../lab/Greyscale":12,"../utils/createPageItem":16,"../utils/waitAnimationFrames":22,"./BaseView":23}],28:[function(require,module,exports){
 'use strict';
 
 var createPageItem = require('../utils/createPageItem');
@@ -1227,7 +1505,7 @@ function Panels () {
 		this.deeplinked();
 	}
 	else if (document.body.classList.contains('is-lab') || document.body.classList.contains('is-404')) {
-		this.hideBelow();
+		this.el.classList.add('is-hidebelow');
 	}
 }
 
@@ -1259,7 +1537,6 @@ proto.hide = function (nextState) {
 		case 'lab' :
 		case '404' :
 			this.hideBelow();
-			window.requestAnimationFrame(this.onHidden.bind(this));
 			break;
 
 		default :
@@ -1305,6 +1582,12 @@ proto.hideBelow = function () {
 	setColor(document.body);
 	document.body.classList.add('is-transition-panelsbelow'); // TODO: check this is removed in app
 	this.el.classList.add('is-hidebelow');
+	this.listenToTransitionEnd(this.el, this.onHiddenBelow);
+};
+
+proto.onHiddenBelow = function () {
+	this.el.classList.add('is-hidden');
+	this.onHidden();
 };
 
 proto.showFromPost = function (url) {
@@ -1639,7 +1922,7 @@ proto.disable = function () {
 
 module.exports = Panels;
 
-},{"../components/Breakpoints":3,"../components/ColorDictionary":4,"../components/ScrollEvents":7,"../components/loadPage":8,"../utils/createPageItem":13,"../utils/isMouseOut":14,"../utils/setColor":16,"../utils/transitionEndEvent":18,"../utils/waitAnimationFrames":19,"./BaseView":20,"./PanelsNav":26}],26:[function(require,module,exports){
+},{"../components/Breakpoints":3,"../components/ColorDictionary":4,"../components/ScrollEvents":8,"../components/loadPage":9,"../utils/createPageItem":16,"../utils/isMouseOut":17,"../utils/setColor":19,"../utils/transitionEndEvent":21,"../utils/waitAnimationFrames":22,"./BaseView":23,"./PanelsNav":29}],29:[function(require,module,exports){
 'use strict';
 
 var createPageItem = require('../utils/createPageItem');
@@ -1683,7 +1966,7 @@ proto.setPath = function (path) {
 
 module.exports = PanelsNav;
 
-},{"../utils/createPageItem":13}],27:[function(require,module,exports){
+},{"../utils/createPageItem":16}],30:[function(require,module,exports){
 'use strict';
 
 var createPageItem = require('../utils/createPageItem');
@@ -1938,4 +2221,4 @@ proto.onSlideOnTransitionEnd = function () {
 
 module.exports = Posts;
 
-},{"../components/Breakpoints":3,"../components/ColorDictionary":4,"../components/loadPage":8,"../utils/createPageItem":13,"../utils/setColor":16,"../utils/transitionEndEvent":18,"../utils/waitAnimationFrames":19,"./BaseView":20,"./Comments":21}]},{},[10]);
+},{"../components/Breakpoints":3,"../components/ColorDictionary":4,"../components/loadPage":9,"../utils/createPageItem":16,"../utils/setColor":19,"../utils/transitionEndEvent":21,"../utils/waitAnimationFrames":22,"./BaseView":23,"./Comments":24}]},{},[13]);

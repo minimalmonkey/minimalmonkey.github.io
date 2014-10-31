@@ -112,6 +112,7 @@ proto.setView = function (view, state) {
 		return;
 	}
 	this.view = view;
+	this.view.prepare();
 	if (this.state) {
 		this.lastState = this.state;
 		document.body.classList.remove('is-' + this.state);

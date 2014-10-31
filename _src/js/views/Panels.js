@@ -48,7 +48,7 @@ function Panels () {
 		this.deeplinked();
 	}
 	else if (document.body.classList.contains('is-lab') || document.body.classList.contains('is-404')) {
-		this.hideBelow();
+		this.el.classList.add('is-hidebelow');
 	}
 }
 
@@ -80,7 +80,6 @@ proto.hide = function (nextState) {
 		case 'lab' :
 		case '404' :
 			this.hideBelow();
-			window.requestAnimationFrame(this.onHidden.bind(this));
 			break;
 
 		default :
@@ -126,6 +125,12 @@ proto.hideBelow = function () {
 	setColor(document.body);
 	document.body.classList.add('is-transition-panelsbelow'); // TODO: check this is removed in app
 	this.el.classList.add('is-hidebelow');
+	this.listenToTransitionEnd(this.el, this.onHiddenBelow);
+};
+
+proto.onHiddenBelow = function () {
+	this.el.classList.add('is-hidden');
+	this.onHidden();
 };
 
 proto.showFromPost = function (url) {

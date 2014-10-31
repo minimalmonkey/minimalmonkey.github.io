@@ -40,8 +40,9 @@ proto.deeplinked = function () {
 
 proto.update = function (url) {};
 
-proto.show = function (fromState, lastUrl) {};
+proto.prepare = function () {};
 
+proto.show = function (fromState, lastUrl) {};
 proto.hide = function (nextState) {};
 
 proto.load = function (url) {
@@ -90,11 +91,9 @@ proto.onLoaded = function () {
 };
 
 proto.onStackedBreakpoint = function (evt) {};
-
 proto.onHorizontalBreakpoint = function (evt) {};
 
 proto.enable = function () {};
-
 proto.disable = function () {};
 
 module.exports = BaseView;
