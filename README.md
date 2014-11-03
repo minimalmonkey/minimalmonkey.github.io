@@ -2,7 +2,7 @@
 
 ### Overview
 
-Hello, my name is [Stephen Burgess](https://twitter.com/minimalmonkey) and this repo contains the source code for my site [www.minimalmonkey.com](http://minimalmonkey.github.io/)
+Hello, my name is [Stephen Burgess](https://twitter.com/minimalmonkey) and this repo contains the source code for my site [www.minimalmonkey.github.io/](http://minimalmonkey.github.io/)
 
 *NOTE: The site is not yet finished and is very much work in progress.*
 

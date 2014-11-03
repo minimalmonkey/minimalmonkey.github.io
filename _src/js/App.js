@@ -10,18 +10,18 @@ var Panels = require('./views/Panels');
 var Posts = require('./views/Posts');
 var Router = require('./components/Router');
 
-function App (analytics) {
+function App () {
 	this.onNavigate = this.onNavigate.bind(this);
 	this.onIntroComplete = this.onIntroComplete.bind(this);
 	this.onViewHidden = this.onViewHidden.bind(this);
 	this.onViewLoaded = this.onViewLoaded.bind(this);
 
-	this.init(analytics);
+	this.init();
 }
 
 var proto = App.prototype;
 
-proto.init = function (analytics) {
+proto.init = function () {
 	this.analytics = new Analytics('UA-54501731-1', 'minimalmonkey.github.io', 200);
 
 	if (FeatureDetect.touch()) {
