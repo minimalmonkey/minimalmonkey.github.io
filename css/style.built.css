@@ -1182,7 +1182,7 @@ body {
   text-decoration: none; }
 
 .slidelink-label {
-  display: inline-block;
+  display: block;
   position: relative;
   -webkit-transition: -webkit-transform 0.3s;
           transition: transform 0.3s;
@@ -1193,6 +1193,7 @@ body {
   .slidelink-label:after {
     position: absolute;
     top: -100%;
+    right: 0;
     left: 0;
     content: attr(data-label); }
 

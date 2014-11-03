@@ -6,7 +6,7 @@
 }
 
 .slidelink-label {
-	display: inline-block;
+	display: block;
 	position: relative;
 	transition: transform 0.3s;
 	vertical-align: middle;
@@ -19,6 +19,7 @@
 	&:after {
 		position: absolute;
 		top: -100%;
+		right: 0;
 		left: 0;
 		content: attr(data-label);
 	}
