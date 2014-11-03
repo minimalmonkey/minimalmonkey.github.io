@@ -53,6 +53,14 @@
 			animation: loadspin 0.7s infinite linear;
 		}
 
+		&:after {
+			display: none;
+
+			@include breakpoint-mediaquery(horizontal) {
+				display: block;
+			}
+		}
+
 		&:before,
 		&:after {
 			transform: translateX(-200%);

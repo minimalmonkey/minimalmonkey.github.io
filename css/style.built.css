@@ -1755,6 +1755,11 @@ body {
     content: "";
     -webkit-animation: loadspin 0.7s infinite linear;
             animation: loadspin 0.7s infinite linear; }
+  .panels-nav.is-loading:after {
+    display: none; }
+    @media (min-width: 570px) {
+      .panels-nav.is-loading:after {
+        display: block; } }
   .panels-nav.is-loading:before, .panels-nav.is-loading:after {
     -webkit-transform: translateX(-200%);
         -ms-transform: translateX(-200%);
