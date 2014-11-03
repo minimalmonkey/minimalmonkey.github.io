@@ -217,6 +217,17 @@ body {
   body.is-header {
     overflow: hidden; }
   @media (min-width: 570px) {
+    body.is-panels.is-intro:after, body.is-panels.is-introtransition:after {
+      display: block;
+      position: fixed;
+      z-index: 1;
+      left: 50%;
+      top: 50%;
+      margin: -85px 0 0 -85px;
+      color: #eee;
+      font-family: 'icons';
+      font-size: 170px;
+      content: "M"; }
     body.is-post {
       -webkit-transition: background 0.3s;
               transition: background 0.3s; } }

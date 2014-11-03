@@ -55,6 +55,22 @@ body {
 	}
 
 	@include breakpoint-mediaquery(horizontal) {
+		&.is-panels.is-intro,
+		&.is-panels.is-introtransition {
+			&:after {
+				display: block;
+				position: fixed;
+				z-index: 1;
+				left: 50%;
+				top: 50%;
+				margin: -85px 0 0 -85px;
+				color: #eee;
+				font-family: 'icons';
+				font-size: 170px;
+				content: "M";
+			}
+		}
+
 		&.is-post {
 			transition: background 0.3s;
 		}
