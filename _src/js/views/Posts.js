@@ -10,6 +10,7 @@ var BaseView = require('./BaseView');
 var Breakpoints = require('../components/Breakpoints');
 var ColorDictionary = require('../components/ColorDictionary');
 var Comments = require('./Comments');
+var KeyboardController = require('../components/KeyboardController');
 
 function Posts (options) {
 	this.el = document.getElementById('post') || createPageItem('post', 'div', 'pagecontent-item', 'is-hidden');
@@ -28,6 +29,15 @@ function Posts (options) {
 
 	this.posts = {};
 	this.comments = new Comments();
+
+	this.keyboard = new KeyboardController(document.body, {
+		27: 'exit',
+		37: 'next',
+		39: 'previous'
+	});
+	this.keyboard.on('next', this.onNextKey.bind(this));
+	this.keyboard.on('previous', this.onPreviousKey.bind(this));
+	this.keyboard.on('exit', this.onExitKey.bind(this));
 
 	this.on('onloaded', this.onPostLoaded.bind(this));
 	this.on('onshowed', this.onShow.bind(this)); // maybe store and remove?
@@ -56,6 +66,7 @@ var proto = Posts.prototype = new BaseView();
 
 proto.show = function(fromState, lastUrl) {
 	window.scrollTo(0, 0);
+
 	switch (fromState) {
 		case 'panels' :
 			this.showPost(location.pathname);
@@ -67,6 +78,8 @@ proto.show = function(fromState, lastUrl) {
 };
 
 proto.hide = function (nextState) {
+	this.keyboard.disable();
+
 	switch (nextState) {
 		case 'panels' :
 			document.body.classList.add('is-transition-topanelsfrompost');
@@ -229,6 +242,22 @@ proto.onPostLoaded = function(evt) {
 	}
 };
 
+proto.onNextKey = function () {
+	if (this.nextNav.pathname !== location.pathname) {
+		this.nextNav.click();
+	}
+};
+
+proto.onPreviousKey = function () {
+	if (this.previousNav.pathname !== location.pathname) {
+		this.previousNav.click();
+	}
+};
+
+proto.onExitKey = function () {
+	this.closeNav.click();
+};
+
 proto.onSlideOffTransitionEnd = function () {
 	this.el.removeEventListener(transitionEndEvent, this.onSlideOffTransitionEnd);
 	if (this.posts[location.pathname]) {
@@ -248,6 +277,10 @@ proto.onSlideOffTransitionEnd = function () {
 proto.onSlideOnTransitionEnd = function () {
 	this.el.removeEventListener(transitionEndEvent, this.onSlideOnTransitionEnd);
 	this.closeNav.classList.remove('is-hidden');
+};
+
+proto.enable = function () {
+	this.keyboard.enable();
 };
 
 module.exports = Posts;

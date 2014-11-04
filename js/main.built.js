@@ -169,7 +169,7 @@ proto.onViewLoaded = function (evt) {
 
 module.exports = App;
 
-},{"./components/Analytics":2,"./components/Breakpoints":3,"./components/Router":7,"./utils/FeatureDetect":14,"./views/Error404":25,"./views/Header":26,"./views/Lab":27,"./views/Panels":28,"./views/Posts":30}],2:[function(require,module,exports){
+},{"./components/Analytics":2,"./components/Breakpoints":3,"./components/Router":8,"./utils/FeatureDetect":15,"./views/Error404":26,"./views/Header":27,"./views/Lab":28,"./views/Panels":29,"./views/Posts":31}],2:[function(require,module,exports){
 'use strict';
 
 var loadScript = require('../utils/loadScript');
@@ -205,7 +205,7 @@ proto.update = function (url) {
 
 module.exports = Analytics;
 
-},{"../utils/loadScript":18}],3:[function(require,module,exports){
+},{"../utils/loadScript":19}],3:[function(require,module,exports){
 'use strict';
 
 var throttleEvent = require('../utils/throttleEvent');
@@ -289,7 +289,7 @@ proto.disable = function () {
 
 module.exports = new Breakpoints();
 
-},{"../components/EventEmitter":5,"../utils/throttleEvent":20}],4:[function(require,module,exports){
+},{"../components/EventEmitter":5,"../utils/throttleEvent":21}],4:[function(require,module,exports){
 'use strict';
 
 function ColorDictionary () {
@@ -364,6 +364,40 @@ module.exports = EventEmitter;
 },{}],6:[function(require,module,exports){
 'use strict';
 
+var EventEmitter = require('../components/EventEmitter');
+
+function KeyboardController (el, events) {
+	this._el = el || document.body;
+	this._events = events || {};
+	this._onKeyDown = this._onKeyDown.bind(this);
+}
+
+var proto = KeyboardController.prototype = new EventEmitter();
+
+proto._onKeyDown = function (evt) {
+	var keyCode = evt.keyCode;
+	var eventName = this._events[evt.keyCode];
+	if (eventName) {
+		this.trigger(eventName, {
+			keyCode: keyCode,
+			eventName: eventName
+		});
+	}
+};
+
+proto.enable = function () {
+	this._el.addEventListener('keydown', this._onKeyDown, false);
+};
+
+proto.disable = function () {
+	this._el.removeEventListener('keydown', this._onKeyDown);
+};
+
+module.exports = KeyboardController;
+
+},{"../components/EventEmitter":5}],7:[function(require,module,exports){
+'use strict';
+
 function MouseTracker (el) {
 	this._el = el;
 	this._onMouseOver = this._onMouseOver.bind(this);
@@ -405,7 +439,7 @@ proto.disable = function () {
 
 module.exports = MouseTracker;
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict';
 
 var addEventListenerList = require('../utils/addEventListenerList');
@@ -523,7 +557,7 @@ proto.disable = function () {
 
 module.exports = Router;
 
-},{"../utils/addEventListenerList":15,"./routeToRegExp":10}],8:[function(require,module,exports){
+},{"../utils/addEventListenerList":16,"./routeToRegExp":11}],9:[function(require,module,exports){
 'use strict';
 
 var EASE = 0.175;
@@ -626,7 +660,7 @@ proto.disable = function () {
 
 module.exports = ScrollEvents;
 
-},{"../utils/throttleEvent":20}],9:[function(require,module,exports){
+},{"../utils/throttleEvent":21}],10:[function(require,module,exports){
 'use strict';
 
 module.exports = function loadPage (url, callback) {
@@ -664,7 +698,7 @@ module.exports = function loadPage (url, callback) {
 	req.send();
 };
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 'use strict';
 
 var optionalParam = /\((.*?)\)/g;
@@ -689,7 +723,7 @@ module.exports = function routeToRegExp (route) {
 	return new RegExp('^' + route + '(?:\\?([\\s\\S]*))?$');
 };
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 'use strict';
 
 var throttleEvent = require('../utils/throttleEvent');
@@ -745,7 +779,7 @@ proto.disable = function () {
 
 module.exports = BaseLab;
 
-},{"../utils/throttleEvent":20}],12:[function(require,module,exports){
+},{"../utils/throttleEvent":21}],13:[function(require,module,exports){
 'use strict';
 
 var THRESHOLD = 0.1;
@@ -899,7 +933,7 @@ proto.disable = function () {
 
 module.exports = Greyscale;
 
-},{"../components/MouseTracker":6,"./BaseLab":11}],13:[function(require,module,exports){
+},{"../components/MouseTracker":7,"./BaseLab":12}],14:[function(require,module,exports){
 'use strict';
 
 var loadScript = require('./utils/loadScript');
@@ -924,7 +958,7 @@ var init = function () {
 
 init();
 
-},{"./App":1,"./components/Analytics":2,"./utils/loadScript":18}],14:[function(require,module,exports){
+},{"./App":1,"./components/Analytics":2,"./utils/loadScript":19}],15:[function(require,module,exports){
 'use strict';
 
 function FeatureDetect() {}
@@ -935,7 +969,7 @@ FeatureDetect.touch = function () {
 
 module.exports = FeatureDetect;
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 'use strict';
 
 module.exports = function addEventListenerList (list, type, listener, useCapture) {
@@ -945,7 +979,7 @@ module.exports = function addEventListenerList (list, type, listener, useCapture
 	}
 };
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 'use strict';
 
 module.exports = function createPageItem (id, type) {
@@ -956,7 +990,7 @@ module.exports = function createPageItem (id, type) {
 	return el;
 };
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 'use strict';
 
 /**
@@ -988,7 +1022,7 @@ module.exports = function isMouseOut (evt) {
 	return true;
 };
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1033,7 +1067,7 @@ module.exports = function loadScript (id, src, delay, dest) {
 	}, delay);
 };
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 'use strict';
 
 module.exports = function setColor (element, color) {
@@ -1053,7 +1087,7 @@ module.exports = function setColor (element, color) {
 	}
 };
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1079,7 +1113,7 @@ module.exports = function throttleEvent (callback, delay) {
 	};
 };
 
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 'use strict';
 
 var transitionEnd;
@@ -1108,7 +1142,7 @@ module.exports = function transitionEndEvent () {
 	}
 };
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 'use strict';
 
 module.exports = function waitAnimationFrames (callback, howMany) {
@@ -1129,7 +1163,7 @@ module.exports = function waitAnimationFrames (callback, howMany) {
 	waitForNext();
 };
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 'use strict';
 
 var loadPage = require('../components/loadPage');
@@ -1230,7 +1264,7 @@ proto.disable = function () {};
 
 module.exports = BaseView;
 
-},{"../components/Breakpoints":3,"../components/EventEmitter":5,"../components/loadPage":9,"../utils/transitionEndEvent":21}],24:[function(require,module,exports){
+},{"../components/Breakpoints":3,"../components/EventEmitter":5,"../components/loadPage":10,"../utils/transitionEndEvent":22}],25:[function(require,module,exports){
 'use strict';
 
 var loadScript = require('../utils/loadScript');
@@ -1278,7 +1312,7 @@ proto.onClicked = function () {
 
 module.exports = Comments;
 
-},{"../utils/loadScript":18}],25:[function(require,module,exports){
+},{"../utils/loadScript":19}],26:[function(require,module,exports){
 'use strict';
 
 var BaseView = require('./BaseView');
@@ -1320,7 +1354,7 @@ proto.show = function (fromState, lastUrl) {
 
 module.exports = Error404;
 
-},{"./BaseView":23}],26:[function(require,module,exports){
+},{"./BaseView":24}],27:[function(require,module,exports){
 'use strict';
 
 var transitionEndEvent = require('../utils/transitionEndEvent')();
@@ -1390,7 +1424,7 @@ proto.getPageLinks = function () {
 
 module.exports = Header;
 
-},{"../utils/transitionEndEvent":21,"./BaseView":23}],27:[function(require,module,exports){
+},{"../utils/transitionEndEvent":22,"./BaseView":24}],28:[function(require,module,exports){
 'use strict';
 
 var createPageItem = require('../utils/createPageItem');
@@ -1454,7 +1488,7 @@ proto.disable = function () {
 
 module.exports = Labs;
 
-},{"../lab/Greyscale":12,"../utils/createPageItem":16,"../utils/waitAnimationFrames":22,"./BaseView":23}],28:[function(require,module,exports){
+},{"../lab/Greyscale":13,"../utils/createPageItem":17,"../utils/waitAnimationFrames":23,"./BaseView":24}],29:[function(require,module,exports){
 'use strict';
 
 var createPageItem = require('../utils/createPageItem');
@@ -1922,7 +1956,7 @@ proto.disable = function () {
 
 module.exports = Panels;
 
-},{"../components/Breakpoints":3,"../components/ColorDictionary":4,"../components/ScrollEvents":8,"../components/loadPage":9,"../utils/createPageItem":16,"../utils/isMouseOut":17,"../utils/setColor":19,"../utils/transitionEndEvent":21,"../utils/waitAnimationFrames":22,"./BaseView":23,"./PanelsNav":29}],29:[function(require,module,exports){
+},{"../components/Breakpoints":3,"../components/ColorDictionary":4,"../components/ScrollEvents":9,"../components/loadPage":10,"../utils/createPageItem":17,"../utils/isMouseOut":18,"../utils/setColor":20,"../utils/transitionEndEvent":22,"../utils/waitAnimationFrames":23,"./BaseView":24,"./PanelsNav":30}],30:[function(require,module,exports){
 'use strict';
 
 var createPageItem = require('../utils/createPageItem');
@@ -1966,7 +2000,7 @@ proto.setPath = function (path) {
 
 module.exports = PanelsNav;
 
-},{"../utils/createPageItem":16}],30:[function(require,module,exports){
+},{"../utils/createPageItem":17}],31:[function(require,module,exports){
 'use strict';
 
 var createPageItem = require('../utils/createPageItem');
@@ -1979,6 +2013,7 @@ var BaseView = require('./BaseView');
 var Breakpoints = require('../components/Breakpoints');
 var ColorDictionary = require('../components/ColorDictionary');
 var Comments = require('./Comments');
+var KeyboardController = require('../components/KeyboardController');
 
 function Posts (options) {
 	this.el = document.getElementById('post') || createPageItem('post', 'div', 'pagecontent-item', 'is-hidden');
@@ -1997,6 +2032,15 @@ function Posts (options) {
 
 	this.posts = {};
 	this.comments = new Comments();
+
+	this.keyboard = new KeyboardController(document.body, {
+		27: 'exit',
+		37: 'next',
+		39: 'previous'
+	});
+	this.keyboard.on('next', this.onNextKey.bind(this));
+	this.keyboard.on('previous', this.onPreviousKey.bind(this));
+	this.keyboard.on('exit', this.onExitKey.bind(this));
 
 	this.on('onloaded', this.onPostLoaded.bind(this));
 	this.on('onshowed', this.onShow.bind(this)); // maybe store and remove?
@@ -2025,6 +2069,7 @@ var proto = Posts.prototype = new BaseView();
 
 proto.show = function(fromState, lastUrl) {
 	window.scrollTo(0, 0);
+
 	switch (fromState) {
 		case 'panels' :
 			this.showPost(location.pathname);
@@ -2036,6 +2081,8 @@ proto.show = function(fromState, lastUrl) {
 };
 
 proto.hide = function (nextState) {
+	this.keyboard.disable();
+
 	switch (nextState) {
 		case 'panels' :
 			document.body.classList.add('is-transition-topanelsfrompost');
@@ -2198,6 +2245,22 @@ proto.onPostLoaded = function(evt) {
 	}
 };
 
+proto.onNextKey = function () {
+	if (this.nextNav.pathname !== location.pathname) {
+		this.nextNav.click();
+	}
+};
+
+proto.onPreviousKey = function () {
+	if (this.previousNav.pathname !== location.pathname) {
+		this.previousNav.click();
+	}
+};
+
+proto.onExitKey = function () {
+	this.closeNav.click();
+};
+
 proto.onSlideOffTransitionEnd = function () {
 	this.el.removeEventListener(transitionEndEvent, this.onSlideOffTransitionEnd);
 	if (this.posts[location.pathname]) {
@@ -2219,6 +2282,10 @@ proto.onSlideOnTransitionEnd = function () {
 	this.closeNav.classList.remove('is-hidden');
 };
 
+proto.enable = function () {
+	this.keyboard.enable();
+};
+
 module.exports = Posts;
 
-},{"../components/Breakpoints":3,"../components/ColorDictionary":4,"../components/loadPage":9,"../utils/createPageItem":16,"../utils/setColor":19,"../utils/transitionEndEvent":21,"../utils/waitAnimationFrames":22,"./BaseView":23,"./Comments":24}]},{},[13]);
+},{"../components/Breakpoints":3,"../components/ColorDictionary":4,"../components/KeyboardController":6,"../components/loadPage":10,"../utils/createPageItem":17,"../utils/setColor":20,"../utils/transitionEndEvent":22,"../utils/waitAnimationFrames":23,"./BaseView":24,"./Comments":25}]},{},[14]);
