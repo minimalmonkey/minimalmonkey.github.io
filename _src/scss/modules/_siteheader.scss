@@ -60,7 +60,7 @@
 	line-height: 1.4;
 	color: #696969;
 	transform: translateY($site-header-height - $site-nav-height);
-	transition: width 0 linear 0.3s, opacity 0.3s, transform $header-open-duration;
+	transition: width 0 linear 0.3s, opacity 0 linear $header-open-duration, transform $header-open-duration;
 
 	p {
 		margin: convert-to-em(8px) 0 convert-to-em(14px);
@@ -69,11 +69,15 @@
 	&.is-visible {
 		width: 100%;
 		opacity: 1;
-		transition: width 0 linear 0, opacity 0.3s, transform $header-open-duration;
 	}
 
 	.is-header & {
 		transform: translateY(0);
+		transition: width 0 linear 0.3s, opacity 0.3s, transform $header-open-duration;
+
+		&.is-visible {
+			transition: width 0 linear 0, opacity 0.3s, transform $header-open-duration;
+		}
 	}
 
 	.is-darktheme & {
