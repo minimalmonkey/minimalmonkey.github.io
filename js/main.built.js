@@ -1615,8 +1615,10 @@ proto.showFromBelow = function () {
 proto.hideBelow = function () {
 	setColor(document.body);
 	document.body.classList.add('is-transition-panelsbelow'); // TODO: check this is removed in app
-	this.el.classList.add('is-hidebelow');
-	this.listenToTransitionEnd(this.el, this.onHiddenBelow);
+	waitAnimationFrames(function () {
+		this.el.classList.add('is-hidebelow');
+		this.listenToTransitionEnd(this.el, this.onHiddenBelow);
+	}.bind(this), 2);
 };
 
 proto.onHiddenBelow = function () {

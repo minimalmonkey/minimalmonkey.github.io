@@ -7,7 +7,7 @@
 	top: 0;
 	background: rgba(0, 0, 0, 0.23);
 	transform: translate3d(0, 0, 0);
-	transition: transform 0.3s ease-out;
+	transition: transform $header-open-duration;
 
 	.is-introtransition & {
 		transition: transform 0.3s ease-out 0.2s;
@@ -65,6 +65,10 @@
 		transform: translate3d(-100%, $site-header-height - $site-nav-height, 0);
 	}
 
+	.is-header & {
+		transform: translate3d(-100%, $site-header-height - $site-nav-height, 0);
+	}
+
 	&:hover {
 		&:before {
 			transform: translate3d(100%, 0, 0);
@@ -91,6 +95,10 @@
 	transform: translate3d(100%, 0, 0);
 
 	.is-disabled & {
+		transform: translate3d(100%, $site-header-height - $site-nav-height, 0);
+	}
+
+	.is-header & {
 		transform: translate3d(100%, $site-header-height - $site-nav-height, 0);
 	}
 
@@ -132,7 +140,7 @@
 	border: 1px solid #ccc;
 	border-radius: 38px;
 	transform: rotate(0deg) translate3d(0, 0, 0);
-	transition: border 0.3s, color 0.3s, opacity 0.35s, transform 0.3s;
+	transition: border 0.3s, color 0.3s, opacity 0.35s, transform $header-open-duration;
 
 	.js .is-intro & {
 		opacity: 0;
@@ -141,6 +149,10 @@
 
 	.is-introtransition & {
 		transition: opacity 0.35s ease-in-out 0.1s, transform 0.35s ease-in-out 0.1s;
+	}
+
+	.is-header & {
+		transform: translateY($site-header-height - $site-nav-height);
 	}
 
 	&:hover {

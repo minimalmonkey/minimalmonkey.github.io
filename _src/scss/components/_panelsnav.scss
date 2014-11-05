@@ -10,7 +10,11 @@
 	color: #b3b3b3;
 	line-height: 1;
 	background: white;
-	transition: transform 0.35s;
+	transition: transform $header-open-duration;
+
+	.is-header & {
+		transform: translateY($site-header-height - $site-nav-height);
+	}
 
 	&:before,
 	&:after {
