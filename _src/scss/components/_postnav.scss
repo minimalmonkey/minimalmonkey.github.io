@@ -65,7 +65,7 @@
 		transform: translate3d(-100%, $site-header-height - $site-nav-height, 0);
 	}
 
-	.is-header & {
+	.is-headeropen & {
 		transform: translate3d(-100%, $site-header-height - $site-nav-height, 0);
 	}
 
@@ -98,7 +98,7 @@
 		transform: translate3d(100%, $site-header-height - $site-nav-height, 0);
 	}
 
-	.is-header & {
+	.is-headeropen & {
 		transform: translate3d(100%, $site-header-height - $site-nav-height, 0);
 	}
 
@@ -151,7 +151,7 @@
 		transition: opacity 0.35s ease-in-out 0.1s, transform 0.35s ease-in-out 0.1s;
 	}
 
-	.is-header & {
+	.is-headeropen & {
 		transform: translateY($site-header-height - $site-nav-height);
 	}
 

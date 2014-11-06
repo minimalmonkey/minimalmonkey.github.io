@@ -1,6 +1,7 @@
 'use strict';
 
 var transitionEndEvent = require('../utils/transitionEndEvent')();
+var waitAnimationFrames = require('../utils/waitAnimationFrames');
 
 var BaseView = require('./BaseView');
 
@@ -36,10 +37,17 @@ proto.open = function (key, lastURL) {
 	}
 
 	this.pages[key].nav.href = this.closeURL;
+
+	waitAnimationFrames(function () {
+		document.body.classList.add('is-headeropen');
+	}, 2);
 };
 
 proto.close = function () {
-	this.hideCurrent();
+	waitAnimationFrames(function () {
+		this.hideCurrent();
+		document.body.classList.remove('is-headeropen');
+	}.bind(this), 2);
 };
 
 proto.hideCurrent = function () {

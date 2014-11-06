@@ -137,7 +137,7 @@ proto.onViewShowed = function (evt) {
 	var classes = document.body.classList;
 	var i = classes.length;
 	while (i--) {
-		if (classes[i].indexOf('is-transition-') === 0) {
+		if (classes[i].indexOf('is-transition-') === 0) { // TODO: Instead of indexOf maybe use an Object as will be more performant
 			document.body.classList.remove(classes[i]);
 		}
 	}

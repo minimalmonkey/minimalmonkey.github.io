@@ -4,7 +4,7 @@
 
 	{% include head.html %}
 
-	<body class="{% if page.type != 'headerpage'%}is-intro {% endif %}{% if paginator %}is-panels{% elsif page.type == 'headerpage'%} is-header{% elsif page.type == 'labpage' %}is-lab is-darktheme{% elsif page.color %}is-post color-{{ page.color }}{% else %}is-404{% endif %}"{% if page.color %} data-color="{{ page.color }}"{% endif %}>
+	<body class="{% if page.type != 'headerpage'%}is-intro {% endif %}{% if paginator %}is-panels{% elsif page.type == 'headerpage'%} is-header is-headeropen{% elsif page.type == 'labpage' %}is-lab is-darktheme{% elsif page.color %}is-post color-{{ page.color }}{% else %}is-404{% endif %}"{% if page.color %} data-color="{{ page.color }}"{% endif %}>
 
 		{% include nav.html %}
 		{% include header.html %}

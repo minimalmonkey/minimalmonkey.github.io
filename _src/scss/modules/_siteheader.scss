@@ -17,7 +17,7 @@
 		display: none;
 	}
 
-	.is-header & {
+	.is-headeropen & {
 		background-color: $color-headeropen;
 		transform: translate3d(0, 0, 0);
 	}
@@ -42,7 +42,7 @@
 	transform: translateY($site-header-height - $site-nav-height);
 	transition: transform $header-open-duration;
 
-	.is-header & {
+	.is-headeropen & {
 		transform: translateY(0);
 	}
 }
@@ -60,7 +60,7 @@
 	line-height: 1.4;
 	color: #696969;
 	transform: translateY($site-header-height - $site-nav-height);
-	transition: width 0 linear 0.3s, opacity 0 linear $header-open-duration, transform $header-open-duration;
+	transition: width 0s linear 0.3s, opacity 0s linear $header-open-duration, transform $header-open-duration;
 
 	p {
 		margin: convert-to-em(8px) 0 convert-to-em(14px);
@@ -71,12 +71,15 @@
 		opacity: 1;
 	}
 
-	.is-header & {
+	.is-headeropen & {
 		transform: translateY(0);
-		transition: width 0 linear 0.3s, opacity 0.3s, transform $header-open-duration;
+	}
+
+	.is-header & {
+		transition: width 0s linear 0.3s, opacity 0.3s, transform $header-open-duration;
 
 		&.is-visible {
-			transition: width 0 linear 0, opacity 0.3s, transform $header-open-duration;
+			transition: width 0s linear 0s, opacity 0.3s, transform $header-open-duration;
 		}
 	}
 
@@ -100,12 +103,12 @@
 	width: 0;
 	background: #000;
 	opacity: 0;
-	transition: width 0 linear 0.5s, opacity 0.5s;
+	transition: width 0s linear 0.5s, opacity 0.5s;
 
-	.is-header & {
+	.is-headeropen & {
 		width: 100%;
 		opacity: 0.6;
-		transition: width 0, opacity 0.5s;
+		transition: width 0s, opacity 0.5s;
 
 		&:hover {
 			opacity: 0.4;

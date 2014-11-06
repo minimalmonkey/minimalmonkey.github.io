@@ -9,11 +9,12 @@ $contact-link-transition-duration: 0.35s;
 	height: 1em;
 	margin: 0.14em 0.154em 0;
 	margin: convert-to-em(5px, 36px) convert-to-em(5.6px, 36px) 0;
+	border: 2px solid #cfcfcf;
+	border-radius: 1em;
 	font-family: 'icons';
 	line-height: 1em;
 	color: #cfcfcf;
-	border: 2px solid #cfcfcf;
-	border-radius: 1em;
+	vertical-align: top;
 	transform: translate3d(0, 0, 0);
 	transition: border $contact-link-transition-duration;
 }

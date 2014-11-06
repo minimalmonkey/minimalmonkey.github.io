@@ -12,7 +12,7 @@
 	background: white;
 	transition: transform $header-open-duration;
 
-	.is-header & {
+	.is-headeropen & {
 		transform: translateY($site-header-height - $site-nav-height);
 	}
 

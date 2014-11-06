@@ -143,7 +143,7 @@ proto.onViewShowed = function (evt) {
 	var classes = document.body.classList;
 	var i = classes.length;
 	while (i--) {
-		if (classes[i].indexOf('is-transition-') === 0) {
+		if (classes[i].indexOf('is-transition-') === 0) { // TODO: Instead of indexOf maybe use an Object as will be more performant
 			document.body.classList.remove(classes[i]);
 		}
 	}
@@ -1358,6 +1358,7 @@ module.exports = Error404;
 'use strict';
 
 var transitionEndEvent = require('../utils/transitionEndEvent')();
+var waitAnimationFrames = require('../utils/waitAnimationFrames');
 
 var BaseView = require('./BaseView');
 
@@ -1393,10 +1394,17 @@ proto.open = function (key, lastURL) {
 	}
 
 	this.pages[key].nav.href = this.closeURL;
+
+	waitAnimationFrames(function () {
+		document.body.classList.add('is-headeropen');
+	}, 2);
 };
 
 proto.close = function () {
-	this.hideCurrent();
+	waitAnimationFrames(function () {
+		this.hideCurrent();
+		document.body.classList.remove('is-headeropen');
+	}.bind(this), 2);
 };
 
 proto.hideCurrent = function () {
@@ -1424,7 +1432,7 @@ proto.getPageLinks = function () {
 
 module.exports = Header;
 
-},{"../utils/transitionEndEvent":22,"./BaseView":24}],28:[function(require,module,exports){
+},{"../utils/transitionEndEvent":22,"../utils/waitAnimationFrames":23,"./BaseView":24}],28:[function(require,module,exports){
 'use strict';
 
 var createPageItem = require('../utils/createPageItem');
