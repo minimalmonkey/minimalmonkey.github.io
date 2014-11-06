@@ -13,6 +13,10 @@ function Error404 () {
 
 var proto = Error404.prototype = new BaseView();
 
+proto.prepare = function () {
+	this.el.classList.remove('is-hidden');
+};
+
 proto.hasPage = function (url) {
 	// override and always return true until real labs page exists
 	return true;
@@ -33,7 +37,6 @@ proto.hide = function (nextState) {
 };
 
 proto.show = function (fromState, lastUrl) {
-	this.el.classList.remove('is-hidden');
 	window.requestAnimationFrame(this.onShowed.bind(this));
 };
 

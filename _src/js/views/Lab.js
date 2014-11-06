@@ -8,22 +8,29 @@ var Greyscale = require('../lab/Greyscale');
 
 function Labs () {
 	this.el = document.getElementById('lab') || createPageItem('lab', 'div', 'pagecontent-item', 'is-hidden');
-	this.canvas = document.createElement('canvas');
-	this.el.appendChild(this.canvas);
-	this.greyscale = new Greyscale(this.canvas);
 
 	if (document.body.classList.contains('is-lab')) {
 		// doesn't have an intro at the moment so listen to sitenav instead
 		this.listenToTransitionEnd(document.getElementById('sitenav'), this.onIntroComplete.bind(this));
+		this.create();
 		this.greyscale.enable();
 	}
 }
 
 var proto = Labs.prototype = new BaseView();
 
+proto.create = function () {
+	this.canvas = document.createElement('canvas');
+	this.el.appendChild(this.canvas);
+	this.greyscale = new Greyscale(this.canvas);
+};
+
 proto.prepare = function () {
 	document.body.classList.add('is-darktheme');
 	this.el.classList.remove('is-hidden');
+	if (!this.canvas) {
+		this.create();
+	}
 	this.greyscale.enable();
 };
 
