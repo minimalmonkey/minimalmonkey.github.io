@@ -23,7 +23,7 @@ $contact-link-transition-duration: 0.35s;
 	line-height: 0.99em;
 	padding-left: 0.01em;
 
-	&:hover {
+	@include hover {
 		border: 2px solid $color-twitter;
 	}
 }
@@ -32,7 +32,7 @@ $contact-link-transition-duration: 0.35s;
 	padding-left: 0.03em;
 	line-height: 0.9em;
 
-	&:hover {
+	@include hover {
 		border: 2px solid $color-linkedin;
 	}
 }
@@ -41,7 +41,7 @@ $contact-link-transition-duration: 0.35s;
 	padding-right: 0.04em;
 	line-height: 0.9em;
 
-	&:hover {
+	@include hover {
 		border: 2px solid $color-email;
 	}
 }
@@ -49,7 +49,7 @@ $contact-link-transition-duration: 0.35s;
 .contactlinks-codepen {
 	line-height: 0.92em;
 
-	&:hover {
+	@include hover {
 		border: 2px solid $color-codepen;
 	}
 }

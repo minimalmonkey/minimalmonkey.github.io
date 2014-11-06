@@ -1203,7 +1203,10 @@ a:focus {
   -webkit-transition: -webkit-transform 0.3s;
           transition: transform 0.3s;
   vertical-align: middle; }
-  .slidelink:hover .slidelink-label, .is-selected .slidelink-label {
+  .is-selected .slidelink-label {
+    -webkit-transform: translate3d(0, 100%, 0);
+            transform: translate3d(0, 100%, 0); }
+  .no-touch .slidelink:hover .slidelink-label {
     -webkit-transform: translate3d(0, 100%, 0);
             transform: translate3d(0, 100%, 0); }
   .slidelink-label:after {
@@ -1289,24 +1292,24 @@ a:focus {
 .contactlinks-twitter {
   line-height: 0.99em;
   padding-left: 0.01em; }
-  .contactlinks-twitter:hover {
+  .no-touch .contactlinks-twitter:hover {
     border: 2px solid #32abdf; }
 
 .contactlinks-linkedin {
   padding-left: 0.03em;
   line-height: 0.9em; }
-  .contactlinks-linkedin:hover {
+  .no-touch .contactlinks-linkedin:hover {
     border: 2px solid #1875b2; }
 
 .contactlinks-email {
   padding-right: 0.04em;
   line-height: 0.9em; }
-  .contactlinks-email:hover {
+  .no-touch .contactlinks-email:hover {
     border: 2px solid #e24e4b; }
 
 .contactlinks-codepen {
   line-height: 0.92em; }
-  .contactlinks-codepen:hover {
+  .no-touch .contactlinks-codepen:hover {
     border: 2px solid #72616e; }
 
 .contactlinks-label {

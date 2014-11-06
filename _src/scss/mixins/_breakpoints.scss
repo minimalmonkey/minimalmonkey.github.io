@@ -1,0 +1,27 @@
+@mixin breakpoint-mediaquery($name) {
+
+	$bp: breakpoint($name);
+	$from: map-get($bp, from);
+	$to: map-get($bp, to);
+
+	@if type-of($from) == "number" and type-of($to) == "number" {
+		@media (min-width: $from + 'px') and (max-width: $to + 'px') {
+			@content;
+		}
+	}
+	@else if type-of($to) == "number" {
+		@media (max-width: $to + 'px') {
+			@content;
+		}
+	}
+	@else if type-of($from) == "number" {
+		@media (min-width: $from + 'px') {
+			@content;
+		}
+	}
+	@else {
+		@media screen {
+			@content;
+		}
+	}
+}

@@ -11,7 +11,9 @@
 
 // mixins
 @import "mixins/debugbox",
-		"mixins/selection";
+		"mixins/selection",
+		"mixins/breakpoints",
+		"mixins/hover";
 
 // base
 @import "base/normalize",

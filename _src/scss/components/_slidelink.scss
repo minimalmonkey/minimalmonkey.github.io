@@ -11,9 +11,14 @@
 	transition: transform 0.3s;
 	vertical-align: middle;
 
-	.slidelink:hover &,
 	.is-selected & {
 		transform: translate3d(0, 100%, 0);
+	}
+
+	.slidelink:hover & {
+		.no-touch & {
+			transform: translate3d(0, 100%, 0);
+		}
 	}
 
 	&:after {

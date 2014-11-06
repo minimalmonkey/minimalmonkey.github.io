@@ -1,0 +1,7 @@
+@mixin hover() {
+	&:hover {
+		.no-touch & {
+			@content;
+		}
+	}
+}
