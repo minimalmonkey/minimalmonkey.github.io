@@ -1,0 +1,9 @@
+@mixin shadow-circle($total, $radius, $color, $alpha:false, $alphaMultipler:1) {
+	$degs: 360deg / $total;
+	$shadow: "";
+	@for $i from 1 through $total {
+		$rgb: if($alpha, rgba($color, ($i / $total) * $alphaMultipler), $color);
+		$shadow: $shadow + "#{(cos($degs * $i) * $radius) (sin($degs * $i) * $radius)} 0 0 #{$rgb},"
+	}
+	box-shadow: #{str-slice($shadow, 0, str-length($shadow) - 1)};
+}
