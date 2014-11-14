@@ -14,4 +14,4 @@ paginate: 10 # should match per_page above
 # Build settings
 markdown: kramdown
 permalink: /:categories/:title/
-exclude: ['README.md', 'package.json', 'gulpfile.js', 'node_modules']
+exclude: ['README.md', 'LICENSE', 'package.json', 'gulpfile.js', 'node_modules', 'archive']
