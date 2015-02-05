@@ -1,0 +1,3 @@
+@mixin step-spin-animation($steps, $duration, $delay:0, $repeat:infinite) {
+	animation: stepspin#{$steps}-animation $duration steps($steps) $delay $repeat;
+}

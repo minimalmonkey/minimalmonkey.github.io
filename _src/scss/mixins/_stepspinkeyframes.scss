@@ -1,0 +1,8 @@
+@mixin step-spin-keyframes($steps) {
+	@keyframes stepspin#{$steps}-animation {
+		@for $i from 0 through $steps {
+			$percent: 0% + (($i / $steps) * 100);
+			#{$percent} { transform: rotate(360deg * $i); }
+		}
+	}
+}
