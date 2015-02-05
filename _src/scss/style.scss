@@ -1,3 +1,6 @@
+// libraries
+@import "math.scss";
+
 // constants
 @import "constants/colors",
 		"constants/layout",
@@ -13,6 +16,9 @@
 @import "mixins/debugbox",
 		"mixins/selection",
 		"mixins/breakpoints",
+		"mixins/shadowcircle",
+		"mixins/stepspinanimation",
+		"mixins/stepspinkeyframes",
 		"mixins/hover";
 
 // base
@@ -26,7 +32,7 @@
 // animations
 @import "animations/birdfly",
 		"animations/bounce",
-		"animations/loadspin";
+		"animations/spin";
 
 // modules
 @import "modules/highlight",
@@ -58,4 +64,5 @@
 		"components/postcommentslink",
 		"components/postnav",
 		"components/panelsnav",
-		"components/colors";
+		"components/colors",
+		"components/loaderspin";
