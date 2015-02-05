@@ -1,0 +1,49 @@
+/*.temp-container {
+	position: relative;
+	width: 1em;
+	height: 1em;
+	margin: 50px;
+	// border: 1px solid red;
+	font-size: 60px;
+}*/
+
+// $points: 8;
+// $em: 0.17em;
+
+$points: 8;
+
+// .is-loading:before,
+// .loaderspin {
+.pagecontent:before {
+	content: "";
+
+	$em: 0.18em;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: $em;
+	height: $em;
+	// width: 1em;
+	// height: 1em;
+	// padding-top: $site-nav-height;
+	margin-top: -($em / 2);
+	margin-left: -($em / 2);
+	border-radius: $em;
+	font-size: 60px;
+	// background: #444;
+	// @include shadow-circle($points, $em * 2.2, #fff, true, 0.7);
+	@include shadow-circle($points, $em * 2.2, #999, true, 0.7);
+	// animation: loaderspin-animation #{$points * 0.7}s steps($points) 0 infinite;
+	@include step-spin-animation($points, #{$points * 0.7}s)
+
+	// @include shadow-circle($points, 1em, #777);
+}
+
+@include step-spin-keyframes($points);
+
+// @keyframes loaderspin-animation {
+// 	@for $i from 0 through $points {
+// 		$percent: 0% + (($i / $points) * 100);
+// 		#{$percent} { transform: rotate(360deg * $i); }
+// 	}
+// }
