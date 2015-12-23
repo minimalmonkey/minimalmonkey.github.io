@@ -8,7 +8,8 @@ var App = require('./App');
 var init = function () {
 	var externalsDelay;
 
-	if (document.documentElement.classList) { // TODO: maybe change to see if MutationObserver exists & screw IE10?
+	// TODO: maybe change to see if MutationObserver exists & screw IE10?
+	if (document.documentElement.classList) {
 		new App();
 		externalsDelay = 1200;
 	}
