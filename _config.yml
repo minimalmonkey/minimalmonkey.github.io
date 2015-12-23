@@ -8,8 +8,12 @@ url: "http://minimalmonkey.com"
 twitter_username: minimalmonkey
 github_username:  minimalmonkey
 bug_report: "https://github.com/minimalmonkey/minimalmonkey.github.io/issues"
+
+# Pagination
 per_page: 10
+gems: [jekyll-paginate]
 paginate: 10 # should match per_page above
+paginate_path: "page:num"
 
 # Build settings
 markdown: kramdown
