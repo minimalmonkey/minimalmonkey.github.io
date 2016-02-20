@@ -1,4 +1,6 @@
 .sass-cache
-_site
-archive
-node_modules
+/archive
+/images
+/node_modules
+/_site
+s3_website.yml
