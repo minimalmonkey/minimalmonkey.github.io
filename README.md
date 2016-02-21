@@ -6,7 +6,7 @@ Hello, my name is [Stephen Burgess](https://twitter.com/minimalmonkey) and this 
 
 *NOTE: The site is not yet finished and is very much work in progress.*
 
-![Responsive site shown on multiple devices](images/welcome-minimal-monkey/responsive.jpg)
+![Responsive site shown on multiple devices](https://cloud.githubusercontent.com/assets/2965339/13200476/665cf2fe-d7ff-11e5-97e0-6c8613c5c96e.jpg)
 
 ### Contributing
 
