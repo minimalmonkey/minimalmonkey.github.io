@@ -24,7 +24,7 @@ This is made possible by CSS3 animation and the sprite sheet shown above. If you
 Below are two examples. The one on the left was my first attempt, I just jumped straight in without thinking and I got the effect you’ll see if you hover the bird. Kind of an obvious mistake. The example on the right uses the **step** parameter. It took a little searching to find out about **step** but once I knew about it I got the perfect effect without the need for any JavaScript. Hover the bird on the right to see it in action.
 
 <div style="margin: 0 auto; max-width: 350px; height: 150px; overflow: hidden;">
-	<iframe style="border: none; display: inline-block; float: left;" name="twitter-bird" src="http://www.minimalmonkey.com/lab/css3-animations/twitter.html" width="380px" height="150px" frameborder="0" scrolling="auto" name="twitter-bird"></iframe>
+	<iframe style="border: none; display: inline-block; float: left;" name="twitter-bird" src="{{ site.url }}/lab/css3-animations/twitter.html" width="380px" height="150px" frameborder="0" scrolling="auto" name="twitter-bird"></iframe>
 </div>
 
 {% highlight css %}
@@ -50,7 +50,7 @@ Below are two examples. The one on the left was my first attempt, I just jumped 
 Next up is my favourite little animation on the site – the bouncy hover state on the logo.
 
 <div style="margin: 0 auto; max-width: 254px; height: 200px; overflow: hidden;">
-	<iframe style="overflow: hidden; border: none; display: inline-block; float: left;" name="logo" src="http://www.minimalmonkey.com/lab/css3-animations/logo.html" width="254px" height="200px" frameborder="0" scrolling="auto" name="logo"></iframe>
+	<iframe style="overflow: hidden; border: none; display: inline-block; float: left;" name="logo" src="{{ site.url }}/lab/css3-animations/logo.html" width="254px" height="200px" frameborder="0" scrolling="auto" name="logo"></iframe>
 </div>
 
 This doesn’t use a sprite sheet and instead simply uses animation and margins to get the effect:
@@ -94,7 +94,7 @@ Pretty simple right? And again, no JavaScript required here.
 Finally I want to talk about the rolly hover states of the nav buttons. This effect is used a lot at the moment and I personally really like it as it looks slick but gives the user clear feedback of when a button is hovered.
 
 <div style="margin: 0 auto; width: 100%; height: 60px; overflow: hidden;">
-	<iframe style="overflow: hidden; border: none; display: inline-block; float: left;" name="button" src="http://www.minimalmonkey.com/lab/css3-animations/button.html" width="100%" height="60px" frameborder="0" scrolling="auto" name="button"></iframe>
+	<iframe style="overflow: hidden; border: none; display: inline-block; float: left;" name="button" src="{{ site.url }}/lab/css3-animations/button.html" width="100%" height="60px" frameborder="0" scrolling="auto" name="button"></iframe>
 </div>
 
 To get this effect on your site requires a little extra markup:

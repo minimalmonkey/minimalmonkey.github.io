@@ -40,7 +40,7 @@ transition: opacity 1s, margin-left 0s;
 Now we get the nice crossfade in modern browsers, and when the transition is complete we set the negative margin so it also works in older browsers. The delay on the margin is ignored in older browser as transitions are not supported so we just pop between images. It’ll look like this.
 
 <div style="width: 100%; max-width: 900px; height: 0px; padding-bottom: 50%;">
-	<iframe style="border: none;" name="sass-triangles" src="http://minimalmonkey.com/examples/simple-gallery/index-ie8.html" width="100%" height="450px" frameborder="0" scrolling="auto" name="sass-triangles"></iframe>
+	<iframe style="border: none;" name="sass-triangles" src="{{ site.url }}/examples/simple-gallery/index-ie8.html" width="100%" height="450px" frameborder="0" scrolling="auto" name="sass-triangles"></iframe>
 </div>
 
 But in modern browsers we get the nice smooth crossfade transitions as show in the first example up top.
