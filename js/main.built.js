@@ -143,7 +143,8 @@ proto.onViewShowed = function (evt) {
 	var classes = document.body.classList;
 	var i = classes.length;
 	while (i--) {
-		if (classes[i].indexOf('is-transition-') === 0) { // TODO: Instead of indexOf maybe use an Object as will be more performant
+		// TODO: Instead of indexOf maybe use an Object as will be more performant
+		if (classes[i].indexOf('is-transition-') === 0) {
 			document.body.classList.remove(classes[i]);
 		}
 	}
@@ -944,7 +945,8 @@ var App = require('./App');
 var init = function () {
 	var externalsDelay;
 
-	if (document.documentElement.classList) { // TODO: maybe change to see if MutationObserver exists & screw IE10?
+	// TODO: maybe change to see if MutationObserver exists & screw IE10?
+	if (document.documentElement.classList) {
 		new App();
 		externalsDelay = 1200;
 	}

@@ -16,7 +16,7 @@ Before I continue I should mention that this isn’t a full version of Pacman, i
 
 First up [click here to play the game](http://www.flashmonkey.co.uk/lab/pacman/). Right click and have a glance over the source code then read on below and I’ll explain the main talking points of the game structure.
 
-![Screenshot of the game](/images/css-javascript-pacman/game.png)
+![Screenshot of the game]({{ site.images_root }}/images/css-javascript-pacman/game.png)
 
 ## Moving and animating the characters
 
@@ -40,7 +40,7 @@ dom.style.transform += styleStr;
 
 The character animations are done using simple Sprite sheets as seen below.
 
-![Character sprite sheet](/images/css-javascript-pacman/assets.png)
+![Character sprite sheet]({{ site.images_root }}/images/css-javascript-pacman/assets.png)
 
 I liked the way Plugin Media wrote their Animation Class so the API worked in a similar way to ActionScript with play(), stop() and gotoAndStop() functions. View my adapted version of the Class [here](http://www.flashmonkey.co.uk/lab/pacman/js/Animation.js).
 
@@ -48,7 +48,7 @@ I liked the way Plugin Media wrote their Animation Class so the API worked in a 
 
 The hit detection for when Pacman touches a wall is actually very simple. The level background is a transparent png as shown below.
 
-![Level](/images/css-javascript-pacman/level.png)
+![Level]({{ site.images_root }}/images/css-javascript-pacman/level.png)
 
 I create a Canvas element and give it a green background. I then load the image on top of it, divide the image up into a grid and loop through to check if the pixel color is green using `getImageData` with the canvas tag. If it is I know it’s a space, otherwise it’s a wall. From this I can create an Array with info on the level and I use this throughout the game.
 

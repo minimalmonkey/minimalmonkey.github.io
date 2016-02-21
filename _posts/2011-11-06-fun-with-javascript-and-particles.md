@@ -13,7 +13,7 @@ The project I’m currently working on features a fair amount of particles (it�
 
 So with yesterday being November 5th (bonfire night here in the UK) I started playing around with creating a sparkler effect using JavaScript and Canvas. It didn’t really look exactly how I hoped but in creating it I stumbled across some other cool effects, the best being the one below. Click [here to view the particles in action](http://www.flashmonkey.co.uk/lab/js-particles/bouncy-dir/), move your mouse around and click anywhere on the screen.
 
-[![Screenshot of particles](/images/fun-with-javascript-and-particles/particles.png)](http://www.flashmonkey.co.uk/lab/js-particles/bouncy-dir/)
+[![Screenshot of particles]({{ site.images_root }}/images/fun-with-javascript-and-particles/particles.png)](http://www.flashmonkey.co.uk/lab/js-particles/bouncy-dir/)
 
 I’ve always enjoyed creating simple visual effects that are nice to interact with and fun to watch and I think this one is just that. It’s a simple effect but I found myself dragging the mouse around for ages playing with it.
 

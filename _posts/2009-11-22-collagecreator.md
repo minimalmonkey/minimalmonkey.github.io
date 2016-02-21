@@ -10,11 +10,11 @@ This idea originated from playing around with the Flickr API whilst creating the
 
 You can check out the experiment [here](http://flashmonkey.co.uk/flash/collagecreator/). It takes a bit of time to get a good representation of your image, so the best bet is to set it up then go off and do something else for a while (or just watch it, I find it quite interesting to see the image develop!). After a bit of time you should get a pretty good looking image like the one below.
 
-![Screenshot of collage creator experiment](/images/collagecreator/screenshot.jpg)
+![Screenshot of collage creator experiment]({{ site.images_root }}/images/collagecreator/screenshot.jpg)
 
 If you look a bit closer you’ll see all the pixels of the monkey are made up of random images.
 
-![Screenshot of collage creator experiment close up](/images/collagecreator/screenshot-zoom.jpg)
+![Screenshot of collage creator experiment close up]({{ site.images_root }}/images/collagecreator/screenshot-zoom.jpg)
 
 Creating this app was actually a lot simpler than I was expecting. To get the average color of the image I simply grab each RGB value of every pixel, then divide by the amount of pixels. For this I used some code written by [Justin Windle](http://blog.soulwire.co.uk/about). To view Justin’s code and read about how it works follow [this link](http://blog.soulwire.co.uk/flash/actionscript-3/extract-average-colours-from-bitmapdata/). Once I had the color values I just compare them to each pixel and give it a score of how similar it is to the original pixel, the longer you leave it the more likely it is to find a perfect match.
 

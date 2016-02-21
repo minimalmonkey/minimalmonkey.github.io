@@ -11,7 +11,7 @@ Recursion is [cool](http://upload.wikimedia.org/wikipedia/commons/6/62/Droste.jp
 
 ## the process of repeating items in a self-similar way
 
-You may have experienced a simple form of recursion in a clothing shop fitting room when each side of the cubicle has mirrors and you see your reflection repeated for infinity; as shown in [this photo](/images/a-nice-recursion-example/junith-mirror.jpg.
+You may have experienced a simple form of recursion in a clothing shop fitting room when each side of the cubicle has mirrors and you see your reflection repeated for infinity; as shown in [this photo]({{ site.images_root }}/images/a-nice-recursion-example/junith-mirror.jpg).
 
 Recursion is also a really powerful programming technique. In computer science it’s defined as:
 
@@ -23,7 +23,7 @@ Before I go on a little background behind this blog post. A friend of mine (no, 
 
 The solution to the problem can be visualised in the below image.
 
-![Example 1](/images/a-nice-recursion-example/example-1.png)
+![Example 1]({{ site.images_root }}/images/a-nice-recursion-example/example-1.png)
 
 I had a quiet Monday night a couple of weeks ago and being a bit of a nerd I thought I’d give the challenge a go. You know, for fun.
 
@@ -99,6 +99,6 @@ In the above example we call the **checkNeighbours** function **from within itse
 
 See the below image to visualise the order in which the code runs through and colors each cell.
 
-![Example 2](/images/a-nice-recursion-example/example-2.gif)
+![Example 2]({{ site.images_root }}/images/a-nice-recursion-example/example-2.gif)
 
 I hope this helps anyone who was struggling to get their head around what recursion is and how to use it. If it doesn’t make sense give me a shout in the comments and I’ll try to explain it further!

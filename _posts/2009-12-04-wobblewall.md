@@ -8,7 +8,7 @@ color:  red
 
 WobbleWall! Blobs… BlobbleWall!? Wasn’t really sure what to call this one but WobbleWall sounds mildly amusing so I’ve gone with that. To start off with I want to say that one of the main things that I remember from [FOTB 08](http://www.flashonthebeach.com/) was one of the speakers saying that in order to learn more in Flash you’ve just got to play around with code. Someone in the audience said *“when do I get the time? I work all day”*, to which the speaker said *“if you spend half an hour of your lunch break a day playing, that equates to 2.5 hours a week, or 130 hours a year”*. So anyway, this is something I’ve made this week on my lunch breaks (and maybe a few minutes of work time after lunch).
 
-![Screenshot of experiment](/images/wobblewall/screenshot.png)
+![Screenshot of experiment]({{ site.images_root }}/images/wobblewall/screenshot.png)
 
 So what is it? Basically it’s pretty much the same code as the [ColorWall experiment](http://flashmonkey.co.uk/flash/colorwall/) I made, but this time instead of the particles being scared of the mouse, they love it and try to get close to it (when it’s within a certain distance). The app can be viewed [here](http://flashmonkey.co.uk/flash/wobblewall/).
 

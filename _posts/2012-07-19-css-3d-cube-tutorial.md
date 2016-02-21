@@ -10,7 +10,7 @@ In my last post I talked about doing a tutorial for the [CSS 3D Clock](http://fl
 
 Before we start I should mention that unless you are viewing this in a browser that is powered by [WebKit](http://en.wikipedia.org/wiki/WebKit) you won’t see the examples. Currently that mean’s you would have to be using either Safari or Chrome.
 
-[![3D cube made using pure CSS](/images/css-3d-cube-tutorial/css-cube.png)](http://flashmonkey.co.uk/lab/css-cube/)
+[![3D cube made using pure CSS]({{ site.images_root }}/images/css-3d-cube-tutorial/css-cube.png)](http://flashmonkey.co.uk/lab/css-cube/)
 
 So let’s start by looking at the markup. It’s very simple – a wrapper then 6 divs to represent each face of the cube.
 
@@ -41,7 +41,7 @@ Most of this is simple stuff you will have seen a million times before. Height a
 
 So what is ‘preserve-3d’ and why do we need it? You will require this if you are applying 3D transformations to the children of an already transformed element. Without it the child elements will appear on their own planes and would appear flat in front of their parent, as show below.
 
-![Issue when no 'preserve-3d'](/images/css-3d-cube-tutorial/issue.png)
+![Issue when no 'preserve-3d']({{ site.images_root }}/images/css-3d-cube-tutorial/issue.png)
 
 Next we need to apply styles to the cube’s faces. The initial **.face** class is relatively straight forward. Here we just set a height and width (remember them, we’ll need those later), then just add some general aesthetic stuff like some inner shadow and opacity to make the cube look nice.
 

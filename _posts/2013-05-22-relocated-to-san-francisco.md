@@ -7,7 +7,7 @@ color:   orange
 ---
 
 
-![Golden Gate Bridge, San Francisco](/images/relocated-to-san-francisco/golden-gate-bridge.jpg)
+![Golden Gate Bridge, San Francisco]({{ site.images_root }}/images/relocated-to-san-francisco/golden-gate-bridge.jpg)
 
 After 15 amazing months living in New York City I have moved west to the mecca of technology, San Francisco. It was definitely sad to say goodbye to a city I’ve grown to love and my exit was much earlier than I had anticipated but I was presented with an opportunity in San Francisco that I just couldn’t say no to.
 

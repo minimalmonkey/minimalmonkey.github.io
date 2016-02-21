@@ -37,7 +37,7 @@
 
 .siteheader-headline {
 	margin: convert-to-em(8px) 0 convert-to-em(7px);
-	color: get-color(red);
+	color: get-color('red');
 	font-size: convert-to-em(36px);
 	transform: translateY($site-header-height - $site-nav-height);
 	transition: transform $header-open-duration;

@@ -22,7 +22,7 @@ html {
 
 @include selection {
 	color: white;
-	background: get-color(purple);
+	background: get-color('purple');
 }
 
 body {

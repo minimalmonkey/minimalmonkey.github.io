@@ -7,7 +7,7 @@ date:   2010-03-05 00:00:00
 color:  red
 ---
 
-[![Screenshot of throw physics demo](/images/simple-javascript-physics/throw.png)](http://www.flashmonkey.co.uk/html5/simple-physics/)
+[![Screenshot of throw physics demo]({{ site.images_root }}/images/simple-javascript-physics/throw.png)](http://www.flashmonkey.co.uk/html5/simple-physics/)
 
 ## Throw Physics
 
@@ -17,7 +17,7 @@ I thought it would be really nice that if you shook the browser window the balls
 
 Click [here](http://www.flashmonkey.co.uk/html5/simple-physics/) to view the throw physics demo.
 
-[![Screenshot of wave physics demo](/images/simple-javascript-physics/wave.png)](http://www.flashmonkey.co.uk/html5/wave-physics/)
+[![Screenshot of wave physics demo]({{ site.images_root }}/images/simple-javascript-physics/wave.png)](http://www.flashmonkey.co.uk/html5/wave-physics/)
 
 ## Wave Physics
 

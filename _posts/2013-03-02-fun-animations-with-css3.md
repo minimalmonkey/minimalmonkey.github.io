@@ -17,7 +17,7 @@ One of the things people have noticed most about the site is all the little touc
 
 I’ll start with the one that people seem to love the most – the flying twitter bird you can see when hovering the top right corner of the nav bar. The thing I’m most pleased about with this is that it uses **no JavaScript**.
 
-![Twitter bird sprite](/images/fun-animations-with-css3/twitter-bird-sprite.png)
+![Twitter bird sprite]({{ site.images_root }}/images/fun-animations-with-css3/twitter-bird-sprite.png)
 
 This is made possible by CSS3 animation and the sprite sheet shown above. If you haven’t played around with them yet you can read a little about them [here](http://www.w3schools.com/css3/css3_animations.asp).
 

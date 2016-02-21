@@ -8,7 +8,7 @@ color:  orange
 
 First a disclaimer. I could probably sit on this site for another 3 months tinkering with it. There’s still a few bugs I know about that need to be fixed and a long list of improvements / added features I indeed to get to. However, after a little encouragement from some good friends I knew it was time to get it out in the open and see what people think of it. I’ll continue to improve it over the next few months but for now (I guess) I’m happy with it.
 
-![Responsive site shown on multiple devices](/images/welcome-minimal-monkey/responsive.jpg)
+![Responsive site shown on multiple devices]({{ site.images_root }}/images/welcome-minimal-monkey/responsive.jpg)
 
 Just before the New Year I decided it was time to redesign my site. Initially I planned to just make the old design responsive but the markup and CSS weren’t great (damn former me – although to be fair I was still learning CSS) and I didn’t really like the design that much anyway so decided it was time for a fresh start.
 
@@ -18,8 +18,8 @@ During this time one of the designers at Fi, [Tobias van Schnieder](http://www.v
 
 I loved the stuff Tobias came up with and you can see from the screenshots below that the final site changed very little from his original designs.
 
-![Original design by Tobia, homepage](/images/welcome-minimal-monkey/design-1.png)
-![Original design by Tobia, article view](/images/welcome-minimal-monkey/design-2.png)
+![Original design by Tobias, homepage]({{ site.images_root }}/images/welcome-minimal-monkey/design-1.png)
+![Original design by Tobias, article view]({{ site.images_root }}/images/welcome-minimal-monkey/design-2.png)
 
 A couple of people I spoke to thought it was a little strange that, being a web developer, I didn’t design my own site. However, I have to disagree. Let me put it this way, if I was going to build my own house I’d get an architect to design it otherwise I’d end up living somewhere like [this](http://3.bp.blogspot.com/-_TI2dBZhUrs/TYN3rKtBCcI/AAAAAAAARjI/atdWD9ylUA8/s1600/DSC_0011.JPG).
 

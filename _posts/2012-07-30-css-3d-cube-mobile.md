@@ -8,7 +8,7 @@ color:  navy
 
 Shortly after I posted the [CSS 3D cube tutorial](http://minimalmonkey.com/css-3d-cube-tutorial/) last week my friend [Marlon](https://twitter.com/marlonicus) jumped on the comments and suggested I create a mobile version. I played around with device orientation and JavaScript earlier in the year when me and Marlon were working together at [Specialmoves](http://specialmoves.com/) so I presumed this is what he meant and it was a great idea!
 
-[![Example on an iPhone](/images/css-3d-cube-mobile/iphone-example.png)](http://flashmonkey.co.uk/lab/css-cube-orientation/)
+[![Example on an iPhone]({{ site.images_root }}/images/css-3d-cube-mobile/iphone-example.png)](http://flashmonkey.co.uk/lab/css-cube-orientation/)
 
 I’ve now had a bit of time to put it together and created both an orientation version using the device accelerometer and also a touch event version (as whenever I showed someone the orientation one they tried to spin the cube with their finger!). Before you attempt to view the links you’ll need to be using either a tablet or mobile device and viewing in a browser that is WebKit powered as with the tutorial (iPhone, iPad and Android phones should be fine). Don’t start touching your computer monitor as nothing will happen (that was mostly for my Dad). ;)
 

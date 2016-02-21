@@ -12,7 +12,7 @@ Using CSS3 transitions are great. Supporting old browsers, not so great. As I st
 Let’s take a simple image gallery like the one below. I’m using opacity and CSS3 Transitions to smoothly crossfade between images.
 
 <div style="width: 100%; max-width: 900px; height: 0px; padding-bottom: 50%;">
-	<iframe style="border: none;" name="sass-triangles" src="http://minimalmonkey.com/examples/simple-gallery/index.html" width="100%" height="450px" frameborder="0" scrolling="auto" name="sass-triangles"></iframe>
+	<iframe style="border: none;" name="sass-triangles" src="{{ site.url }}/examples/simple-gallery/index.html" width="100%" height="450px" frameborder="0" scrolling="auto" name="sass-triangles"></iframe>
 </div>
 
 This gallery works great in modern browsers but when we remove CSS opacity and transition support there is an obvious issue – the user will continuously see the last image. We could use display: none; instead of opacity but then we won’t have our smooth transitions in modern browsers.
@@ -20,7 +20,7 @@ This gallery works great in modern browsers but when we remove CSS opacity and t
 The other fallback is to use a negative margin, e.g. margin-left: -99999px; That sort of works but in modern browsers there’s no fadeout transitions, or rather the transition happens, but off the page. You see the background color pop in then the image fades in, like this.
 
 <div style="width: 100%; max-width: 900px; height: 0px; padding-bottom: 50%;">
-	<iframe style="border: none;" name="sass-triangles" src="http://minimalmonkey.com/examples/simple-gallery/index-margin.html" width="100%" height="450px" frameborder="0" scrolling="auto" name="sass-triangles"></iframe>
+	<iframe style="border: none;" name="sass-triangles" src="{{ site.url }}/examples/simple-gallery/index-margin.html" width="100%" height="450px" frameborder="0" scrolling="auto" name="sass-triangles"></iframe>
 </div>
 
 It’s close but not as smooth as it could be by having the images crossfade. The trick is to keep the negative margin in, but add it with a delay to your transitions.

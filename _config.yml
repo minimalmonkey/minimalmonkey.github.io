@@ -4,10 +4,12 @@ email: steve@minimalmonkey.com
 description: "Hello my name is Stephen Burgess."
 tagline: "Hello my name is Stephen Burgess"
 baseurl: ""
-url: "http://minimalmonkey.com"
+# url: "http://minimalmonkey.com"
+url: "http://minimalmonkeyblog.s3-website-us-west-2.amazonaws.com"
 twitter_username: minimalmonkey
 github_username:  minimalmonkey
 bug_report: "https://github.com/minimalmonkey/minimalmonkey.github.io/issues"
+images_root: "http://minimalmonkeyblog.s3-website-us-west-2.amazonaws.com"
 
 # Pagination
 per_page: 10
@@ -18,4 +20,4 @@ paginate_path: "page:num"
 # Build settings
 markdown: kramdown
 permalink: /:categories/:title/
-exclude: ['README.md', 'LICENSE', 'package.json', 'gulpfile.js', 'node_modules', 'archive']
+exclude: ['README.md', 'LICENSE', 'package.json', 'gulpfile.js', 'node_modules', 'archive', 'images']

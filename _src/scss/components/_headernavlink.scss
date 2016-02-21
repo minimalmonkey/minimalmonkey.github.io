@@ -5,7 +5,7 @@
 	letter-spacing: 2px;
 
 	&.is-selected {
-		border-bottom: 1px solid get-color(navy);
+		border-bottom: 1px solid get-color('navy');
 		transition: border-bottom 0.3s;
 
 		.is-darktheme & {
@@ -16,7 +16,7 @@
 
 .headernavlink-label {
 	&:after {
-		color: get-color(navy);
+		color: get-color('navy');
 
 		.is-darktheme & {
 			color: white;

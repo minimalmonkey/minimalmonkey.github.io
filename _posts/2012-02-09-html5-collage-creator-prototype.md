@@ -16,5 +16,5 @@ All the transitions are done using CSS transforms and simple easing algorithms i
 
 All the code is commented so check out the source, although like I said I’d probably do things very differently if I was to write it again.
 
-![Screenshot 1](/images/html5-collage-creator-prototype/screenshot-1.jpg)
-![Screenshot 2](/images/html5-collage-creator-prototype/screenshot-2.jpg)
+![Screenshot 1]({{ site.images_root }}/images/html5-collage-creator-prototype/screenshot-1.jpg)
+![Screenshot 2]({{ site.images_root }}/images/html5-collage-creator-prototype/screenshot-2.jpg)

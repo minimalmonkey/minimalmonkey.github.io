@@ -14,4 +14,4 @@ I’m very excited about joining such a great company and working with some grea
 
 I also want to say a huge thanks to [Specialmoves](http://www.specialmoves.com/) who I left in pursuit of the “American dream”. It really is a great company and even though I was only there for a relatively short time I learnt loads and made some great friends. I’m sad to be leaving such a great company prematurely, but really excited about my new adventure with Fi in New York.
 
-![Me at a New York Giants game](/images/moving-to-new-york/new-york.jpg)
+![Me at a New York Giants game]({{ site.images_root }}/images/moving-to-new-york/new-york.jpg)

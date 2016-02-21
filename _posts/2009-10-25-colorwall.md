@@ -6,13 +6,13 @@ date:   2009-10-25 00:00:00
 color:  lime
 ---
 
-[![Screenshot of colorwall experiment](/images/colorwall/screenshot.png)](http://flashmonkey.co.uk/flash/colorwall/)
+[![Screenshot of colorwall experiment]({{ site.images_root }}/images/colorwall/screenshot.png)](http://flashmonkey.co.uk/flash/colorwall/)
 
 Before you read the rest of this post, if you haven’t already done so, check out the ColorWall [here](http://flashmonkey.co.uk/flash/colorwall/).
 
 A couple of weeks ago I saw [Yugo Nakamura’s](http://yugop.com/) brilliant [wonderwall](http://wonder-wall.com/) Flash site. It’s a really original idea and one of the most impressive things I’ve seen in a while, he has done a great job of building the site. However, it got me thinking about how he made it. After a bit of a discussion with the other Flash Developers in my team we all agreed that we think it’s probably done with a 3D class library, most likely Away3D or Papervision (or maybe even one he’s developed himself). We thought that because you sometimes get weird mapping with the images as shown below, looks like a Papervision Plane with a double sided material perhaps.
 
-![Screenshot from wonderwall site](/images/colorwall/wonderwall.jpg)
+![Screenshot from wonderwall site]({{ site.images_root }}/images/colorwall/wonderwall.jpg)
 
 After playing around with the site a bit more I thought I’d like to have a go at re-creating it but with a slightly different approach (that’s assuming we were right about the 3D library approach Yugo used). If you study the way the planes move you can see that there are defined points and this gave me the idea to build a similar application but using particles rather than a 3D library, and the below examples show you the steps I took to build it (when the example swf’s loose focus I am stopping the update method, this is to save fps with so many examples on 1 page). I won’t go into too much technical detail as the files are available to download at the bottom of this post so you can play around and see the code/maths yourself.
 

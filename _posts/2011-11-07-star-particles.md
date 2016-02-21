@@ -8,4 +8,4 @@ color:  red
 
 Two posts in two days! Just made a star version of the fun particle thing I made yesterday! View a full window version [here](http://www.flashmonkey.co.uk/lab/js-particles/stars/). The stars are drawn with code and you can play around with the code on [CodePen](http://codepen.io/flash-monkey/pen/jbyKB).
 
-[![Screenshot of star particles](/images/star-particles/star-particles.png)](http://www.flashmonkey.co.uk/lab/js-particles/stars/)
+[![Screenshot of star particles]({{ site.images_root }}/images/star-particles/star-particles.png)](http://www.flashmonkey.co.uk/lab/js-particles/stars/)
