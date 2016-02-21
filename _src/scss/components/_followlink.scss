@@ -38,14 +38,11 @@ $margin: ($site-nav-height - $size) * 0.5;
 		background-image: url('/assets/images/larry.svg');
 		background-repeat: no-repeat;
 		background-size: $size;
-		// animation: birdflyin-animation 0.2s steps(4) 0 6;
-		
 		animation-name: birdflyin-animation;
 		animation-duration: 0.2s;
 		animation-timing-function: steps(4);
 		animation-delay: 0;
 		animation-iteration-count: 6;
-
 		content: '';
 	}
 
@@ -54,8 +51,6 @@ $margin: ($site-nav-height - $size) * 0.5;
 		transform: translate3d(0, 0, 0);
 
 		&:before {
-			// animation: birdflyout-animation 0.2s steps(4) 0 8;
-			
 			animation-name: birdflyout-animation;
 			animation-duration: 0.2s;
 			animation-timing-function: steps(4);
